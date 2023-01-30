@@ -53,8 +53,8 @@ function displayCharacterHUD(player) {
   
   document.getElementById("pass-turn").textContent = "Pass turn";
   if(player.riseLavaPoint) {
-    document.getElementById("pass-turn").classList.add("disabled");
-    document.getElementById("pass-turn").setAttribute("disabled", true);
+    // document.getElementById("pass-turn").classList.add("disabled");
+    // document.getElementById("pass-turn").setAttribute("disabled", true);
   } else {
     document.getElementById("pass-turn").classList.remove("disabled");
     document.getElementById("pass-turn").removeAttribute("disabled");

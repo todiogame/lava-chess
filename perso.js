@@ -29,7 +29,7 @@ lavaIcon.src = "rising.png"
 gasIcon = new Image();
 gasIcon.src = "gas.png"
 
-boulderIcon= new Image();
+boulderIcon = new Image();
 boulderIcon.src = "boulder.png"
 
 function canCast(entity, spell, targetCell) {
@@ -51,26 +51,76 @@ function canMove(entity, posCase, max) {
 }
 function canRiseLava(cell) {
     var res = false;
-    //si la case est libre et pas encore ciblee par la lave
     if (cell.floor && isFree(cell) && !cell.aoe.find(spell => spell.effect == "lava")) {
-        map.forEach(h => {
-            //si elle est a cote d'une case de lave
-            if (Hex.directions.find(d => h.distance(d.add(cell)) == 0 && h && !h.floor)) {
-                // on trouve l'anneau de la derniere case dispo
-                // for (let n = N; n >= 0; n--) {
-                //     const element = array[n];
-
-                // }
-                res = true
-            }
-        })
+      let lavaCells = 0;
+      map.forEach(h => {
+        if (Hex.directions.find(d => h.distance(d.add(cell)) == 0 && h && !h.floor)) {
+          lavaCells++;
+        }
+      });
+      res = lavaCells >= 2;
     }
     return res;
-}
+  }
 
 let onDeath = () => { console.log("raledagoni") }
 
+const LAVA_SPELL =
+    { name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 1, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
 const characters = [
+    {
+        name: "Mage",
+        src: 'mage.png',
+        maxHP: 4,
+        spells: [
+            { name: "Fireball", dealSpell: damage, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
+            { name: "Frost Nova", dealSpell: damage, range: 3, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
+            { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single", requires: "free", delay: 0, type: "tp" },
+            // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", delay: 1, }
+        ]
+    },
+    {
+        name: "Fisherman",
+        maxHP: 4,
+        src: 'fisherman.png',
+        spells: [
+            { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", delay: 0, effect: "pull", onlyFirst: true },
+            { name: "Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", delay: 1, color: GLYPH_BLUE, effect: "root", glyphIcon: rootIcon },
+            { name: "Push", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: "1" },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", delay: 1, }
+        ]
+    },
+    {
+        name: "Golem",
+        maxHP: 4,
+        src: 'golem.png',
+        spells: [
+            { name: "Boulder", dealSpell: golem_boulder, damage: 1, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_ORANGE, onMiss: "lava", glyphIcon: boulderIcon },
+            { name: "Wall", dealSpell: summon, range: 4, cooldown: 3, aoe: "wall", delay: 0, ttl: 1, src: wallImage, },
+            { name: "Explosion", dealSpell: damage, range: 0, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN },
+            // { name: "Lava triangle", range: 1, cooldown: 5, aoe: "triangle_1", delay: 1, effect: "lava" }
+        ]
+    },
+    {
+        name: "Gazeur",
+        maxHP: 4,
+        src: 'gazeur.png',
+        spells: [
+            { name: "Gaz gaz gaz", dealSpell: damage, range: 0, cooldown: 0, aoe: "single", delay: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other", glyphIcon: gasIcon },
+            { name: "Adrenaline", dealSpell: buffPM, range: 1, cooldown: 2, aoe: "single", delay: 0, type: "BUFF_PM", value: 2 },
+            { name: "Salto", dealSpell: salto, range: 1, rangeMin: 1, cooldown: 3, aoe: "single", delay: 0 },
+        ]
+    },
+    // {
+    //     name: "Terroriste",
+    //     maxHP: 4,
+    //     src: 'clown.png',
+    //     spells: [
+    //         { name: "Drop bomb", damage: 0, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: 1, src: bombImage, onMiss: "summon", onDeath: onDeath },
+    //         { name: "Kick bomb", damage: 0, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: 2, affectsOnly: "bomb" },
+    //         { name: "Surprise", damage: 0, range: 4, cooldown: 1, aoe: "single", delay: 0, effect: "switcheroo" },
+    //     ]
+    // },
     // {
     //     name: "Warrior",
     //     src: 'warrior.png',
@@ -82,17 +132,6 @@ const characters = [
     //         // { name: "Whirlwind", damage: 1, range: 1, cooldown: 5, aoe: "cone", delay: 1, }
     //     ]
     // },
-    {
-        name: "Mage",
-        src: 'mage.png',
-        maxHP: 4,
-        spells: [
-            { name: "Fireball", damage: 1, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { name: "Frost Nova", damage: 1, range: 3, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { name: "Blink", damage: 0, range: 3, cooldown: 3, aoe: "single", requires: "free", delay: 0, type: "tp" },
-            // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", delay: 1, }
-        ]
-    },
     // {
     //     name: "Ranger",
     //     maxHP: 4,
@@ -112,48 +151,6 @@ const characters = [
     //         { name: "Smoke bomb", damage: 1, range: 2, cooldown: 3, aoe: "area", delay: 1, color: GLYPH_BLUE, },
     //         { name: "Blink strike", damage: 1, range: 3, cooldown: 4, aoe: "line", delay: 1, color: GLYPH_BLUE, },
     //         // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", delay: 1, }
-    //     ]
-    // },
-    {
-        name: "Butcher",
-        maxHP: 4,
-        src: 'butcher.png',
-        spells: [
-            { name: "Hook", damage: 1, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", delay: 0, effect: "pull", onlyFirst: true },
-            { name: "Net", damage: 0, range: 4, cooldown: 2, aoe: "pair", delay: 1, color: GLYPH_BLUE, effect: "root", glyphIcon:rootIcon },
-            { name: "Push", damage: 1, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: "1" },
-            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", delay: 1, }
-        ]
-    },
-    {
-        name: "Golem",
-        maxHP: 4,
-        src: 'golem.png',
-        spells: [
-            { name: "Boulder", damage: 1, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_ORANGE, onMiss: "lava" , glyphIcon:boulderIcon},
-            { name: "Wall", range: 4, cooldown: 3, aoe: "wall", delay: 0, ttl: 1, src: wallImage, onMiss: "summon" },
-            { name: "Explosion", damage: 1, range: 0, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN },
-            // { name: "Lava triangle", range: 1, cooldown: 5, aoe: "triangle_1", delay: 1, effect: "lava" }
-        ]
-    },
-    {
-        name: "Gazeur",
-        maxHP: 4,
-        src: 'gazeur.png',
-        spells: [
-            { name: "Gaz gaz gaz", damage: 1, range: 0, cooldown: 0, aoe: "single", delay: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other" , glyphIcon: gasIcon},
-            { name: "Adrenaline", range: 1, cooldown: 2, aoe: "single", delay: 0, type: "BUFF_PM", value: 2 },
-            { name: "Salto", damage: 1, range: 1, rangeMin: 1, cooldown: 3, aoe: "single", delay: 0, effect: "salto" },
-        ]
-    },
-    // {
-    //     name: "Terroriste",
-    //     maxHP: 4,
-    //     src: 'clown.png',
-    //     spells: [
-    //         { name: "Drop bomb", damage: 0, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: 1, src: bombImage, onMiss: "summon", onDeath: onDeath },
-    //         { name: "Kick bomb", damage: 0, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: 2, affectsOnly: "bomb" },
-    //         { name: "Surprise", damage: 0, range: 4, cooldown: 1, aoe: "single", delay: 0, effect: "switcheroo" },
     //     ]
     // },
 ];

@@ -44,3 +44,5 @@ after each spell :
 
 ______________________
 fix push(2) ne pousse meme pas de 1 si la case d'arrivee est pleine
+
+ riseLava : faire que ca target les cellules qui ont au moins 2 cellules de lave a cote.

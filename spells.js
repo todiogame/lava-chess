@@ -1,10 +1,17 @@
 
 function resolveSpell(cell, spell, casterEntity) {
+    console.log("resolveSpell "+spell.name)
     h = findMapCell(cell)
-    if (checkCanCast(spell.canTarget(h))) {
-        const targetEntity = findEntityOnCell(cell);
-        spell.dealSpell(cell, spell, casterEntity, targetEntity)
-    }
+    //todo checkCanCast 
+    // if (checkCanCast(spell.canTarget(h))) {
+    let targetEntity = findEntityOnCell(cell);
+    spell.dealSpell(cell, spell, casterEntity, targetEntity)
+    // }
+    checkAnyoneInLava()
+    // make movable aoe follow
+}
+function findMapCell(cell) {
+    return map.find(h => h.distance(cell) == 0)
 }
 
 function findEntityOnCell(cell) {
@@ -31,13 +38,14 @@ function push(cell, spell, casterEntity, targetEntity) {
         let direction = (destination.subtract(casterEntity.pos));
         for (let n = 0; n < spell.value; n++) {
             destination = destination.add(direction) //loop for pushing
+            if (isFree(destination)) targetEntity.pos = destination;
         }
-        if (isFree(destination)) e.pos = destination;
+
     }
 }
 function salto(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
-        targetEntity.pos = cell.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
+        targetEntity.pos = targetEntity.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
     }
 }
 function switcheroo(cell, spell, casterEntity, targetEntity) {
@@ -67,7 +75,7 @@ function buffPM(cell, spell, casterEntity, targetEntity) {
     }
 }
 
-function lava(cell, spell, casterEntity, targetEntity) {
+function riseLava(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
         // kill entities on the cell
         killEntity(targetEntity)
@@ -94,10 +102,19 @@ function summon(cell, spell, casterEntity, targetEntity) {
 }
 
 // special for perso
-function boulder(cell, spell, casterEntity, targetEntity) {
+function golem_boulder(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
-        damage(cell, spell, casterEntity, targetEntity) 
+        damage(cell, spell, casterEntity, targetEntity)
     } else {
-        lava(cell, spell, casterEntity, targetEntity) 
+        riseLava(cell, spell, casterEntity, targetEntity)
     }
+}
+function fisherman_hook(cell, spell, casterEntity, targetEntity) {
+    let res = pull(cell, spell, casterEntity, targetEntity)
+    damage(cell, spell, casterEntity, targetEntity)
+    return res
+}
+function fisherman_push(cell, spell, casterEntity, targetEntity) {
+    damage(cell, spell, casterEntity, targetEntity)
+    push(cell, spell, casterEntity, targetEntity)
 }

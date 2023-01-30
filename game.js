@@ -8,9 +8,6 @@ let map = [];
 let lava = new Image();
 lava.src = './lavasmall.png'
 
-const LAVA_SPELL =
-    { name: "LAVA_SPELL", range: 99, aoe: "single", delay: 1, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
-
 let charactersIds = [];
 while (charactersIds.length < 4) {
     let randomInt = Math.floor(Math.random() * characters.length);
@@ -18,7 +15,6 @@ while (charactersIds.length < 4) {
         charactersIds.push(randomInt);
     }
 }
-
 
 
 var player1 = new Player(characters[charactersIds[0]], true, {
@@ -120,7 +116,7 @@ canvas.addEventListener('click', function (event) {
         }
         if (modeClic == "RISE_LAVA" && currentPlayer.riseLavaPoint >= 1 && canRiseLava(found)) {
             currentPlayer.loseRiseLavaPoint();
-            riseLava(found)
+            riseLavaGlyph(found)
         }
     }
     // drawMap();
@@ -176,75 +172,75 @@ function castSpell(perso, spell, cell, closest) {
 }
 
 
-function resolveSpell(cell, spell, casterEntity) { //perso is the spell source
-    var hit = false;
-    console.log("resolve spell " + spell.name)
-    // console.log(cell)
-    entities.forEach(e => {
-        // console.log(e)
+// function resolveSpell(cell, spell, casterEntity) { //perso is the spell source
+//     var hit = false;
+//     console.log("resolve spell " + spell.name)
+//     // console.log(cell)
+//     entities.forEach(e => {
+//         // console.log(e)
 
-        if (!(spell.affectsOnly == "self") && (!(spell.affectsOnly == "bomb") || e.name == "Drop bomb")) {
-            if (cell.distance(e.pos) == 0) {
-                hit = true;
-                if (spell.effect == "pull")
-                    e.pos = (cell.subtract(casterEntity.pos)).scale(1 / cell.distance(casterEntity.pos)).add(casterEntity.pos);
-                if (spell.effect == "push") { //by value
-                    let destination = cell.copy();
-                    let direction = (destination.subtract(casterEntity.pos));
-                    for (let n = 0; n < spell.value; n++) {
-                        destination = destination.add(direction) //loop for pushing
-                    }
-                    if (isFree(destination))
-                        e.pos = destination;
-                }
-                if (spell.effect == "salto") {
-                    e.pos = e.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
-                }
-                if (spell.effect == "switcheroo") {
-                    const save = e.pos.scale(1)
-                    e.pos = casterEntity.pos
-                    casterEntity.pos = save;
-                }
+//         if (!(spell.affectsOnly == "self") && (!(spell.affectsOnly == "bomb") || e.name == "Drop bomb")) {
+//             if (cell.distance(e.pos) == 0) {
+//                 hit = true;
+//                 if (spell.effect == "pull")
+//                     e.pos = (cell.subtract(casterEntity.pos)).scale(1 / cell.distance(casterEntity.pos)).add(casterEntity.pos);
+//                 if (spell.effect == "push") { //by value
+//                     let destination = cell.copy();
+//                     let direction = (destination.subtract(casterEntity.pos));
+//                     for (let n = 0; n < spell.value; n++) {
+//                         destination = destination.add(direction) //loop for pushing
+//                     }
+//                     if (isFree(destination))
+//                         e.pos = destination;
+//                 }
+//                 if (spell.effect == "salto") {
+//                     e.pos = e.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
+//                 }
+//                 if (spell.effect == "switcheroo") {
+//                     const save = e.pos.scale(1)
+//                     e.pos = casterEntity.pos
+//                     casterEntity.pos = save;
+//                 }
 
-                PLAYERS.forEach(p => {
-                    if (e == p.entity) {
-                        //p is the player on the cell that the spell is casted on
-                        if (p.entity != casterEntity || spell.affectsOnly != "other") {
-                            if (spell.effect == "root") p.loseMovePoint("all");
-                            if (spell.damage) p.damage(spell.damage);
-                            if (spell.type == "BUFF_PM") p.buffPM(spell.value);
-                        }
-                    }
-                });
-            }
-        }
-    });
+//                 PLAYERS.forEach(p => {
+//                     if (e == p.entity) {
+//                         //p is the player on the cell that the spell is casted on
+//                         if (p.entity != casterEntity || spell.affectsOnly != "other") {
+//                             if (spell.effect == "root") p.loseMovePoint("all");
+//                             if (spell.damage) p.damage(spell.damage);
+//                             if (spell.type == "BUFF_PM") p.buffPM(spell.value);
+//                         }
+//                     }
+//                 });
+//             }
+//         }
+//     });
 
-    if (spell.effect == "lava") cell.floor = false;
-    if (!hit) {
-        if (spell.type == "tp" && isFree(cell) && cell.floor) casterEntity.pos = cell;
+//     if (spell.effect == "lava") cell.floor = false;
+//     if (!hit) {
+//         if (spell.type == "tp" && isFree(cell) && cell.floor) casterEntity.pos = cell;
 
-        if (spell.onMiss == "summon") {
-            if (isFree(cell))
-                entities.push({
-                    name: spell.name,
-                    image: spell.src,
-                    pos: cell.copy(),
-                    owner: currentPlayer,
-                    ttl: spell.ttl,
-                    onDeath: onDeath
-                })
-        }
-        if (spell.onMiss == "lava") {
-            cell.floor = false;
-        }
-    }
+//         if (spell.onMiss == "summon") {
+//             if (isFree(cell))
+//                 entities.push({
+//                     name: spell.name,
+//                     image: spell.src,
+//                     pos: cell.copy(),
+//                     owner: currentPlayer,
+//                     ttl: spell.ttl,
+//                     onDeath: onDeath
+//                 })
+//         }
+//         if (spell.onMiss == "lava") {
+//             cell.floor = false;
+//         }
+//     }
 
-    checkAnyoneInLava()
-    return hit;
-}
+//     checkAnyoneInLava()
+//     return hit;
+// }
 
-function riseLava(cell) {
+function riseLavaGlyph(cell) {
     console.log("RISING LAVA in pos ", cell.q, cell.r, cell.s)
 
     // cell.floor = false;

@@ -1,0 +1,29 @@
+{
+  "name": "lava-chess",
+  "version": "1.0.0",
+  "description": "��#\u0000 \u0000l\u0000a\u0000v\u0000a\u0000-\u0000c\u0000h\u0000e\u0000s\u0000s\u0000\r\u0000 \u0000",
+  "main": "server.js",
+  "type": "module",
+  "directories": {
+    "lib": "lib"
+  },
+  "dependencies": {
+    "ws": "^8.12.0",
+    "wscat": "^5.2.0"
+  },
+  "devDependencies": {},
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/todiogame/lava-chess.git"
+  },
+  "author": "todiogame",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/todiogame/lava-chess/issues"
+  },
+  "homepage": "https://github.com/todiogame/lava-chess#readme"
+}

@@ -1,7 +1,7 @@
 function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
     var res = [];
-    if (AOE[aoe]?.length) AOE[aoe].forEach(e => {
-        res.push(cell.add(e))
+    if (AOE[aoe]?.length) AOE[aoe].forEach(a => {
+        res.push(cell.add(a))
     })
     else {
         if (aoe == "line") {
@@ -42,6 +42,17 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
                 // third = map.find(b => cell.subtract(found).add(cell).distance(b) == 0)
             }
             res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
+        }
+        if (aoe == "ninja_slash") {
+            AOE["ring_1"].forEach(a => {
+                res.push(cell.add(a))
+            })
+            const shadow = entities.find(e=>e.types.has(SHADOW))
+            if(shadow){
+                AOE["ring_1"].forEach(a => {
+                    res.push(shadow.pos.add(a))
+                })
+            }
         }
     }
 

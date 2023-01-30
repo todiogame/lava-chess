@@ -17,7 +17,7 @@ function initMap() {
 
     //add lava
     map.map(h => {
-        if (h.len() <= N-1) h.floor = true;
+        if (h.len() <= N - 1) h.floor = true;
     })
     //prepare aoe arrays
     map.map(h => h.aoe = []);
@@ -29,7 +29,7 @@ function initGame() {
     lava.onload = () => {
         drawMap();
     }
-    PLAYERS.forEach(p=>{
+    PLAYERS.forEach(p => {
         p.entity.image.onload = () => {
             drawEntities();
         }
@@ -46,7 +46,9 @@ function playTurn() {
 
 function beginTurn(player) {
     triggerAOE(player);
+    tickDownBuffs(player)
     killExpiredSummons(player);
+    refreshAuras() //to remove expired auras
     // if (player.team == "PLAYER")
     modeClic = "MOVE"
 }
@@ -62,9 +64,11 @@ function triggerAOE(player) {
         h.aoe = h.aoe.filter(spellEffect => {
             if (spellEffect.source == player) { // on fait peter les glyphes du joueur dont c'est le tour
                 spellEffect.delay -= 1;
-                if (spellEffect.delay <= 0) { //ils expirent
+                if (spellEffect.delay == 0) { //ils expirent
                     resolveSpell(h, spellEffect, spellEffect.source.entity);
-                    if (!spellEffect.permanent) return false;
+                    if (!spellEffect.permanent) {
+                        return false;
+                    }
                 }
             }
             return true;
@@ -72,11 +76,19 @@ function triggerAOE(player) {
     })
 }
 
-function killExpiredSummons(player){
-    entities =entities.filter(e =>{
-        if (e.owner == player){
+function tickDownBuffs(player) {
+    player.entity.auras = player.entity.auras.filter(aura => {
+        aura.ttl--
+        return (aura.ttl > 0)
+    })
+}
+
+
+function killExpiredSummons(player) {
+    entities = entities.filter(e => {
+        if (e.owner == player) {
             e.ttl--
-            if (e.ttl <=0) {
+            if (e.ttl == 0) {
                 // if (e.onDeath) e.onDeath(); //can we do this ?? yes
                 return false
             }

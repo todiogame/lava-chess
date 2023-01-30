@@ -111,13 +111,19 @@ canvas.addEventListener('click', function (event) {
             currentPlayer.loseMovePoint(); //use PM
             moveEntity(currentPlayer.entity, found)
         }
-        if (modeClic == "SPELL" && canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
-            castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, hPtClick);
+        if (modeClic == "SPELL") {
+            if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
+                castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, hPtClick);
+            } else {
+                //cancel spellcast
+                modeClic = "MOVE"
+                cleanRangeAndHover()
+            }
         }
         if (modeClic == "RISE_LAVA" && currentPlayer.riseLavaPoint >= 1 && canRiseLava(found)) {
             currentPlayer.loseRiseLavaPoint();
             // riseLavaGlyph(found)
-            castSpell(currentPlayer.entity, LAVA_SPELL, found,) 
+            castSpell(currentPlayer.entity, LAVA_SPELL, found,)
         }
     }
     // drawMap();
@@ -131,38 +137,54 @@ function moveEntity(entity, cell) {
     entity.pos = cell;
     //reset modeclic
     // modeClic = ""
+    refreshAuras();
     //clean map from range and hover indicators
     cleanRangeAndHover()
     // drawMap();
 }
 
-function castSpell(perso, spell, cell, closest) {
-    if (spell.selfCast) cell = perso.pos;
+function castSpell(caster, spell, cell, closest) {
+    if (spell.selfCast) cell = caster.pos;
     console.log("CASTING SPELL " + spell.name + " in pos ", cell.q, cell.r, cell.s)
-    var arrayHighlight = makeAOEFromCell(cell, spell.aoe, perso.pos, closest)
-    console.log(arrayHighlight)
-    let alreadyAffected = false
-    arrayHighlight.forEach(element => {
-        if (!alreadyAffected) {
-            map.map(h => {
-                if (h.distance(element) == 0) {
 
-                    // instant spell deals their effect instantly
-                    if (!spell.delay) {
-                        alreadyAffected = resolveSpell(h, spell, perso) ? true : alreadyAffected;
-                    }
-                    // glyph spells drop a glyph
-                    else {
-                        var spellEffect = {};
-                        Object.assign(spellEffect, spell);
-                        spellEffect.source = currentPlayer;
-                        if (!spellEffect.permanent || !h.aoe.find(s => s.name == spell.name)) h.aoe.push(spellEffect);
-                    }
-                }
-            });
-        }
-    })
+    if (spell.isAura) {
+        var spellEffect = {};
+        Object.assign(spellEffect, spell);
+        spellEffect.source = currentPlayer;
+        caster.auras.push(spellEffect)
+    } else {
+        var arrayHighlight = makeAOEFromCell(cell, spell.aoe, caster.pos, closest)
+        // console.log(arrayHighlight)
+        let alreadyAffected = false
+        arrayHighlight.forEach(element => {
+            if (!alreadyAffected) {
+                map.map(h => {
+                    if (h.distance(element) == 0) {
 
+                        // instant spell deals their effect instantly
+                        if (!spell.delay) {
+                            alreadyAffected = resolveSpell(h, spell, caster) ? true : alreadyAffected;
+                        }
+                        // glyph spells drop a glyph
+                        else {
+                            var spellEffect = {};
+                            Object.assign(spellEffect, spell);
+                            spellEffect.source = currentPlayer;
+                            if (h.floor && (!spellEffect.permanent || !h.aoe.find(s => s.name == spell.name)))
+                                h.aoe.push(spellEffect);
+                        }
+                    }
+                });
+            }
+        })
+    }
+    // CANCELED
+    // if(spell.oncast){ // effects that happen immediately for delayed spells
+    //     //ex: ninja shadow casts spell too => remplaced par une autre AOE
+    //     spell.onCast(perso, spell, cell, closest)
+    // }
+
+    refreshAuras(); //to show new auras
     //spell goes on cooldown
     spell.currentCD = spell.cooldown;
     //reset modeclic
@@ -170,23 +192,25 @@ function castSpell(perso, spell, cell, closest) {
     //clean map from range and hover indicators
     cleanRangeAndHover()
     // drawMap();
+    //todo rembourser le CD si le spell a foire
 }
 
-function riseLavaGlyph(cell) {
-    console.log("RISING LAVA in pos ", cell.q, cell.r, cell.s)
+//we dont use anymore, the gameplay is 3 adjacent cells
+// function riseLavaGlyph(cell) {
+//     console.log("RISING LAVA in pos ", cell.q, cell.r, cell.s)
 
-    // cell.floor = false;
-    //maj : add a lava glyph
-    var lavaSpell = {};
-    Object.assign(lavaSpell, LAVA_SPELL);
-    lavaSpell.source = currentPlayer;
-    cell.aoe.push(lavaSpell);
-    //reset modeclic
-    modeClic = "MOVE"
-    //clean map from range and hover indicators
-    cleanRangeAndHover()
-    // drawMap();
-}
+//     // cell.floor = false;
+//     //maj : add a lava glyph
+//     var lavaSpell = {};
+//     Object.assign(lavaSpell, LAVA_SPELL);
+//     lavaSpell.source = currentPlayer;
+//     cell.aoe.push(lavaSpell);
+//     //reset modeclic
+//     modeClic = "MOVE"
+//     //clean map from range and hover indicators
+//     cleanRangeAndHover()
+//     // drawMap();
+// }
 
 function checkAnyoneInLava() {
     entities = entities.filter(e => {
@@ -203,4 +227,30 @@ function checkAnyoneInLava() {
 
 function castSpellOnMove(s, entity, cell) {
     resolveSpell(cell, spell, entity)
+}
+
+function refreshAuras() {
+    //vide les auras de la map
+    map.forEach(h => h.aoe = h.aoe.filter(aoe => !aoe.isAura))
+    // boucle sur les entities pour remettre les auras
+    entities.forEach(e => {
+        if (e.auras?.length) {
+            e.auras.forEach(aura => {
+                //get aoe from aura
+                //calculate destination cells on the map
+                let listCells = makeAOEFromCell(e.pos, aura.aoe);
+                listCells.forEach(element => {
+                    //apply aoe on the map
+                    map.forEach(h => {
+                        if (h.distance(element) == 0) {
+                            //copy aura and push on all cells
+                            var spellEffect = {};
+                            Object.assign(spellEffect, aura);
+                            h.aoe.push(spellEffect);
+                        }
+                    });
+                })
+            })
+        }
+    })
 }

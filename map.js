@@ -27,6 +27,7 @@ let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;
 
 function drawMap() {
+    // console.log(map)
     let colorHover = SPELL_HOVER;
     let colorRange = SPELL_RANGE;
     if (modeClic == "MOVE") {

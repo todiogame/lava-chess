@@ -8,6 +8,8 @@ class Player {
 
         this.entity.image = new Image();
         this.entity.image.src = this.src;
+        this.entity.auras = [];
+        this.entity.types = new Set([])
 
         this.movePoint = 1;
         this.riseLavaPoint = 1;
@@ -15,6 +17,7 @@ class Player {
         this.spells.forEach(s => {
             s.currentCD = 0;
         });
+
     }
 
 

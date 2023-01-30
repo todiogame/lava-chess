@@ -2,7 +2,6 @@ todo:
 
 
 - hover : infobulle
-- glyphes avec images en transparence
 ______________________
 rework des spells :
 chaque entity recoit des types lors de sa creation
@@ -11,38 +10,13 @@ ex : [ENTITY, PLAYER, SUMMON, BOMB]
 chaque sort a un attribut canTarget qui contient une liste de targets possibles, (meme que la haut + floor + lava + any)
 si un match c'est bon 
 
-les sorts ont eux meme leur fonction dealSpell() par ex
-{ name: "Adrenaline", range: 1, cooldown: 2, aoe: "single", delay: 0, dealSpell: buffPM(2),
-canTarget : [ENTITY] },
-
-autre ex
-{ name: "Kick bomb", range: 1, rangeMin: 0, cooldown: 2, aoe: "single", delay: 0, dealSpell: push, affectsOnly:[BOMB] },
-{ name: "Frost Nova", range: 3, cooldown: 2, aoe: "ring_1", delay: 1,dealSpell:damage, color: GLYPH_BROWN, canTarget : [ANY] },
-{ name: "Blink", range: 3, cooldown: 3, aoe: "single", delay: 0, dealSpell:moveEntity},
-
-probleme : quels arguments prends la fonction dealSpell ? 
-=> les meme que la fonction resolveSpell
-
-on aurait donc enfin une bibliotheque de spells
-
-et la fonction resolveSpell() :
-elle check la condition de cast
-et elle appelle dealSpell(memes arguments)
-
-dealspell:
-elle boucle si necessaire sur les entities (faire une sous fonction)
 ______________________
 
-AOE qui suivent les unites : ex: bomb et explosion
-entity.aoe = []
-boucler dessus aussi sur drawMap
-
-
-after each spell :
-- update AOEs following entities
-- check anyone in lava
 
 ______________________
-fix push(2) ne pousse meme pas de 1 si la case d'arrivee est pleine
-
- riseLava : faire que ca target les cellules qui ont au moins 2 cellules de lave a cote.
+ revoir le systeme de summons avec des entites toutes pretes
+ avec des attributs :
+ types
+ unique
+ src
+ ttl

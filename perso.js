@@ -10,13 +10,20 @@ function drawPerso(entity) {
     }
 }
 
+const SHADOW = "SHADOW";
+const BOMB = "BOMB";
 
+//summons
 wallImage = new Image();
 wallImage.src = "wall.png";
 
 bombImage = new Image();
 bombImage.src = "bomb.png";
 
+shadowImage = new Image();
+shadowImage.src = "shadow.png"
+
+//glyphs
 damageIcon = new Image();
 damageIcon.src = "fire_icon.png";
 
@@ -50,7 +57,7 @@ function canMove(entity, posCase, max) {
     return res
 }
 function canRiseLava(cell, bypassEntityCheck) {
-    // autorise seulement si la case est a cote de 2 cases de lave
+    // autorise seulement si la case est a cote de 3 cases de lave
     var res = false;
     if ((isFree(cell) || bypassEntityCheck ) && cell.floor &&  !cell.aoe.find(spell => spell.effect == "lava")) {
       let lavaCells = 0;
@@ -67,27 +74,29 @@ function canRiseLava(cell, bypassEntityCheck) {
 let onDeath = () => { console.log("raledagoni") }
 
 const LAVA_SPELL =
-    { name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
+    { name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, 
+    // color: ORANGE, effect: "lava", glyphIcon: lavaIcon
+ };
 const characters = [
-    {
-        name: "Mage",
-        src: 'mage.png',
-        maxHP: 4,
-        spells: [
-            { name: "Fireball", dealSpell: damage, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { name: "Frost Nova", dealSpell: damage, range: 3, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single", requires: "free", delay: 0, type: "tp" },
-            // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", delay: 1, }
-        ]
-    },
+    // {
+    //     name: "Mage",
+    //     src: 'mage.png',
+    //     maxHP: 4,
+    //     spells: [
+    //         { name: "Fireball", dealSpell: damage, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
+    //         { name: "Frost Nova", dealSpell: damage, range: 3, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
+    //         { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single", requires: "free", delay: 0, type: "tp" },
+    //         // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", delay: 1, }
+    //     ]
+    // },
     {
         name: "Fisherman",
         maxHP: 4,
         src: 'fisherman.png',
         spells: [
-            { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", delay: 0, effect: "pull", onlyFirst: true },
-            { name: "Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", delay: 1, color: GLYPH_BLUE, effect: "root", glyphIcon: rootIcon },
-            { name: "Push", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: "1" },
+            { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", delay: 0,  onlyFirst: true },
+            { name: "Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", delay: 1, color: GLYPH_BLUE,  glyphIcon: rootIcon },
+            { name: "Belly bump", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, value: "1" },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", delay: 1, }
         ]
     },
@@ -98,7 +107,7 @@ const characters = [
         spells: [
             { name: "Boulder", dealSpell: golem_boulder, damage: 1, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_ORANGE, onMiss: "lava", glyphIcon: boulderIcon },
             { name: "Wall", dealSpell: summon, range: 4, cooldown: 3, aoe: "wall", delay: 0, ttl: 1, src: wallImage, },
-            { name: "Explosion", dealSpell: damage, range: 0, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN },
+            { name: "Explosion", dealSpell: damage, range: 0, cooldown: 2, aoe: "ring_1", isAura:true, delay: 1, color: GLYPH_BROWN },
             // { name: "Lava triangle", range: 1, cooldown: 5, aoe: "triangle_1", delay: 1, effect: "lava" }
         ]
     },
@@ -108,7 +117,7 @@ const characters = [
         src: 'gazeur.png',
         spells: [
             { name: "Gaz gaz gaz", dealSpell: damage, range: 0, cooldown: 0, aoe: "single", delay: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other", glyphIcon: gasIcon },
-            { name: "Adrenaline", dealSpell: buffPM, range: 1, cooldown: 2, aoe: "single", delay: 0, type: "BUFF_PM", value: 2 },
+            { name: "Adrenaline", dealSpell: buffPM, range: 0, cooldown: 2, aoe: "single", delay: 0, type: "BUFF_PM", value: 2 },
             { name: "Salto", dealSpell: salto, range: 1, rangeMin: 1, cooldown: 3, aoe: "single", delay: 0 },
         ]
     },
@@ -117,11 +126,21 @@ const characters = [
     //     maxHP: 4,
     //     src: 'clown.png',
     //     spells: [
-    //         { name: "Drop bomb", damage: 0, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: 1, src: bombImage, onMiss: "summon", onDeath: onDeath },
-    //         { name: "Kick bomb", damage: 0, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, effect: "push", value: 2, affectsOnly: "bomb" },
-    //         { name: "Surprise", damage: 0, range: 4, cooldown: 1, aoe: "single", delay: 0, effect: "switcheroo" },
+    //         { name: "Drop bomb", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: 1, src: bombImage, },
+    //         { name: "Kick bomb",  dealSpell: push,  range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 0, value: 2, affectsOnly: "bomb" },
+    //         { name: "Surprise",  range: 4, cooldown: 1, aoe: "single", delay: 0, effect: "switcheroo" },
     //     ]
     // },
+    {
+        name: "Ninja",
+        maxHP: 4,
+        src: 'ninja.png',
+        spells: [
+            { name: "Drop shadow", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: -1, src: shadowImage, summonTypes : [SHADOW], summonIsUnique :true},
+            { name: "Spinning slash",  dealSpell: damage, range: 0, cooldown: 2, aoe: "ninja_slash", delay: 1, color: GLYPH_BROWN, isAura : true },
+            { name: "Illusion", dealSpell: switcheroo, range: 99, cooldown: 1, aoe: "single", delay: 0,  canCast : [SHADOW]},
+        ]
+    },
     // {
     //     name: "Warrior",
     //     src: 'warrior.png',

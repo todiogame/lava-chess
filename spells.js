@@ -1,6 +1,5 @@
 
 function resolveSpell(cell, spell, casterEntity) {
-    console.log("resolveSpell "+spell.name)
     h = findMapCell(cell)
     //todo checkCanCast 
     // if (checkCanCast(spell.canTarget(h))) {
@@ -10,6 +9,7 @@ function resolveSpell(cell, spell, casterEntity) {
     checkAnyoneInLava()
     // make movable aoe follow
 }
+//HELPERS
 function findMapCell(cell) {
     return map.find(h => h.distance(cell) == 0)
 }
@@ -24,6 +24,7 @@ function killEntity(entity) {
     entities = entities.filter(e => e != entity)
 }
 
+// GENERIC
 // deaspell correspond a la fonction du spell 
 function pull(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
@@ -51,7 +52,7 @@ function salto(cell, spell, casterEntity, targetEntity) {
 function switcheroo(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
         const save = cell.copy()
-        e.pos = casterEntity.pos
+        targetEntity.pos = casterEntity.pos
         casterEntity.pos = save;
     }
 }
@@ -80,6 +81,7 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
         // kill entities on the cell
         killEntity(targetEntity)
     }
+    cell.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
     cell.floor = false;
 }
 
@@ -88,8 +90,15 @@ function blink(cell, spell, casterEntity, targetEntity) {
         casterEntity.pos = cell;
 }
 
-function summon(cell, spell, casterEntity, targetEntity) {
-    if (!targetEntity) //empty cell
+function summon(cell, spell, casterEntity, targetEntity) { 
+    if (!targetEntity){ //empty cell
+        //if unique summon, kill previous one
+        if(spell.summonIsUnique){
+            entities = entities.filter(e=>{
+                return e.name != spell.name || e.casterEntity != casterEntity
+            })
+        }
+
         entities.push({
             name: spell.name,
             image: spell.src,
@@ -97,8 +106,11 @@ function summon(cell, spell, casterEntity, targetEntity) {
             pos: cell.copy(),
             owner: currentPlayer,
             casterEntity: casterEntity,
+            types: new Set(spell.summonTypes),
+            auras : spell.auras
             // onDeath: spell.onDeath
         })
+    }
 }
 
 // special for perso

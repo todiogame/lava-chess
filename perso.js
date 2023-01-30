@@ -59,7 +59,7 @@ function canRiseLava(cell, bypassEntityCheck) {
           lavaCells++;
         }
       });
-      res = lavaCells >= 2;
+      res = lavaCells >= 3;
     }
     return res;
   }

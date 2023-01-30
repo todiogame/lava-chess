@@ -1,0 +1,52 @@
+todo:
+
+- faire un hook comme sur dota : il passe sur chaque case et attrape la premiere entite et la ramene case 1
+- ajouter 1 perso : 
+
+le gazeur :
+- passif : gaz : quand il bouge, la case d'ou il vient devient du gaz : glyphe vert permanent
+- boost PM : +2 PM, 2 tours CD
+- retournette
+- enlever lave gasee
+- le orange cache les glyphes..
+- le glyphe ne petera jamais quand le mec => solution : etat mort
+-probleme de lave qui monte trop vite au milieu
+- bug push + faire salto check empty
+
+- hover : infobulle
+- glyphes avec images en transparence
+
+
+- version PVM ????
+
+rework des spells :
+chaque entity recoit des types lors de sa creation
+ex : [ENTITY, PLAYER, SUMMON, BOMB]
+
+chaque sort a un attribut canTarget qui contient une liste de targets possibles, (meme que la haut + floor + lava + any)
+si un match c'est bon 
+
+les sorts ont eux meme leur fonction dealSpell() par ex
+{ name: "Adrenaline", range: 1, cooldown: 2, aoe: "single", delay: 0, dealSpell: buffPM(2),
+canTarget : [ENTITY] },
+
+autre ex
+{ name: "Kick bomb", range: 1, rangeMin: 0, cooldown: 2, aoe: "single", delay: 0, dealSpell: push, affectsOnly:[BOMB] },
+{ name: "Frost Nova", range: 3, cooldown: 2, aoe: "ring_1", delay: 1,dealSpell:damage, color: GLYPH_BROWN, canTarget : [ANY] },
+{ name: "Blink", range: 3, cooldown: 3, aoe: "single", delay: 0, dealSpell:moveEntity},
+
+probleme : quels arguments prends la fonction dealSpell ? 
+=> les meme que la fonction resolveSpell
+
+on aurait donc enfin une bibliotheque de spells
+
+et la fonction resolveSpell() :
+elle check la condition de cast
+et elle appelle dealSpell(memes arguments)
+
+dealspell:
+elle boucle si necessaire sur les entities (faire une sous fonction)
+
+ex: push():
+
+

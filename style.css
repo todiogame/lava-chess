@@ -1,0 +1,72 @@
+.grid-container {
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* one column for canvas, one column for hud*/
+}
+
+#canvas {
+  grid-column: 1 / 2; /* canvas will take the first column */
+  width: 700px;
+  height: 600px;
+}
+
+#character-hud-container {
+  grid-column: 2 / 3; /* hud will take the second column */
+  overflow-y: scroll;
+}
+
+.character-hud {
+  background-color: #f2f2f2;
+  padding: 10px;
+  border-radius: 5px;
+}
+
+.current-hp {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+}
+
+.spells button {
+  background-color: #af5e4c;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.spells button:hover {
+  background-color: #8e3e3e;
+}
+
+.move button {
+  background-color: #4CAF50;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.move button:hover {
+  background-color: #3e8e41;
+}
+
+
+.rise-lava button {
+  background-color: #d8872a;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.rise-lava button:hover {
+  background-color: #946324;
+}
+
+.spells .disabled{
+  background-color:gray;
+  pointer-events:none;
+}

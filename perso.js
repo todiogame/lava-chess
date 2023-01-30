@@ -49,9 +49,10 @@ function canMove(entity, posCase, max) {
     res = (entity?.pos?.distance(posCase) <= max) && isFree(posCase) && posCase.floor; //and other blocked cases
     return res
 }
-function canRiseLava(cell) {
+function canRiseLava(cell, bypassEntityCheck) {
+    // autorise seulement si la case est a cote de 2 cases de lave
     var res = false;
-    if (cell.floor && isFree(cell) && !cell.aoe.find(spell => spell.effect == "lava")) {
+    if ((isFree(cell) || bypassEntityCheck ) && cell.floor &&  !cell.aoe.find(spell => spell.effect == "lava")) {
       let lavaCells = 0;
       map.forEach(h => {
         if (Hex.directions.find(d => h.distance(d.add(cell)) == 0 && h && !h.floor)) {
@@ -66,7 +67,7 @@ function canRiseLava(cell) {
 let onDeath = () => { console.log("raledagoni") }
 
 const LAVA_SPELL =
-    { name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 1, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
+    { name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
 const characters = [
     {
         name: "Mage",

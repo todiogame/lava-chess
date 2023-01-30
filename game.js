@@ -9,25 +9,35 @@ let lava = new Image();
 lava.src = './lavasmall.png'
 
 const LAVA_SPELL =
-    { name: "LAVA_SPELL", range: 99, aoe: "single", delay: 1, color: ORANGE, effect: "lava" };
+    { name: "LAVA_SPELL", range: 99, aoe: "single", delay: 1, color: ORANGE, effect: "lava", glyphIcon: lavaIcon };
 
-var player2 = new Player(characters[6], false, {
-    pos: new Hex(-3, 0, 3),
+let charactersIds = [];
+while (charactersIds.length < 4) {
+    let randomInt = Math.floor(Math.random() * characters.length);
+    if (!charactersIds.includes(randomInt)) {
+        charactersIds.push(randomInt);
+    }
+}
+
+
+
+var player1 = new Player(characters[charactersIds[0]], true, {
+    pos: new Hex(-3, -1, 4),
 })
-var player1 = new Player(characters[7], true, {
-    pos: new Hex(-2, 0, 2),
+var player2 = new Player(characters[charactersIds[1]], false, {
+    pos: new Hex(3, 1, -4),
 })
-var player4 = new Player(characters[4], false, {
-    pos: new Hex(2, 0, -2),
+var player3 = new Player(characters[charactersIds[3]], true, {
+    pos: new Hex(-4, 1, 3),
 })
-var player3 = new Player(characters[1], true, {
-    pos: new Hex(3, -1, -2),
+var player4 = new Player(characters[charactersIds[2]], false, {
+    pos: new Hex(4, -1, -3),
 })
 
 var PLAYERS = [
     player1,
-    // player2,
-    // player3,
+    player2,
+    player3,
     player4
 ];
 var idCurrentPlayer = 0; //start with player1
@@ -45,7 +55,7 @@ ordonanceur();
 
 canvas.onmousemove = function (e) {
     console.log("hover")
-    map.map(b => b.fill = false)
+    map.map(b => b.hover = false)
 
     var ptHover = new Point(e.pageX - canvasLeft, e.pageY - canvasTop)
     let hPtHover = (layout.pixelToHex(ptHover));
@@ -57,7 +67,7 @@ canvas.onmousemove = function (e) {
 
         //show move indicator
         if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
-            found.fill = true;
+            found.hover = true;
         }
 
         //show spell aoe indicator
@@ -66,12 +76,12 @@ canvas.onmousemove = function (e) {
                 var arrayHighlight = makeAOEFromCell(found, currentPlayer.spells[spellID].aoe, currentPlayer.entity.pos, hPtHover)
                 map.map(h => {
                     arrayHighlight.forEach(element => {
-                        if (h.distance(element) == 0) h.fill = true;
+                        if (h.distance(element) == 0) h.hover = true;
                     });
                 })
             }
         } else if (modeClic == "RISE_LAVA") {
-            if (canRiseLava(found)) found.fill = true;
+            if (canRiseLava(found)) found.hover = true;
         }
     }
     // drawMap()
@@ -92,7 +102,7 @@ function isFree(cellToCheck) { //cell contains no entity
 
 canvas.addEventListener('click', function (event) {
     console.log("click")
-    map.map(h => h.fill = false)
+    map.map(h => h.hover = false)
 
     let ptClick = new Point(event.pageX - canvasLeft, event.pageY - canvasTop)
     let hPtClick = (layout.pixelToHex(ptClick));
@@ -190,12 +200,12 @@ function resolveSpell(cell, spell, casterEntity) { //perso is the spell source
                 if (spell.effect == "salto") {
                     e.pos = e.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
                 }
-                if (spell.effect == "switcheroo"){
-                    const save = e.pos.scale(1) 
+                if (spell.effect == "switcheroo") {
+                    const save = e.pos.scale(1)
                     e.pos = casterEntity.pos
                     casterEntity.pos = save;
                 }
-          
+
                 PLAYERS.forEach(p => {
                     if (e == p.entity) {
                         //p is the player on the cell that the spell is casted on
@@ -209,10 +219,10 @@ function resolveSpell(cell, spell, casterEntity) { //perso is the spell source
             }
         }
     });
-    
+
     if (spell.effect == "lava") cell.floor = false;
     if (!hit) {
-        if (spell.type == "tp" && isFree(h) && h.floor) moveEntity(perso, h)
+        if (spell.type == "tp" && isFree(cell) && cell.floor) casterEntity.pos = cell;
 
         if (spell.onMiss == "summon") {
             if (isFree(cell))
@@ -222,7 +232,7 @@ function resolveSpell(cell, spell, casterEntity) { //perso is the spell source
                     pos: cell.copy(),
                     owner: currentPlayer,
                     ttl: spell.ttl,
-                    onDeath:onDeath
+                    onDeath: onDeath
                 })
         }
         if (spell.onMiss == "lava") {

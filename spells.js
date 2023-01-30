@@ -88,23 +88,16 @@ function summon(cell, spell, casterEntity, targetEntity) {
             ttl: spell.ttl,
             pos: cell.copy(),
             owner: currentPlayer,
-            casterEntity : casterEntity,
+            casterEntity: casterEntity,
             // onDeath: spell.onDeath
         })
 }
 
-
-
-
-// 
-
-if (spell.effect == "lava") cell.floor = false;
-if (!hit) {
-    if (spell.type == "tp" && isFree(h) && h.floor) moveEntity(perso, h)
-
-    if (spell.onMiss == "summon") {
-    }
-    if (spell.onMiss == "lava") {
-        cell.floor = false;
+// special for perso
+function boulder(cell, spell, casterEntity, targetEntity) {
+    if (targetEntity) {
+        damage(cell, spell, casterEntity, targetEntity) 
+    } else {
+        lava(cell, spell, casterEntity, targetEntity) 
     }
 }

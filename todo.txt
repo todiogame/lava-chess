@@ -1,24 +1,9 @@
 todo:
 
-- faire un hook comme sur dota : il passe sur chaque case et attrape la premiere entite et la ramene case 1
-- ajouter 1 perso : 
-
-le gazeur :
-- passif : gaz : quand il bouge, la case d'ou il vient devient du gaz : glyphe vert permanent
-- boost PM : +2 PM, 2 tours CD
-- retournette
-- enlever lave gasee
-- le orange cache les glyphes..
-- le glyphe ne petera jamais quand le mec => solution : etat mort
--probleme de lave qui monte trop vite au milieu
-- bug push + faire salto check empty
 
 - hover : infobulle
 - glyphes avec images en transparence
-
-
-- version PVM ????
-
+______________________
 rework des spells :
 chaque entity recoit des types lors de sa creation
 ex : [ENTITY, PLAYER, SUMMON, BOMB]
@@ -46,7 +31,16 @@ et elle appelle dealSpell(memes arguments)
 
 dealspell:
 elle boucle si necessaire sur les entities (faire une sous fonction)
+______________________
 
-ex: push():
+AOE qui suivent les unites : ex: bomb et explosion
+entity.aoe = []
+boucler dessus aussi sur drawMap
 
 
+after each spell :
+- update AOEs following entities
+- check anyone in lava
+
+______________________
+fix push(2) ne pousse meme pas de 1 si la case d'arrivee est pleine

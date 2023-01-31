@@ -5,10 +5,8 @@ Ajouter description
 - hover : infobulle
 bugfix : salto dams le mur
 rework gazeur ?
-ninja instant spell ?
-enelver les AOE des morts
 rembourser le CD si le spell a foire
-
+gerer la fin de partie quand on ne peux plus enlever de cases
 ______________________
  revoir le systeme de summons avec des entites toutes pretes
  avec des attributs :

@@ -22,7 +22,7 @@ lava.onload = () => {
 
 
 canvas.onmousemove = function (e) {
-    console.log("hover")
+    // console.log("hover")
     map.map(b => b.hover = false)
 
     var ptHover = new Point(e.pageX - canvasLeft, e.pageY - canvasTop)
@@ -69,7 +69,7 @@ function isFree(cellToCheck) { //cell contains no entity
 }
 
 canvas.addEventListener('click', function (event) {
-    console.log("click, current modeclilk " + modeClic)
+    // console.log("click, current modeclilk " + modeClic)
     map.map(h => h.hover = false)
 
     let ptClick = new Point(event.pageX - canvasLeft, event.pageY - canvasTop)
@@ -92,9 +92,7 @@ canvas.addEventListener('click', function (event) {
                 cleanRangeAndHover()
             }
         }
-        if (modeClic == "RISE_LAVA" && currentPlayer.riseLavaPoint >= 1 && canRiseLava(found)) {
-            currentPlayer.loseRiseLavaPoint();
-            // riseLavaGlyph(found)
+        if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
             castSpell(currentPlayer.entity, LAVA_SPELL, found,)
             passTurn();
         }
@@ -177,8 +175,8 @@ function checkAnyoneInLava() {
 }
 
 function refreshAuras() {
-    //vide les auras de la map
-    map.forEach(h => h.aoe = h.aoe.filter(aoe => !aoe.isAura))
+    //vide les auras de la map (and remove gas over lava)
+    map.forEach(h => h.aoe = h.aoe.filter(aoe => !aoe.isAura && !(!h.floor && aoe.permanent)));
     // boucle sur les entities pour remettre les auras
     entities.forEach(e => {
         if (e.auras?.length) {

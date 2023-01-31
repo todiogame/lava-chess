@@ -1,12 +1,14 @@
 
 function resolveSpell(cell, spell, casterEntity) {
-    h = findMapCell(cell)
-    //todo checkCanCast 
-    // if (checkCanCast(spell.canTarget(h))) {
-    let targetEntity = findEntityOnCell(cell);
-    let result = spell.dealSpell(cell, spell, casterEntity, targetEntity)
-    // }
+    let result
+    targetCell = findMapCell(cell)
+    console.log(canCast(casterEntity, spell, targetCell))
+    if (canCast(casterEntity, spell, targetCell)) {
+        let targetEntity = findEntityOnCell(targetCell);
+        result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity)
+    }
     checkAnyoneInLava()
+
     return result;
 }
 //HELPERS
@@ -81,8 +83,10 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
         // kill entities on the cell
         killEntity(targetEntity)
     }
-    cell.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
-    cell.floor = false;
+    cellM = findMapCell(cell);
+    cellM.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
+    cellM.floor = false;
+
 }
 
 function blink(cell, spell, casterEntity, targetEntity) {

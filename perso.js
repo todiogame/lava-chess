@@ -49,7 +49,7 @@ boulderIcon.src = "boulder.png"
 function canCast(caster, spell, targetCell) {
     //check range
     if (outOfRange(caster, spell, targetCell)) return false;
-
+console.log("on a la range")
     //check affects types :
     let isAffected = false;
     if (spell.canTarget?.includes(ANY)) {
@@ -108,7 +108,7 @@ let onDeath = () => { console.log("raledagoni") }
 
 const LAVA_SPELL =
 {
-    name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0,
+    name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, canTarget : [EMPTY]
     // color: ORANGE, effect: "lava", glyphIcon: lavaIcon
 };
 const characters = [

@@ -12,7 +12,6 @@ class Player {
         this.entity.types = [PLAYER, ENTITY]
 
         this.movePoint = 1;
-        this.riseLavaPoint = 1;
         this.maxHP = 4; //every player has got 4 max hp
         this.currentHP = this.maxHP;
         this.spells.forEach(s => {
@@ -45,9 +44,6 @@ class Player {
     root() {
         console.log("remove all PM from " + this.name)
         this.movePoint = 0;
-    }
-    loseRiseLavaPoint() {
-        this.riseLavaPoint -= 1;
     }
 
     die() {

@@ -46,16 +46,16 @@ function initGame() {
 
 
     player1 = new Player(characters[charactersIds[0]], true, {
-        pos: new Hex(0,-3,3),
+        pos: new Hex(0, -3, 3),
     })
     player2 = new Player(characters[charactersIds[1]], false, {
-        pos: new Hex(0,3,-3),
+        pos: new Hex(0, 3, -3),
     })
     player3 = new Player(characters[charactersIds[3]], true, {
-        pos: new Hex(3,-3,0),
+        pos: new Hex(3, -3, 0),
     })
     player4 = new Player(characters[charactersIds[2]], false, {
-        pos: new Hex(-3,3,0),
+        pos: new Hex(-3, 3, 0),
     })
 
     PLAYERS = [
@@ -106,7 +106,6 @@ function beginTurn(player) {
 function endTurn(player) {
     console.log("endturn, refill points for " + player.name)
     player.movePoint = 1;
-    player.riseLavaPoint = 1;
     reduceCD(player);
 }
 
@@ -115,9 +114,9 @@ function triggerAOE(player) {
         h.aoe = h.aoe.filter(spellEffect => {
             if (spellEffect.source == player) { // on fait peter les glyphes du joueur dont c'est le tour
                 spellEffect.delay -= 1;
-                if (spellEffect.delay == 0) { //ils expirent
+                if (spellEffect.delay <= 0) { //ils expirent
                     resolveSpell(h, spellEffect, spellEffect.source.entity);
-                    if (!spellEffect.permanent) {
+                    if (!(spellEffect.permanent)) {
                         return false;
                     }
                 }

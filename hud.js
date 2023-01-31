@@ -1,6 +1,5 @@
 
 function clickSpell(id) {
-  console.log("clicspell")
   modeClic = "SPELL"
   spellID = id
   cleanRangeAndHover();
@@ -17,7 +16,7 @@ function clickMove() {
 
 
 function clickRiseLava() {
-  if (currentPlayer.riseLavaPoint) modeClic = "RISE_LAVA"
+  modeClic = "RISE_LAVA"
   cleanRangeAndHover();
   showCastRange();
   // drawMap();

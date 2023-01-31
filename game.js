@@ -1,53 +1,25 @@
-let modeClic = "MOVE"; //MOVE or SPELL
-let spellID = 0; //0 to 3
+let modeClic
+let spellID
 //map
-N = 5;
-let map = [];
-
+let map
 // Create our image
-let lava = new Image();
-lava.src = './lavasmall.png'
+let lava
+let charactersIds
+var player1
+var player2
+var player3
+var player4
 
-let charactersIds = [];
-while (charactersIds.length < 4) {
-    let randomInt = Math.floor(Math.random() * characters.length);
-    if (!charactersIds.includes(randomInt)) {
-        charactersIds.push(randomInt);
-    }
+var PLAYERS
+var idCurrentPlayer
+var currentPlayer
+
+var entities
+ordonanceur();
+lava.onload = () => {
+    Anim.mainLoop()
 }
 
-
-var player1 = new Player(characters[charactersIds[0]], true, {
-    pos: new Hex(-3, -1, 4),
-})
-var player2 = new Player(characters[charactersIds[1]], false, {
-    pos: new Hex(3, 1, -4),
-})
-var player3 = new Player(characters[charactersIds[3]], true, {
-    pos: new Hex(-4, 1, 3),
-})
-var player4 = new Player(characters[charactersIds[2]], false, {
-    pos: new Hex(4, -1, -3),
-})
-
-var PLAYERS = [
-    player1,
-    player2,
-    player3,
-    player4
-];
-var idCurrentPlayer = 0; //start with player1
-var currentPlayer = PLAYERS[idCurrentPlayer]
-
-var entities = [];
-PLAYERS.forEach(p => entities.push(p.entity))
-
-displayCharacterHUD(currentPlayer)
-
-
-Anim.mainLoop()
-
-ordonanceur();
 
 canvas.onmousemove = function (e) {
     console.log("hover")
@@ -97,7 +69,7 @@ function isFree(cellToCheck) { //cell contains no entity
 }
 
 canvas.addEventListener('click', function (event) {
-    console.log("click, current modeclilk "+modeClic)
+    console.log("click, current modeclilk " + modeClic)
     map.map(h => h.hover = false)
 
     let ptClick = new Point(event.pageX - canvasLeft, event.pageY - canvasTop)

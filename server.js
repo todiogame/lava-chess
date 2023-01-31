@@ -1,7 +1,21 @@
 import { WebSocketServer } from 'ws';
 import { aaa } from "./lib/testlib.js";
+import http from 'http';
+import fs from 'fs';
 
-const server = new WebSocketServer({ port: 8080 });
+const portWeb = 8000;
+const portGame = 8080;
+
+//http server
+const httpserver = http.createServer((req, res) => {
+  res.writeHead(200, { 'content-type': 'text/html' })
+  fs.createReadStream('index.html').pipe(res)
+})
+
+httpserver.listen(process.env.PORT || 8000)
+
+// game server
+const server = new WebSocketServer({ port: portGame });
 
 const clients = [];
 server.on("connection", (ws) => {

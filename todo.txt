@@ -8,18 +8,6 @@ rework gazeur ?
 ninja instant spell ?
 enelver les AOE des morts
 rembourser le CD si le spell a foire
-rise lava => pass turn
-display differemment la range ET les cellules ciblables
-pudge hook bug
-______________________
-rework des spells :
-chaque entity recoit des types lors de sa creation
-ex : [ENTITY, PLAYER, SUMMON, BOMB]
-
-chaque sort a un attribut canTarget qui contient une liste de targets possibles, (meme que la haut + floor + lava + any)
-si un match c'est bon 
-
-______________________
 
 ______________________
  revoir le systeme de summons avec des entites toutes pretes
@@ -37,7 +25,8 @@ quand ya une instruction => envoyer a l'autre
 fin du tour => donner la main a l'autre
 
 //client
-
+quand on joue => envoyer les infos au serveur
+quand on attend son tour => recevoir les infos
 
 //commun
 faire un systeme d'actions

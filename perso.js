@@ -115,7 +115,6 @@ const characters = [
     {
         name: "Mage",
         src: 'mage.png',
-        maxHP: 4,
         spells: [
             { name: "Fireball", dealSpell: damage, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
             { name: "Frost Nova", dealSpell: damage, range: 3, cooldown: 2, aoe: "ring_1", delay: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
@@ -125,7 +124,6 @@ const characters = [
     },
     {
         name: "Fisherman",
-        maxHP: 4,
         src: 'fisherman.png',
         spells: [
             { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", delay: 0, onlyFirst: true, canTarget: [ENTITY] },
@@ -136,7 +134,6 @@ const characters = [
     },
     {
         name: "Golem",
-        maxHP: 4,
         src: 'golem.png',
         spells: [
             { name: "Boulder", dealSpell: golem_boulder, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_ORANGE, onMiss: "lava", glyphIcon: boulderIcon, canTarget: [ANY] },
@@ -147,7 +144,6 @@ const characters = [
     },
     {
         name: "Gazeur",
-        maxHP: 4,
         src: 'gazeur.png',
         spells: [
             { name: "Gaz gaz gaz", dealSpell: damage, range: 0, cooldown: 0, aoe: "single", delay: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other", glyphIcon: gasIcon, canTarget: [ANY] },
@@ -157,7 +153,6 @@ const characters = [
     },
     // {
     //     name: "Terroriste",
-    //     maxHP: 4,
     //     src: 'clown.png',
     //     spells: [
     //         { name: "Drop bomb", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: 1, src: bombImage, },
@@ -167,7 +162,6 @@ const characters = [
     // },
     {
         name: "Ninja",
-        maxHP: 4,
         src: 'ninja.png',
         spells: [
             { name: "Drop shadow", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 3, aoe: "single", requires: "free", delay: 0, ttl: -1, src: shadowImage, summonTypes: [SHADOW], summonIsUnique: true, canTarget: [EMPTY] },
@@ -178,7 +172,6 @@ const characters = [
     // {
     //     name: "Warrior",
     //     src: 'warrior.png',
-    //     maxHP: 4,
     //     spells: [
     //         { name: "Cleave", damage: 1, range: 2, cooldown: 2, aoe: "single", delay: 1, color: GLYPH_BLUE, },
     //         { name: "Shield Bash", damage: 1, range: 1, cooldown: 3, aoe: "single", delay: 1, color: GLYPH_BLUE, },
@@ -188,7 +181,6 @@ const characters = [
     // },
     // {
     //     name: "Ranger",
-    //     maxHP: 4,
     //     spells: [
     //         { name: "Multi-Shot", damage: 1, range: 4, cooldown: 2, aoe: "cone", delay: 1, color: GLYPH_BLUE, },
     //         { name: "Silent Shot", damage: 1, range: 3, cooldown: 3, aoe: "single", delay: 1, color: GLYPH_BLUE, },
@@ -199,7 +191,6 @@ const characters = [
     // {
     //     name: "Assassin",
     //     src: 'assassin.png',
-    //     maxHP: 4,
     //     spells: [
     //         { name: "Backstab", damage: 1, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", delay: 1, color: GLYPH_BLUE, },
     //         { name: "Smoke bomb", damage: 1, range: 2, cooldown: 3, aoe: "area", delay: 1, color: GLYPH_BLUE, },

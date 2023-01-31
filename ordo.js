@@ -1,8 +1,8 @@
 function ordonanceur() {
+    initGame();
     initMap()
     // pickPerso()
     // placePerso()
-    initGame();
 }
 
 function initMap() {
@@ -26,21 +26,72 @@ function initMap() {
 
 function initGame() {
 
-    lava.onload = () => {
-        drawMap();
-    }
-    PLAYERS.forEach(p => {
-        p.entity.image.onload = () => {
-            drawEntities();
+    modeClic = "MOVE"; //MOVE or SPELL
+    spellID = 0; //0 to 3
+    //map
+    N = 5;
+    map = [];
+
+    // Create our image
+    lava = new Image();
+    lava.src = './lavasmall.png'
+
+    charactersIds = [];
+    while (charactersIds.length < 4) {
+        let randomInt = Math.floor(Math.random() * characters.length);
+        if (!charactersIds.includes(randomInt)) {
+            charactersIds.push(randomInt);
         }
+    }
+
+
+    player1 = new Player(characters[charactersIds[0]], true, {
+        pos: new Hex(0,-3,3),
     })
+    player2 = new Player(characters[charactersIds[1]], false, {
+        pos: new Hex(0,3,-3),
+    })
+    player3 = new Player(characters[charactersIds[3]], true, {
+        pos: new Hex(3,-3,0),
+    })
+    player4 = new Player(characters[charactersIds[2]], false, {
+        pos: new Hex(-3,3,0),
+    })
+
+    PLAYERS = [
+        player1,
+        player2,
+        player3,
+        player4
+    ];
+    idCurrentPlayer = 0; //start with player1
+    currentPlayer = PLAYERS[idCurrentPlayer]
+
+    entities = [];
+    PLAYERS.forEach(p => entities.push(p.entity))
+
+
+    // lava.onload = () => {
+    //     drawMap();
+    // }
+    // PLAYERS.forEach(p => {
+    //     p.entity.image.onload = () => {
+    //         drawEntities();
+    //     }
+    // })
 
     //   requestAnimationFrame(Anim.mainLoop);
 }
 function playTurn() {
-    console.log('beginTurn ', currentPlayer.name);
-    beginTurn(currentPlayer)
-    // drawMap()
+    if (currentPlayer.dead) {
+        triggerAOE(currentPlayer);
+        passTurn()
+    } else {
+
+        console.log('beginTurn ', currentPlayer.name);
+        beginTurn(currentPlayer)
+        // drawMap()
+    }
 }
 
 
@@ -107,19 +158,27 @@ function endGame() { }
 function passTurn() {
     endTurn(currentPlayer);
     console.log("pass turn")
-    idCurrentPlayer++
-    if (idCurrentPlayer >= PLAYERS.length) idCurrentPlayer = 0;
-    currentPlayer = PLAYERS[idCurrentPlayer]
-    playTurn(currentPlayer)
+    if (PLAYERS.length) {
+        idCurrentPlayer++
+        if (idCurrentPlayer >= PLAYERS.length) idCurrentPlayer = 0;
+        currentPlayer = PLAYERS[idCurrentPlayer]
+        playTurn(currentPlayer)
+    }
 }
 
 function checkWinCondition() { //appelee a la mort d'un joueur
     //check if only players left are on the same team, they won 
     //todo
-    if (PLAYERS.length == 1) {
-        console.log(PLAYERS[0].name + " WON THE GAME !")
+    let listAlive = PLAYERS.filter(p => !p.dead);
+
+    if (listAlive.length == 1) {
+        console.log(listAlive[0].name + " WON THE GAME !")
+        alert(listAlive[0].name + " WON THE GAME !")
+        ordonanceur();
     }
-    if (PLAYERS.length <= 0) {
+    if (listAlive.length <= 0) {
         console.log("EVERYBODY IS DEAD")
+        alert("EVERYBODY IS DEAD")
+        ordonanceur();
     }
 }

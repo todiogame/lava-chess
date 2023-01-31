@@ -13,10 +13,13 @@ class Player {
 
         this.movePoint = 1;
         this.riseLavaPoint = 1;
+        this.maxHP = 4; //every player has got 4 max hp
         this.currentHP = this.maxHP;
         this.spells.forEach(s => {
             s.currentCD = 0;
         });
+
+        this.dead = false;
 
     }
 
@@ -50,8 +53,7 @@ class Player {
     die() {
         console.log(this.name + " is dead...")
         entities = entities.filter(e => e != this.entity)
-        PLAYERS = PLAYERS.filter(p => p != this);
-        // drawMap();
+        this.dead = true;
         checkWinCondition();
         // if we are here, nobody won yet
         if (currentPlayer == this) passTurn();

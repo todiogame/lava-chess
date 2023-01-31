@@ -3,14 +3,14 @@ function clickSpell(id) {
   console.log("clicspell")
   modeClic = "SPELL"
   spellID = id
-  cleanCastRange();
+  cleanRangeAndHover();
   showCastRange();
   // drawMap();
 }
 
 function clickMove() {
   if (currentPlayer.movePoint) modeClic = "MOVE"
-  cleanCastRange();
+  cleanRangeAndHover();
   showCastRange();
   // drawMap();
 }
@@ -18,14 +18,14 @@ function clickMove() {
 
 function clickRiseLava() {
   if (currentPlayer.riseLavaPoint) modeClic = "RISE_LAVA"
-  cleanCastRange();
+  cleanRangeAndHover();
   showCastRange();
   // drawMap();
 }
 
 function passTurnHUD() {
   modeClic = ""
-  cleanCastRange();
+  cleanRangeAndHover();
   // drawMap();
   passTurn();
 }

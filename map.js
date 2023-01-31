@@ -16,7 +16,8 @@ const EARTH = "rgb(220, 150, 30)";
 const MOVE_HOVER = "rgb(30, 75, 0, 0.5)";
 const MOVE_RANGE = "rgb(30, 205, 0, 0.5)";
 const SPELL_HOVER = "rgb(255, 0, 0, 0.5)";
-const SPELL_RANGE = "rgb(255, 100, 100, 0.5)";
+const SPELL_RANGE = "rgb(255, 100, 100, 0.4)";
+const SPELL_HIT = "rgb(255, 50, 50, 0.5)";
 
 const GLYPH_BLUE = "rgb(50, 150, 255, 0.2)";
 const GLYPH_BROWN = "rgb(50, 50, 30, 0.3)";
@@ -49,6 +50,7 @@ function drawMap() {
         ctx.stroke();
         if (h.floor) paintCell(h, EARTH)
         if (h.range) paintCell(h, colorRange)
+        if (h.hit) paintCell(h, SPELL_HIT)
 
         if (h.aoe.length) {
             h.aoe.forEach(spell => {
@@ -63,19 +65,18 @@ function drawMap() {
     displayCharacterHUD(currentPlayer)
 }
 
-function paintCell(mapCell, color, glyphIcon ){
+function paintCell(mapCell, color, glyphIcon) {
 
     ctx.fillStyle = color
-     ctx.fill();
-     if(glyphIcon){
+    ctx.fill();
+    if (glyphIcon) {
         let pGlyph = layout.hexToPixel(mapCell);
         ctx.globalAlpha = 0.7;
         ctx.drawImage(glyphIcon, pGlyph.x - SIZE_GLYPH / 2, pGlyph.y - SIZE_GLYPH / 2, SIZE_GLYPH, SIZE_GLYPH);
         ctx.globalAlpha = 1;
-     }
+    }
 }
 
-function cleanCastRange() { map.map(h => h.range = false) }
 function showCastRange() {
     if (modeClic == "MOVE")
         map.map(h => {
@@ -85,6 +86,8 @@ function showCastRange() {
     if (modeClic == "SPELL")
         map.map(h => {
             if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], h))
+                h.hit = true;
+            else if (!outOfRange(currentPlayer.entity, currentPlayer.spells[spellID], h))
                 h.range = true;
         })
     else if (modeClic == "RISE_LAVA") {
@@ -95,5 +98,5 @@ function showCastRange() {
     }
 }
 function cleanRangeAndHover() {
-    map.map(h => h.hover = h.range = false)
+    map.map(h => h.hover = h.range = h.hit = false)
 }

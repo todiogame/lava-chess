@@ -48,13 +48,7 @@ boulderIcon.src = "boulder.png"
 
 function canCast(caster, spell, targetCell) {
     //check range
-    console.log("qrs", targetCell.q, targetCell.r, targetCell.s)
-    console.log("1", (caster.pos.distance(targetCell) > spell.range))
-    console.log("2", (!!spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin))
-    console.log("3", ((spell.aoe == "straight_line") && !(targetCell.isSameLine(caster.pos))))
-    if ((caster.pos.distance(targetCell) > spell.range)
-        || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
-        || ((spell.aoe == "straight_line") && !(targetCell.isSameLine(caster.pos)))) return false;
+    if (outOfRange(caster, spell, targetCell)) return false;
 
     //check affects types :
     let isAffected = false;
@@ -81,6 +75,12 @@ function canCast(caster, spell, targetCell) {
     return isAffected;
     //add other tests : line of sight, blocked case ?
 }
+function outOfRange(caster, spell, targetCell) {
+    return (caster.pos.distance(targetCell) > spell.range)
+        || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
+        || ((spell.aoe == "straight_line") && !(targetCell.isSameLine(caster.pos)));
+}
+
 function canMove(entity, posCase, max) {
     //todo pathfinding
     //en attendant 1 case max
@@ -172,7 +172,7 @@ const characters = [
         spells: [
             { name: "Drop shadow", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 3, aoe: "single", requires: "free", delay: 0, ttl: -1, src: shadowImage, summonTypes: [SHADOW], summonIsUnique: true, canTarget: [EMPTY] },
             { name: "Spinning slash", dealSpell: damage, range: 0, cooldown: 2, aoe: "ninja_slash", delay: 0, canTarget: [PLAYER] },
-            { name: "Illusion", dealSpell: switcheroo, range: 99, cooldown: 2, aoe: "single", delay: 0, canTarget: [SHADOW] },
+            { name: "Illusion", dealSpell: switcheroo, range: 8, cooldown: 2, aoe: "single", delay: 0, canTarget: [SHADOW] },
         ]
     },
     // {

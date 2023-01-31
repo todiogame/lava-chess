@@ -97,7 +97,7 @@ function isFree(cellToCheck) { //cell contains no entity
 }
 
 canvas.addEventListener('click', function (event) {
-    console.log("click")
+    console.log("click, current modeclilk "+modeClic)
     map.map(h => h.hover = false)
 
     let ptClick = new Point(event.pageX - canvasLeft, event.pageY - canvasTop)

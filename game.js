@@ -143,7 +143,7 @@ function moveEntity(entity, cell) {
     // drawMap();
 }
 
-function castSpell(caster, spell, cell, closest) {
+function castSpell(caster, spell, cell, exactPtH) {
     if (spell.selfCast) cell = caster.pos;
     console.log("CASTING SPELL " + spell.name + " in pos ", cell.q, cell.r, cell.s)
 
@@ -153,7 +153,7 @@ function castSpell(caster, spell, cell, closest) {
         spellEffect.source = currentPlayer;
         caster.auras.push(spellEffect)
     } else {
-        var arrayHighlight = makeAOEFromCell(cell, spell.aoe, caster.pos, closest)
+        var arrayHighlight = makeAOEFromCell(cell, spell.aoe, caster.pos, exactPtH)
         // console.log(arrayHighlight)
         let alreadyAffected = false
         arrayHighlight.forEach(element => {
@@ -178,11 +178,6 @@ function castSpell(caster, spell, cell, closest) {
             }
         })
     }
-    // CANCELED
-    // if(spell.oncast){ // effects that happen immediately for delayed spells
-    //     //ex: ninja shadow casts spell too => remplaced par une autre AOE
-    //     spell.onCast(perso, spell, cell, closest)
-    // }
 
     refreshAuras(); //to show new auras
     //spell goes on cooldown
@@ -194,23 +189,6 @@ function castSpell(caster, spell, cell, closest) {
     // drawMap();
     //todo rembourser le CD si le spell a foire
 }
-
-//we dont use anymore, the gameplay is 3 adjacent cells
-// function riseLavaGlyph(cell) {
-//     console.log("RISING LAVA in pos ", cell.q, cell.r, cell.s)
-
-//     // cell.floor = false;
-//     //maj : add a lava glyph
-//     var lavaSpell = {};
-//     Object.assign(lavaSpell, LAVA_SPELL);
-//     lavaSpell.source = currentPlayer;
-//     cell.aoe.push(lavaSpell);
-//     //reset modeclic
-//     modeClic = "MOVE"
-//     //clean map from range and hover indicators
-//     cleanRangeAndHover()
-//     // drawMap();
-// }
 
 function checkAnyoneInLava() {
     entities = entities.filter(e => {

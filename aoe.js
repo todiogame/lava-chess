@@ -31,18 +31,6 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
             }
             res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
         }
-        if (aoe == "triangle_1") {
-            var arrayDistances = []
-            Hex.directions.forEach(d => arrayDistances.push(d.distance(exactPt.subtract(cell))))
-            let index = arrayDistances.indexOf(Math.min(...arrayDistances))
-            let found = map.find(b => cell.add(Hex.directions[index]).distance(b) == 0)
-            let third;
-            if (found) {
-                //todo
-                // third = map.find(b => cell.subtract(found).add(cell).distance(b) == 0)
-            }
-            res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
-        }
         if (aoe == "ninja_slash") {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))

@@ -1,7 +1,15 @@
 todo:
-
-
+Demoniste
+Ultis
+Ajouter description
 - hover : infobulle
+bugfix : salto dams le mur
+rework gazeur ?
+ninja instant spell ?
+enelver les AOE des morts
+rembourser le CD si le spell a foire
+rise lava => pass turn
+display differemment la range ET les cellules ciblables (ex switch du ninja)
 ______________________
 rework des spells :
 chaque entity recoit des types lors de sa creation
@@ -12,7 +20,6 @@ si un match c'est bon
 
 ______________________
 
-
 ______________________
  revoir le systeme de summons avec des entites toutes pretes
  avec des attributs :
@@ -20,3 +27,26 @@ ______________________
  unique
  src
  ttl
+
+ // serveur :
+init la map
+envoyer aux deux clients
+envoyer "a ton tour" a un client et l'ecouter
+quand ya une instruction => envoyer a l'autre
+fin du tour => donner la main a l'autre
+
+//client
+
+
+//commun
+faire un systeme d'actions
+=> rework move et riseLava pour se lancer de la meme maniere que les spells
+Action{
+    constructor(){
+        casterPlayer
+        casterEntity
+        spell
+        cell
+        closest
+    }
+}

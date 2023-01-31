@@ -136,9 +136,9 @@ const characters = [
         maxHP: 4,
         src: 'ninja.png',
         spells: [
-            { name: "Drop shadow", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 1, aoe: "single", requires: "free", delay: 0, ttl: -1, src: shadowImage, summonTypes : [SHADOW], summonIsUnique :true},
-            { name: "Spinning slash",  dealSpell: damage, range: 0, cooldown: 2, aoe: "ninja_slash", delay: 1, color: GLYPH_BROWN, isAura : true },
-            { name: "Illusion", dealSpell: switcheroo, range: 99, cooldown: 1, aoe: "single", delay: 0,  canCast : [SHADOW]},
+            { name: "Drop shadow", dealSpell: summon, range: 2, rangeMin: 1, cooldown: 3, aoe: "single", requires: "free", delay: 0, ttl: -1, src: shadowImage, summonTypes : [SHADOW], summonIsUnique :true},
+            { name: "Spinning slash",  dealSpell: damage, range: 0, cooldown: 2, aoe: "ninja_slash", delay: 0, color: GLYPH_BROWN, },
+            { name: "Illusion", dealSpell: switcheroo, range: 99, cooldown: 2, aoe: "single", delay: 0,  canCast : [SHADOW]},
         ]
     },
     // {

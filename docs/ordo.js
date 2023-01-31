@@ -44,17 +44,20 @@ function initGame() {
         }
     }
 
+    const TEAM_A_COLOR = "red"
+    const TEAM_B_COLOR = "cyan"
 
-    player1 = new Player(characters[charactersIds[0]], "red", {
+
+    player1 = new Player(characters[charactersIds[0]], TEAM_A_COLOR, {
         pos: new Hex(0, -3, 3),
     })
-    player2 = new Player(characters[charactersIds[1]], "blue", {
+    player2 = new Player(characters[charactersIds[1]], TEAM_B_COLOR, {
         pos: new Hex(0, 3, -3),
     })
-    player3 = new Player(characters[charactersIds[3]], "red", {
+    player3 = new Player(characters[charactersIds[3]], TEAM_A_COLOR, {
         pos: new Hex(3, -3, 0),
     })
-    player4 = new Player(characters[charactersIds[2]], "blue", {
+    player4 = new Player(characters[charactersIds[2]], TEAM_B_COLOR, {
         pos: new Hex(-3, 3, 0),
     })
 

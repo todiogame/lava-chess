@@ -110,6 +110,7 @@ function summon(cell, spell, casterEntity, targetEntity) {
             pos: cell.copy(),
             owner: currentPlayer,
             casterEntity: casterEntity,
+            team: casterEntity.team,
             types: [ENTITY, ...spell.summonTypes],
             auras: spell.auras
             // onDeath: spell.onDeath

@@ -157,7 +157,7 @@ function castSpell(caster, spell, cell, exactPtH) {
         // console.log(arrayHighlight)
         let alreadyAffected = false
         arrayHighlight.forEach(element => {
-            if (!alreadyAffected) {
+            if (!(spell.onlyFirst) || !alreadyAffected) {
                 map.map(h => {
                     if (h.distance(element) == 0) {
 
@@ -201,10 +201,6 @@ function checkAnyoneInLava() {
         }
         return true;
     })
-}
-
-function castSpellOnMove(s, entity, cell) {
-    resolveSpell(cell, spell, entity)
 }
 
 function refreshAuras() {

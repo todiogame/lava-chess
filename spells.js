@@ -4,10 +4,10 @@ function resolveSpell(cell, spell, casterEntity) {
     //todo checkCanCast 
     // if (checkCanCast(spell.canTarget(h))) {
     let targetEntity = findEntityOnCell(cell);
-    spell.dealSpell(cell, spell, casterEntity, targetEntity)
+    let result = spell.dealSpell(cell, spell, casterEntity, targetEntity)
     // }
     checkAnyoneInLava()
-    // make movable aoe follow
+    return result;
 }
 //HELPERS
 function findMapCell(cell) {

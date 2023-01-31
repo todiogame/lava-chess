@@ -45,16 +45,16 @@ function initGame() {
     }
 
 
-    player1 = new Player(characters[charactersIds[0]], true, {
+    player1 = new Player(characters[charactersIds[0]], "red", {
         pos: new Hex(0, -3, 3),
     })
-    player2 = new Player(characters[charactersIds[1]], false, {
+    player2 = new Player(characters[charactersIds[1]], "blue", {
         pos: new Hex(0, 3, -3),
     })
-    player3 = new Player(characters[charactersIds[3]], true, {
+    player3 = new Player(characters[charactersIds[3]], "red", {
         pos: new Hex(3, -3, 0),
     })
-    player4 = new Player(characters[charactersIds[2]], false, {
+    player4 = new Player(characters[charactersIds[2]], "blue", {
         pos: new Hex(-3, 3, 0),
     })
 

@@ -4,7 +4,7 @@ class Player {
         Object.assign(this, character.spells);
 
         this.entity = entity;
-        this.team = team; //team is a boolean
+        this.entity.team = team; //team is a color
 
         this.entity.image = new Image();
         this.entity.image.src = this.src;

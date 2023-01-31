@@ -1,13 +1,35 @@
 const SIZE_PERSO = 64;
+const THICKNESS = 1;
 function drawEntities() {
     entities.forEach(e => drawPerso(e))
 }
 function drawPerso(entity) {
     if (!entity.hide) {
         pPerso = layout.hexToPixel(entity.pos);
-        ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
+
+        // Shadow color and blur
+        // To get a blurry effect use rgba() with a low opacity as it will be overlaid
+        ctx.shadowColor = entity.team;
+        // ctx.shadowColor = "red";
+        ctx.shadowBlur = 0;
+
+        // X offset loop
+        for (var x = -THICKNESS; x <= THICKNESS; x++) {
+            // Y offset loop
+            for (var y = -THICKNESS; y <= THICKNESS; y++) {
+                // Set shadow offset
+                ctx.shadowOffsetX = x;
+                ctx.shadowOffsetY = y;
+
+                // Draw image with shadow
+                // ctx.drawImage(img, left, top, width, height);
+                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
+            }
+        }
         //todo health bar ?
     }
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
 }
 //cell types
 const ANY = "ANY";
@@ -49,7 +71,7 @@ boulderIcon.src = "boulder.png"
 function canCast(caster, spell, targetCell) {
     //check range
     if (outOfRange(caster, spell, targetCell)) return false;
-console.log("on a la range")
+    console.log("on a la range")
     //check affects types :
     let isAffected = false;
     if (spell.canTarget?.includes(ANY)) {
@@ -108,7 +130,7 @@ let onDeath = () => { console.log("raledagoni") }
 
 const LAVA_SPELL =
 {
-    name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, canTarget : [EMPTY]
+    name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", delay: 0, canTarget: [EMPTY]
     // color: ORANGE, effect: "lava", glyphIcon: lavaIcon
 };
 const characters = [
@@ -137,7 +159,7 @@ const characters = [
         src: 'golem.png',
         spells: [
             { name: "Boulder", dealSpell: golem_boulder, range: 4, cooldown: 1, aoe: "single", delay: 1, color: GLYPH_ORANGE, onMiss: "lava", glyphIcon: boulderIcon, canTarget: [ANY] },
-            { name: "Wall", dealSpell: summon, range: 4, cooldown: 3, aoe: "wall", delay: 0, ttl: 1, src: wallImage, canTarget: [ANY], summonTypes:[] },
+            { name: "Wall", dealSpell: summon, range: 4, cooldown: 3, aoe: "wall", delay: 0, ttl: 1, src: wallImage, canTarget: [ANY], summonTypes: [] },
             { name: "Explosion", dealSpell: damage, range: 0, cooldown: 2, aoe: "ring_1", isAura: true, delay: 1, color: GLYPH_BROWN, canTarget: [PLAYER] },
             // { name: "Lava triangle", range: 1, cooldown: 5, aoe: "triangle_1", delay: 1, effect: "lava" }
         ]

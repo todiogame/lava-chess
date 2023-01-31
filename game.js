@@ -124,6 +124,7 @@ canvas.addEventListener('click', function (event) {
             currentPlayer.loseRiseLavaPoint();
             // riseLavaGlyph(found)
             castSpell(currentPlayer.entity, LAVA_SPELL, found,)
+            passTurn();
         }
     }
     // drawMap();

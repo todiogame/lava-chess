@@ -23,19 +23,10 @@ function clickRiseLava() {
   // drawMap();
 }
 
-function passTurnHUD() {
-  modeClic = ""
-  cleanRangeAndHover();
-  // drawMap();
-  passTurn();
-}
-
 function displayCharacterHUD(player) {
   document.getElementById("name").textContent = player.name;
   document.getElementById("current-hp").textContent = `Current HP: ${player.currentHP}/${player.maxHP}`;
   document.getElementById("move-cooldown").textContent = `${player.movePoint} point`;
-  document.getElementById("rise-lava-cooldown").textContent = `${player.riseLavaPoint} point`;
-
 
   for(let i = 0; i < player.spells.length; i++) {
     let spell = player.spells[i];
@@ -49,14 +40,5 @@ function displayCharacterHUD(player) {
       button.classList.remove("disabled");
       button.removeAttribute("disabled");
     }
-  }
-  
-  document.getElementById("pass-turn").textContent = "Pass turn";
-  if(player.riseLavaPoint) {
-    // document.getElementById("pass-turn").classList.add("disabled");
-    // document.getElementById("pass-turn").setAttribute("disabled", true);
-  } else {
-    document.getElementById("pass-turn").classList.remove("disabled");
-    document.getElementById("pass-turn").removeAttribute("disabled");
   }
 }

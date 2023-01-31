@@ -90,11 +90,11 @@ function blink(cell, spell, casterEntity, targetEntity) {
         casterEntity.pos = cell;
 }
 
-function summon(cell, spell, casterEntity, targetEntity) { 
-    if (!targetEntity){ //empty cell
+function summon(cell, spell, casterEntity, targetEntity) {
+    if (!targetEntity) { //empty cell
         //if unique summon, kill previous one
-        if(spell.summonIsUnique){
-            entities = entities.filter(e=>{
+        if (spell.summonIsUnique) {
+            entities = entities.filter(e => {
                 return e.name != spell.name || e.casterEntity != casterEntity
             })
         }
@@ -106,8 +106,8 @@ function summon(cell, spell, casterEntity, targetEntity) {
             pos: cell.copy(),
             owner: currentPlayer,
             casterEntity: casterEntity,
-            types: new Set(spell.summonTypes),
-            auras : spell.auras
+            types: [ENTITY, ...spell.summonTypes],
+            auras: spell.auras
             // onDeath: spell.onDeath
         })
     }

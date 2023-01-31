@@ -35,7 +35,7 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))
             })
-            const shadow = entities.find(e=>e.types.has(SHADOW))
+            const shadow = entities.find(e=>e.types.includes(SHADOW))
             if(shadow){
                 AOE["ring_1"].forEach(a => {
                     res.push(shadow.pos.add(a))

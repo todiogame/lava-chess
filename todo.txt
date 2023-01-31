@@ -9,7 +9,8 @@ ninja instant spell ?
 enelver les AOE des morts
 rembourser le CD si le spell a foire
 rise lava => pass turn
-display differemment la range ET les cellules ciblables (ex switch du ninja)
+display differemment la range ET les cellules ciblables
+pudge hook bug
 ______________________
 rework des spells :
 chaque entity recoit des types lors de sa creation

@@ -50,6 +50,6 @@ function displayCharacterHUD(player) {
     document.getElementById("pass-turn").style.display = "block";
   } else {
     document.getElementById("rise-lava").style.display = "block";
-    // document.getElementById("pass-turn").style.display = "none";
+    document.getElementById("pass-turn").style.display = "none";
   }
 }

@@ -93,31 +93,6 @@ h1#name {
   background-color: #4CAF50;
   border-radius: 5px;
 }
-/* 
-#timeline {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-  color: #663300;
-  font-weight: bold;
-}
-
-p {
-  background-color: #FF6600;
-  background-color:  #8B2500;
-  padding: 10px;
-  border-radius: 5px;
-  color: white;
-  margin: 10px;
-  width: 150px;
-  text-align: center;
-  font-weight: bold;
-}
-
-.current {
-  background-color: #8B2500;
-} */
 
 #timeline {
   list-style-type: none;

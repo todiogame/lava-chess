@@ -88,6 +88,20 @@ class Hex {
     equals(b) {
         return this.distance(b) == 0;
     }
+    neighbors(b) {
+        let commonNeighbors = [];
+        for (let i = 0; i < 6; i++) {
+            let aNeighbor = this.neighbor(i);
+            for (let j = 0; j < 6; j++) {
+                let bNeighbor = b.neighbor(j);
+                if (aNeighbor.equals(bNeighbor)) {
+                    commonNeighbors.push(aNeighbor);
+                }
+            }
+        }
+        return commonNeighbors;
+    }
+
 }
 Hex.directions = [new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1), new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)];
 Hex.diagonals = [new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)];

@@ -67,19 +67,19 @@ const characters = [
     //         // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", glyph: 1, }
     //     ]
     // },
-       // {
-    //     name: "Mage",
-    //     spells: [
-    //         { name: "Inferno Strike", dealSpell: damage, range: 4, cooldown: 1, aoe: "single", glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
-    //         { name: "Freezing Curse", dealSpell: damage, range: 3, cooldown: 2, aoe: "ring_1", glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
-    //         { name: "Force Wave", dealSpell: blink, range: 3, cooldown: 3, aoe: "single",  glyph: 0, type: "tp", canTarget: [EMPTY] },
-    //         { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single",  glyph: 0, type: "tp", canTarget: [EMPTY] },
-    //     ]
-    // },
+    {
+        name: "Mage",
+        spells: [
+            { name: "Inferno Strike", dealSpell: damage, range: 4, rangeMin:2, cooldown: 1, aoe: "straight_line_space_1", glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
+            { name: "Freezing Curse", dealSpell: root, range: 2,rangeMin: 2, cooldown: 2, aoe: "square", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
+            { name: "Force Wave", dealSpell: push, range: 0, cooldown: 3, aoe: "ring_1", canTarget: [PLAYABLE] },
+            // { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single", glyph: 0, canTarget: [EMPTY] },
+        ]
+    },
     {
         name: "Fisherman",
         spells: [
-            { name: "Bait Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
+            { name: "Bait Hook", dealSpell: pull, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
             { name: "Fishing Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
             { name: "Belly Bump", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [ENTITY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }

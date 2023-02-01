@@ -244,7 +244,7 @@ function canCast(caster, spell, targetCell) {
 function outOfRange(caster, spell, targetCell) {
     return (caster.pos.distance(targetCell) > spell.range)
         || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
-        || ((spell.aoe == "straight_line") && !(targetCell.isSameLine(caster.pos)));
+        || ((spell.aoe && spell.aoe.includes("straight_line")) && !(targetCell.isSameLine(caster.pos)));
 }
 
 function canMove(entity, posCase, max) {

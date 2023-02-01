@@ -35,14 +35,14 @@ function pull(cell, spell, casterEntity, targetEntity) {
     return false;
 }
 function push(cell, spell, casterEntity, targetEntity) {
+    let value = spell.value || 1;
     if (targetEntity) {
-        let destination = cell.copy();
+        let destination = (targetEntity.pos).copy()
         let direction = (destination.subtract(casterEntity.pos));
-        for (let n = 0; n < spell.value; n++) {
+        for (let n = 0; n < value; n++) {
             destination = destination.add(direction) //loop for pushing
             if (isFree(destination)) targetEntity.pos = destination;
         }
-
     }
 }
 function salto(cell, spell, casterEntity, targetEntity) {
@@ -133,11 +133,12 @@ function golem_boulder(cell, spell, casterEntity, targetEntity) {
         riseLava(cell, spell, casterEntity, targetEntity)
     }
 }
-function fisherman_hook(cell, spell, casterEntity, targetEntity) {
-    let res = pull(cell, spell, casterEntity, targetEntity)
-    damage(cell, spell, casterEntity, targetEntity)
-    return res
-}
+//nerf du fisherman, plus de dommages, plus besoin de fonction speciale
+// function fisherman_hook(cell, spell, casterEntity, targetEntity) {
+//     let res = pull(cell, spell, casterEntity, targetEntity)
+//     damage(cell, spell, casterEntity, targetEntity)
+//     return res
+// }
 function fisherman_push(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     push(cell, spell, casterEntity, targetEntity)

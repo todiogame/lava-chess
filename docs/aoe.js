@@ -1,8 +1,6 @@
 function makeAOEFromCell(cell, aoe, persoPos, direction) {
     var res = [];
-    if (AOE[aoe]?.length) AOE[aoe].forEach(a => {
-        res.push(cell.add(a))
-    })
+    if (AOE[aoe]?.length) AOE[aoe].forEach(a => res.push(cell.add(a)))
     else {
         if (aoe == "line_from_caster") {
             res = persoPos.linedraw(cell);
@@ -13,9 +11,22 @@ function makeAOEFromCell(cell, aoe, persoPos, direction) {
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
+        if(aoe == "straight_line_space_1"){
+            res = persoPos.linedraw(cell);
+            res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
+            res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
+            let non = [];
+            AOE["ring_1"].forEach(a => non.push(persoPos.add(a)))
+            res = res.filter(e => !(non.some(n => n.equals(e))))
+        }
         if (aoe == "pair") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
             res = found ? [cell, found] : [cell];
+        }
+        if (aoe == "square") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let founds = cell.neighbors(found)
+            res = [cell, found, ...founds]
         }
         if (aoe == "line_3") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)

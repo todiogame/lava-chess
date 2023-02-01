@@ -1,17 +1,17 @@
 // Generated code -- CC0 -- No Rights Reserved -- http://www.redblobgames.com/grids/hexagons/
- class Point {
+class Point {
     constructor(x, y) {
         this.x = x;
         this.y = y;
     }
 }
- class Hex {
+class Hex {
     constructor(q, r, s) {
         this.q = q;
         this.r = r;
         this.s = s;
         if (Math.round(q + r + s) !== 0)
-            throw "q + r + s must be 0"+q+" "+r+" "+s;
+            throw "q + r + s must be 0" + q + " " + r + " " + s;
     }
     add(b) {
         return new Hex(this.q + b.q, this.r + b.r, this.s + b.s);
@@ -76,20 +76,22 @@
         return results;
     }
     //perso
-    isSameLine(b){
-        return this.q== b.q || this.r == b.r || this.s==b.s;
+    isSameLine(b) {
+        return this.q == b.q || this.r == b.r || this.s == b.s;
     }
-    halfTurn(){
+    halfTurn() {
         return this.rotateRight().rotateRight().rotateRight()
     }
     copy() {
         return new Hex(this.q, this.r, this.s);
     }
-
+    equals(b) {
+        return this.distance(b) == 0;
+    }
 }
 Hex.directions = [new Hex(1, 0, -1), new Hex(1, -1, 0), new Hex(0, -1, 1), new Hex(-1, 0, 1), new Hex(-1, 1, 0), new Hex(0, 1, -1)];
 Hex.diagonals = [new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new Hex(-2, 1, 1), new Hex(-1, 2, -1), new Hex(1, 1, -2)];
- class OffsetCoord {
+class OffsetCoord {
     constructor(col, row) {
         this.col = col;
         this.row = row;
@@ -131,7 +133,7 @@ Hex.diagonals = [new Hex(2, -1, -1), new Hex(1, -2, 1), new Hex(-1, -1, 2), new 
 }
 OffsetCoord.EVEN = 1;
 OffsetCoord.ODD = -1;
- class DoubledCoord {
+class DoubledCoord {
     constructor(col, row) {
         this.col = col;
         this.row = row;
@@ -159,7 +161,7 @@ OffsetCoord.ODD = -1;
         return new Hex(q, r, s);
     }
 }
- class Orientation {
+class Orientation {
     constructor(f0, f1, f2, f3, b0, b1, b2, b3, start_angle) {
         this.f0 = f0;
         this.f1 = f1;
@@ -172,7 +174,7 @@ OffsetCoord.ODD = -1;
         this.start_angle = start_angle;
     }
 }
- class Layout {
+class Layout {
     constructor(orientation, size, origin) {
         this.orientation = orientation;
         this.size = size;

@@ -7,26 +7,16 @@ function drawPerso(entity) {
     if (!entity.hide) {
         pPerso = layout.hexToPixel(entity.pos);
 
-        // Shadow color and blur
-        // To get a blurry effect use rgba() with a low opacity as it will be overlaid
+        // outline
         ctx.shadowColor = entity.team;
-        // ctx.shadowColor = "red";
         ctx.shadowBlur = 0;
-
-        // X offset loop
         for (var x = -THICKNESS; x <= THICKNESS; x++) {
-            // Y offset loop
             for (var y = -THICKNESS; y <= THICKNESS; y++) {
-                // Set shadow offset
                 ctx.shadowOffsetX = x;
                 ctx.shadowOffsetY = y;
-
-                // Draw image with shadow
-                // ctx.drawImage(img, left, top, width, height);
                 ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
             }
         }
-        //todo health bar ?
     }
     ctx.shadowColor = "transparent";
     ctx.shadowBlur = 0;
@@ -104,7 +94,6 @@ function outOfRange(caster, spell, targetCell) {
 }
 
 function canMove(entity, posCase, max) {
-    //todo pathfinding
     //en attendant 1 case max
     if (!posCase.floor) return false;
     if (max > 1) max = 1;

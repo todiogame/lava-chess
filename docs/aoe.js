@@ -35,10 +35,11 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))
             })
-            const shadow = entities.find(e=>e.types.includes(SHADOW))
-            if(shadow){
+            const shadow = entities.find(e => e.types.includes(SHADOW))
+            if (shadow) {
                 AOE["ring_1"].forEach(a => {
-                    res.push(shadow.pos.add(a))
+                    if (!persoPos.equals(shadow.pos.add(a))) //remove ninja pos so he doesnt get damage
+                        res.push(shadow.pos.add(a))
                 })
             }
         }

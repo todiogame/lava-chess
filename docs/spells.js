@@ -1,12 +1,8 @@
 
 function resolveSpell(cell, spell, casterEntity) {
-    let result
     targetCell = findMapCell(cell)
-    console.log(canCast(casterEntity, spell, targetCell))
-    if (canCast(casterEntity, spell, targetCell)) {
-        let targetEntity = findEntityOnCell(targetCell);
-        result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity)
-    }
+    let targetEntity = findEntityOnCell(targetCell);
+    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity)
     checkAnyoneInLava()
 
     return result;

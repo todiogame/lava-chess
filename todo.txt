@@ -3,10 +3,12 @@ Demoniste
 Ultis
 Ajouter description
 - hover : infobulle
+BUG ninja ne fait pas de dommages ? tester avec entites multiples
 bugfix : salto dams le mur
 rework gazeur ?
 rembourser le CD si le spell a foire
 gerer la fin de partie quand on ne peux plus enlever de cases
+pathfinding
 ______________________
  revoir le systeme de summons avec des entites toutes pretes
  avec des attributs :

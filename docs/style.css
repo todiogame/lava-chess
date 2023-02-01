@@ -5,75 +5,91 @@ body {
 .grid-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  /* one column for canvas, one column for hud*/
 }
 
 #canvas {
   grid-column: 1 / 2;
-  /* canvas will take the first column */
   width: 700px;
   height: 600px;
+  background-color: orange;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
 
 #character-hud-container {
   grid-column: 2 / 3;
-  /* hud will take the second column */
   overflow-y: scroll;
 }
 
 .character-hud {
-  background-color: coral;
-  padding: 10px;
-  border-radius: 5px;
+  background-color: #5b3a1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+h1#name {
+  color: #ff6600;
+  text-shadow: 2px 2px 2px #222;
+  font-family: 'Russo One', sans-serif;
 }
 
 .current-hp {
   font-size: 18px;
   font-weight: bold;
   margin-bottom: 10px;
+  color: #ffc107;
 }
 
-.spells button {
-  background-color: #af5e4c;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-.spells button:hover {
-  background-color: #8e3e3e;
-}
-
-.move button {
-  background-color: #4CAF50;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  cursor: pointer;
-  margin-right: 5px;
-}
-
-.move button:hover {
-  background-color: #3e8e41;
-}
-
-
+.spells button,
+.move button,
 .rise-lava button {
-  background-color: #d8872a;
-  color: white;
+  background-color: #ffc107;
+  color: #5b3a1c;
   padding: 12px 20px;
-  border: none;
+  border-radius: 10px;
   cursor: pointer;
-  margin-right: 5px;
+  margin-bottom: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
 
+.spells button:hover,
+.move button:hover,
 .rise-lava button:hover {
-  background-color: #946324;
+  background-color: #e2b807;
 }
 
-.spells .disabled {
+.spells .disabled,
+.move .disabled,
+.rise-lava .disabled {
   background-color: gray;
   pointer-events: none;
+}
+
+#rise-lava-name,
+#passTurn-name {
+  font-weight: bold;
+}
+
+.current-hp {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+}
+
+.current-hp .bar {
+  width: 100px;
+  height: 10px;
+  background-color: #af5e4c;
+  border-radius: 5px;
+  margin-right: 10px;
+}
+
+.current-hp .hp-value {
+  width: 20px;
+  height: 10px;
+  background-color: #4CAF50;
+  border-radius: 5px;
 }

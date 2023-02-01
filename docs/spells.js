@@ -118,7 +118,7 @@ function summon(cell, spell, casterEntity, targetEntity) {
         if (summoned.types.includes(PLAYABLE)) {
             let summonedP = new Playable(summoned, spell.summon.spells, spell.summon.maxHP)
             summonedP.isSummoned = true;
-            PLAYERS.splice((idCurrentPlayer + 1) % PLAYERS.length, 0, summonedP);
+            PLAYERS.splice((idCurrentPlayer + 1) % (PLAYERS.length+1), 0, summonedP);
         }
     }
     console.log("SUMMONED ", summoned)

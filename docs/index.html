@@ -14,7 +14,13 @@
 
             <div class="character-hud" id="character-hud-template">
                 <h1 id="name"></h1>
-                <div class="current-hp" id="current-hp"></div>
+                <div class="current-hp" id="current-hp">
+                    <div class="bar">
+                      <div id="hp-value" class="hp-value" style="width: 70%"></div>
+                    </div>
+                    <span class="current-hp-text" id="current-hp-text"></span>
+                  </div>
+                  
                 <div class="move">
                     <button class="cast-spell" id="move" onclick="clickMove()">
                         <span id="move-name">Move </span><span id="move-cooldown"></span>

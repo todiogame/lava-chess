@@ -20,6 +20,8 @@ function findPlayerFromEntity(entity) {
     if (entity) return PLAYERS.find(p => p.entity == entity)
 }
 function killEntity(entity) {
+    let killedPlayer = PLAYERS.find(p => p.entity == entity)
+    if(killedPlayer && !killedPlayer.dead) killedPlayer.die() 
     entities = entities.filter(e => e != entity)
 }
 
@@ -95,10 +97,8 @@ function summon(cell, spell, casterEntity, targetEntity) {
     var summoned;
     if (!targetEntity) { //empty cell
         //if unique summon, kill previous one
-        if (spell.summonIsUnique) {
-            entities = entities.filter(e => {
-                return e.name != spell.name || e.summoner != casterEntity
-            })
+        if (spell.summon.isUnique) {
+            killEntity(entities.find(e => e.name == spell.summon.name && e.summoner == casterEntity))
         }
         summoned = new Entity(
             spell.summon.name,
@@ -112,7 +112,9 @@ function summon(cell, spell, casterEntity, targetEntity) {
             // onDeath: spell.onDeath
         )
         if (summoned.auras) summoned.auras.forEach(a => a.source = currentPlayer)
+
         entities.push(summoned)
+
         if (summoned.types.includes(PLAYABLE)) {
             let summonedP = new Playable(summoned, spell.summon.spells, spell.summon.maxHP)
             summonedP.isSummoned = true;

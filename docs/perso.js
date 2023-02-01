@@ -17,7 +17,7 @@ const TABLE_SUMMONS = {
         name: "shadow",
         ttl: -1,
         summonTypes: [SHADOW],
-        summonIsUnique: true,
+        isUnique: true,
     },
     "wall": {
         name: "wall",
@@ -36,6 +36,7 @@ const TABLE_SUMMONS = {
         name: "infernal",
         ttl: -1,
         maxHP : 3,
+        isUnique : true,
         summonTypes: [INFERNAL, PLAYABLE],
         auras : [
             { name: "Flame aura", permanent:true,  dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon}
@@ -110,7 +111,7 @@ const characters = [
         src: 'pics/demonist.png',
         spells: [
             { name: "Tentacle", dealSpell: demo_tentacle, summon: TABLE_SUMMONS["tentacle"], range: 3, rangeMin: 3, cooldown: 1, aoe: "tentacle", onlyFirst: true, canTarget: [EMPTY]  },
-            { name: "Summon Infernal",   dealSpell: summon, summon: TABLE_SUMMONS["infernal"], range: 1, rangeMin: 1, cooldown: 5, aoe: "single", summonIsUnique: true, canTarget: [EMPTY] },
+            { name: "Summon Infernal",   dealSpell: summon, summon: TABLE_SUMMONS["infernal"], range: 1, rangeMin: 1, cooldown: 5, aoe: "single", canTarget: [EMPTY] },
             { name: "Speed Boost",  dealSpell: buffPM, range: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
         ]
     },

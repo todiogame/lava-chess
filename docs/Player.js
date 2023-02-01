@@ -1,15 +1,9 @@
 class Player {
-    constructor(character, team, entity) {
+    constructor(character, team, pos) {
         Object.assign(this, character);
         Object.assign(this, character.spells);
 
-        this.entity = entity;
-        this.entity.team = team; //team is a color
-
-        this.entity.image = new Image();
-        this.entity.image.src = this.src;
-        this.entity.auras = [];
-        this.entity.types = [PLAYER, ENTITY]
+        this.entity = new Entity(team, this.src, [], [PLAYER] , pos)
 
         this.movePoint = 1;
         this.maxHP = 4; //every player has got 4 max hp

@@ -32,10 +32,6 @@ function initGame() {
     N = 5;
     map = [];
 
-    // Create our image
-    lava = new Image();
-    lava.src = './lavasmall.png'
-
     charactersIds = [];
     while (charactersIds.length < 4) {
         let randomInt = Math.floor(Math.random() * characters.length);
@@ -48,18 +44,10 @@ function initGame() {
     const TEAM_B_COLOR = "cyan"
 
 
-    player1 = new Player(characters[charactersIds[0]], TEAM_A_COLOR, {
-        pos: new Hex(0, -3, 3),
-    })
-    player2 = new Player(characters[charactersIds[1]], TEAM_B_COLOR, {
-        pos: new Hex(0, 3, -3),
-    })
-    player3 = new Player(characters[charactersIds[3]], TEAM_A_COLOR, {
-        pos: new Hex(3, -3, 0),
-    })
-    player4 = new Player(characters[charactersIds[2]], TEAM_B_COLOR, {
-        pos: new Hex(-3, 3, 0),
-    })
+    player1 = new Player(characters[charactersIds[0]], TEAM_A_COLOR, new Hex(0, -3, 3))
+    player2 = new Player(characters[charactersIds[1]], TEAM_B_COLOR, new Hex(0, 3, -3))
+    player3 = new Player(characters[charactersIds[3]], TEAM_A_COLOR, new Hex(3, -3, 0))
+    player4 = new Player(characters[charactersIds[2]], TEAM_B_COLOR, new Hex(-3, 3, 0))
 
     PLAYERS = [
         player1,

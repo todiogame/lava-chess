@@ -15,11 +15,15 @@ var idCurrentPlayer
 var currentPlayer
 
 var entities
-ordonanceur();
-lava.onload = () => {
-    Anim.mainLoop()
-}
 
+// Create our image
+lava = new Image();
+lava.src = './pics/lavasmall.png'
+
+ordonanceur();
+// lava.onload = () => {
+    Anim.mainLoop()
+// }
 
 canvas.onmousemove = function (e) {
     // console.log("hover")
@@ -198,4 +202,60 @@ function refreshAuras() {
             })
         }
     })
+}
+
+function canCast(caster, spell, targetCell) {
+    //check range
+    if (outOfRange(caster, spell, targetCell)) return false;
+    //check affects types :
+    let isAffected = false;
+    if (spell.canTarget?.includes(ANY)) {
+        isAffected = true;
+    } else {
+        //targetCell is map cell with info
+        var typesCell = new Set()
+        if (!targetCell.floor) typesCell.add(LAVA)
+        else {
+            let entity = entities.find(e => e.pos.distance(targetCell) == 0)
+            if (!entity) typesCell.add(EMPTY)
+            else {
+                typesCell.add(ENTITY)
+                entity.types.forEach(item => typesCell.add(item))
+            }
+        }
+        //at this point we have 
+        spell.canTarget?.forEach(typesSpell => {
+            if (typesCell.has(typesSpell)) isAffected = true;
+        });
+    }
+
+    return isAffected;
+    //add other tests : line of sight, blocked case ?
+}
+function outOfRange(caster, spell, targetCell) {
+    return (caster.pos.distance(targetCell) > spell.range)
+        || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
+        || ((spell.aoe == "straight_line") && !(targetCell.isSameLine(caster.pos)));
+}
+
+function canMove(entity, posCase, max) {
+    //en attendant 1 case max
+    if (!posCase.floor) return false;
+    if (max > 1) max = 1;
+    res = (entity?.pos?.distance(posCase) <= max) && isFree(posCase) && posCase.floor; //and other blocked cases
+    return res
+}
+function canRiseLava(cell, bypassEntityCheck) {
+    // autorise seulement si la case est a cote de 3 cases de lave
+    var res = false;
+    if ((isFree(cell) || bypassEntityCheck) && cell.floor && !cell.aoe.find(spell => spell.effect == "lava")) {
+        let lavaCells = 0;
+        map.forEach(h => {
+            if (Hex.directions.find(d => h.distance(d.add(cell)) == 0 && h && !h.floor)) {
+                lavaCells++;
+            }
+        });
+        res = lavaCells >= 3;
+    }
+    return res;
 }

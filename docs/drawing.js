@@ -1,32 +1,31 @@
 const SIZE_PERSO = 64;
 const THICKNESS = 1;
 
-
 //summons
 wallImage = new Image();
-wallImage.src = "wall.png";
+wallImage.src = "pics/wall.png";
 
 bombImage = new Image();
-bombImage.src = "bomb.png";
+bombImage.src = "pics/bomb.png";
 
 shadowImage = new Image();
-shadowImage.src = "shadow.png"
+shadowImage.src = "pics/shadow.png"
 
 //glyphs
 damageIcon = new Image();
-damageIcon.src = "fire_icon.png";
+damageIcon.src = "pics/fire_icon.png";
 
 rootIcon = new Image();
-rootIcon.src = "net.png"
+rootIcon.src = "pics/net.png"
 
 lavaIcon = new Image();
-lavaIcon.src = "rising.png"
+lavaIcon.src = "pics/rising.png"
 
 gasIcon = new Image();
-gasIcon.src = "gas.png"
+gasIcon.src = "pics/gas.png"
 
 boulderIcon = new Image();
-boulderIcon.src = "boulder.png"
+boulderIcon.src = "pics/boulder.png"
 
 
 
@@ -34,6 +33,7 @@ function drawEntities() {
     entities.forEach(e => drawPerso(e))
 }
 function drawPerso(entity) {
+    // console.log(entity)
     if (!entity.hide) {
         pPerso = layout.hexToPixel(entity.pos);
 

@@ -100,15 +100,16 @@ function summon(cell, spell, casterEntity, targetEntity) {
         }
 
         entities.push({
-            name: spell.name,
-            image: spell.src,
-            ttl: spell.ttl,
+            name: spell.summon.name,
+            image: spell.summon.src,
+            ttl: spell.summon.ttl,
+            types: [ENTITY, ...spell.summon.summonTypes],
+            auras: spell.summon.auras,
+
             pos: cell.copy(),
             owner: currentPlayer,
             casterEntity: casterEntity,
             team: casterEntity.team,
-            types: [ENTITY, ...spell.summonTypes],
-            auras: spell.auras
             // onDeath: spell.onDeath
         })
     }

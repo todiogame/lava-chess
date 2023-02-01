@@ -57,7 +57,6 @@ function makeAOEFromCell(cell, aoe, persoPos, direction) {
             res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
         }
         if(aoe == "tentacle_hit"){
-            console.log(cell,direction)
             let found = map.find(b => cell.add(direction).distance(b) == 0)
             let third;
             if (found) {

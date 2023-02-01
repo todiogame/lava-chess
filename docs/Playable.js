@@ -56,6 +56,9 @@ class Playable {
         this.dead = true;
         checkWinCondition();
         // if we are here, nobody won yet
-        if (currentPlayer == this) passTurn();
+        if (currentPlayer == this) {
+            console.log("as it is " + this.name + " turns but hes dead, he passes")
+            passTurn();
+        }
     }
 }

@@ -80,5 +80,5 @@ const displayPlayers = () => {
   
   playerHud.innerHTML = playerList;
   let playersHTML = document.querySelectorAll("#timeline p");
-  if (idCurrentPlayer || idCurrentPlayer===0) playersHTML[idCurrentPlayer].classList.add("highlight");
+  if (idCurrentPlayer || idCurrentPlayer===0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
 };

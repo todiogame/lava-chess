@@ -157,18 +157,29 @@ function passTurn() {
 }
 
 function checkWinCondition() { //appelee a la mort d'un joueur
-    //check if only players left are on the same team, they won 
-    //todo
     let listAlive = PLAYERS.filter(p => !p.dead);
 
-    if (listAlive.length == 1) {
-        console.log(listAlive[0].name + " WON THE GAME !")
-        alert(listAlive[0].name + " WON THE GAME !")
-        ordonanceur();
-    }
-    if (listAlive.length <= 0) {
+    if (listAlive.length == 0) {
         console.log("EVERYBODY IS DEAD")
         alert("EVERYBODY IS DEAD")
         ordonanceur();
     }
+    else if (listAlive.length == 1) {
+        console.log(listAlive[0].name + " WON THE GAME !")
+        alert(listAlive[0].name + " WON THE GAME !")
+        ordonanceur();
+    }
+    else {
+        if (checkSameTeam(listAlive))
+            alert(listAlive[0].entity.team.toUpperCase() + " TEAM WON THE GAME !")
+    }
+}
+function checkSameTeam(listAlive) {
+    let firstTeam = listAlive[0].entity.team;
+    for (let i = 1; i < listAlive.length; i++) {
+        if (listAlive[i].entity.team !== firstTeam) {
+            return false;
+        }
+    }
+    return true;
 }

@@ -1,5 +1,5 @@
 todo:
-Demoniste
+Rasta
 Ultis
 Ajouter description
 - hover : infobulle
@@ -10,13 +10,9 @@ rembourser le CD si le spell a foire
 
 gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding
+fin de partie 2 equipes
 ______________________
- revoir le systeme de summons avec des entites toutes pretes
- avec des attributs :
- types
- unique
- src
- ttl
+
 
  // serveur :
 init la map

@@ -65,4 +65,20 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "none";
     }
   }
+  displayPlayers();
+
 }
+
+
+const displayPlayers = () => {
+  const playerHud = document.querySelector("#timeline");
+  let playerList = "";
+
+  PLAYERS.forEach(player => {
+    if (!player.dead) playerList += `<p>${player.currentHP}/${player.maxHP} - ${player.name}</p>`;
+  });
+  
+  playerHud.innerHTML = playerList;
+  let playersHTML = document.querySelectorAll("#timeline p");
+  if (idCurrentPlayer || idCurrentPlayer===0) playersHTML[idCurrentPlayer].classList.add("highlight");
+};

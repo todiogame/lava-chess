@@ -91,7 +91,7 @@ function beginTurn(player) {
     tickDownBuffs(player)
     killExpiredSummons(player);
     refreshAuras() //to remove expired auras
-    // if (player.team == "PLAYER")
+    // if (player.team == "PLAYABLE")
     modeClic = "MOVE"
 }
 function endTurn(player) {
@@ -104,8 +104,8 @@ function triggerAOE(player) {
     map.forEach(h => {
         h.aoe = h.aoe.filter(spellEffect => {
             if (spellEffect.source == player) { // on fait peter les glyphes du joueur dont c'est le tour
-                spellEffect.delay -= 1;
-                if (spellEffect.delay <= 0) { //ils expirent
+                spellEffect.glyph -= 1;
+                if (spellEffect.glyph <= 0) { //ils expirent
                     resolveSpell(h, spellEffect, spellEffect.source.entity);
                     if (!(spellEffect.permanent)) {
                         return false;
@@ -127,6 +127,8 @@ function tickDownBuffs(player) {
 
 function killExpiredSummons(player) {
     entities = entities.filter(e => {
+        // console.log("check expire"+e.name)
+        // console.log(e)
         if (e.owner == player) {
             e.ttl--
             if (e.ttl == 0) {

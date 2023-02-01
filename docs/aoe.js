@@ -1,10 +1,10 @@
-function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
+function makeAOEFromCell(cell, aoe, persoPos, direction) {
     var res = [];
     if (AOE[aoe]?.length) AOE[aoe].forEach(a => {
         res.push(cell.add(a))
     })
     else {
-        if (aoe == "line") {
+        if (aoe == "line_from_caster") {
             res = persoPos.linedraw(cell);
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
         }
@@ -14,17 +14,11 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
         if (aoe == "pair") {
-            var arrayDistances = []
-            Hex.directions.forEach(d => arrayDistances.push(d.distance(exactPt.subtract(cell))))
-            let index = arrayDistances.indexOf(Math.min(...arrayDistances))
-            let found = map.find(b => cell.add(Hex.directions[index]).distance(b) == 0)
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
             res = found ? [cell, found] : [cell];
         }
-        if (aoe == "wall") {
-            var arrayDistances = []
-            Hex.directions.forEach(d => arrayDistances.push(d.distance(exactPt.subtract(cell))))
-            let index = arrayDistances.indexOf(Math.min(...arrayDistances))
-            let found = map.find(b => cell.add(Hex.directions[index]).distance(b) == 0)
+        if (aoe == "line_3") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
             let third;
             if (found) {
                 third = map.find(b => cell.subtract(found).add(cell).distance(b) == 0)
@@ -42,6 +36,23 @@ function makeAOEFromCell(cell, aoe, persoPos, exactPt) {
                         res.push(shadow.pos.add(a))
                 })
             }
+        }
+        if (aoe == "tentacle") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let third;
+            if (found) {
+                third = map.find(b => found.add(direction).distance(b) == 0)
+            }
+            res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
+        }
+        if(aoe == "tentacle_hit"){
+            console.log(cell,direction)
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let third;
+            if (found) {
+                third = map.find(b => found.add(direction).distance(b) == 0)
+            }
+            res = third ? [found, third] : (found ? [found] : []);
         }
     }
 

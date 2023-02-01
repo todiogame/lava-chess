@@ -1,9 +1,10 @@
 class Player {
     constructor(character, team, pos) {
         Object.assign(this, character);
-        Object.assign(this, character.spells);
+        this.spells=[];
+        Object.assign(this.spells, character.spells);
 
-        this.entity = new Entity(team, this.src, [], [PLAYER] , pos)
+        this.entity = new Entity(this.name,team, this.src, [], [PLAYABLE] , pos)
 
         this.movePoint = 1;
         this.maxHP = 4; //every player has got 4 max hp
@@ -13,7 +14,6 @@ class Player {
         });
 
         this.dead = false;
-
     }
 
 

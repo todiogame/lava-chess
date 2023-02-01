@@ -1,16 +1,6 @@
 const SIZE_PERSO = 64;
 const THICKNESS = 1;
 
-//summons
-wallImage = new Image();
-wallImage.src = "pics/wall.png";
-
-bombImage = new Image();
-bombImage.src = "pics/bomb.png";
-
-shadowImage = new Image();
-shadowImage.src = "pics/shadow.png"
-
 //glyphs
 damageIcon = new Image();
 damageIcon.src = "pics/fire_icon.png";

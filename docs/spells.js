@@ -1,8 +1,9 @@
 
-function resolveSpell(cell, spell, casterEntity) {
+function resolveSpell(cell, spell, casterEntity, direction) {
+    //direction only use for tentacle now
     targetCell = findMapCell(cell)
     let targetEntity = findEntityOnCell(targetCell);
-    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity)
+    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity, direction)
     checkAnyoneInLava()
 
     return result;
@@ -70,7 +71,7 @@ function damage(cell, spell, casterEntity, targetEntity) {
 function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
-        targetplayer.buffPM(spell.value);
+        targetplayer.buffPM(spell.value || 1);
     }
 }
 
@@ -91,28 +92,30 @@ function blink(cell, spell, casterEntity, targetEntity) {
 }
 
 function summon(cell, spell, casterEntity, targetEntity) {
+    var summoned;
     if (!targetEntity) { //empty cell
         //if unique summon, kill previous one
         if (spell.summonIsUnique) {
             entities = entities.filter(e => {
-                return e.name != spell.name || e.casterEntity != casterEntity
+                return e.name != spell.name || e.summoner != casterEntity
             })
         }
-
-        entities.push({
-            name: spell.summon.name,
-            image: spell.summon.src,
-            ttl: spell.summon.ttl,
-            types: [ENTITY, ...spell.summon.summonTypes],
-            auras: spell.summon.auras,
-
-            pos: cell.copy(),
-            owner: currentPlayer,
-            casterEntity: casterEntity,
-            team: casterEntity.team,
+        summoned = new Entity(
+            spell.summon.name,
+            casterEntity.team,
+            spell.summon.src,
+            spell.summon.auras,
+            spell.summon.summonTypes,
+            cell.copy(),
+            spell.summon.ttl,
+            currentPlayer,
+            casterEntity,
             // onDeath: spell.onDeath
-        })
+        )
+        entities.push(summoned)
+        // PLAYERS.splice(index, 0, item);
     }
+    return summoned;
 }
 
 // special for perso
@@ -131,4 +134,12 @@ function fisherman_hook(cell, spell, casterEntity, targetEntity) {
 function fisherman_push(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     push(cell, spell, casterEntity, targetEntity)
+}
+function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
+    console.log("demo tentacle")
+    let tentacle = summon(cell, spell, casterEntity, targetEntity)
+    tentacleHit = tentacle.auras.find(a => a.name = "Tentacle Hit")
+    tentacleHit.direction = direction;
+    tentacleHit.source = currentPlayer;
+    return tentacle;
 }

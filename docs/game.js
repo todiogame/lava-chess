@@ -22,7 +22,7 @@ lava.src = './pics/lavasmall.png'
 
 ordonanceur();
 // lava.onload = () => {
-    Anim.mainLoop()
+Anim.mainLoop()
 // }
 
 canvas.onmousemove = function (e) {
@@ -45,7 +45,8 @@ canvas.onmousemove = function (e) {
         //show spell aoe indicator
         else if (modeClic == "SPELL") {
             if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
-                var arrayHighlight = makeAOEFromCell(found, currentPlayer.spells[spellID].aoe, currentPlayer.entity.pos, hPtHover)
+                var arrayHighlight = makeAOEFromCell(found, currentPlayer.spells[spellID].aoe,
+                    currentPlayer.entity.pos, findClicDirection(found, hPtHover))
                 map.map(h => {
                     arrayHighlight.forEach(element => {
                         if (h.distance(element) == 0) h.hover = true;
@@ -118,6 +119,13 @@ function moveEntity(entity, cell) {
     // drawMap();
 }
 
+function findClicDirection(cell, exactPtH) {
+    if (cell && exactPtH) {
+        var arrayDistances = []
+        Hex.directions.forEach(d => arrayDistances.push(d.distance(exactPtH.subtract(cell))))
+        return Hex.directions[arrayDistances.indexOf(Math.min(...arrayDistances))]
+    }
+}
 function castSpell(caster, spell, cell, exactPtH) {
     if (spell.selfCast) cell = caster.pos;
     console.log("CASTING SPELL " + spell.name + " in pos ", cell.q, cell.r, cell.s)
@@ -128,17 +136,18 @@ function castSpell(caster, spell, cell, exactPtH) {
         spellEffect.source = currentPlayer;
         caster.auras.push(spellEffect)
     } else {
-        var arrayHighlight = makeAOEFromCell(cell, spell.aoe, caster.pos, exactPtH)
-        // console.log(arrayHighlight)
+        let direction = findClicDirection(cell, exactPtH);
+        var arrayAOE = makeAOEFromCell(cell, spell.aoe, caster.pos, direction)
+        // console.log(arrayAOE)
         let alreadyAffected = false
-        arrayHighlight.forEach(element => {
+        arrayAOE.forEach(affectedCell => {
+            // console.log(alreadyAffected)
             if (!(spell.onlyFirst) || !alreadyAffected) {
                 map.map(h => {
-                    if (h.distance(element) == 0) {
-
+                    if (h.distance(affectedCell) == 0) {
                         // instant spell deals their effect instantly
-                        if (!spell.delay) {
-                            alreadyAffected = resolveSpell(h, spell, caster) ? true : alreadyAffected;
+                        if (!spell.glyph) {
+                            alreadyAffected = resolveSpell(h, spell, caster, direction) ? true : alreadyAffected;
                         }
                         // glyph spells drop a glyph
                         else {
@@ -187,7 +196,8 @@ function refreshAuras() {
             e.auras.forEach(aura => {
                 //get aoe from aura
                 //calculate destination cells on the map
-                let listCells = makeAOEFromCell(e.pos, aura.aoe);
+                console.log(aura)
+                let listCells = makeAOEFromCell(e.pos, aura.aoe, e.pos, aura.direction);
                 listCells.forEach(element => {
                     //apply aoe on the map
                     map.forEach(h => {

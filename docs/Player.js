@@ -24,8 +24,8 @@ class Player {
 
 
     damage() { //all spells deal 1 damage in this game
-        console.log(this.name + " suffers damage !!")
         this.currentHP--;
+        console.log(this.name + " suffers damage !! HP:"+this.currentHP+"/"+this.maxHP)
         //traiter la mort
         if (this.currentHP <= 0) this.die();
     }

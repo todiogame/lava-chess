@@ -1,26 +1,4 @@
-const SIZE_PERSO = 64;
-const THICKNESS = 1;
-function drawEntities() {
-    entities.forEach(e => drawPerso(e))
-}
-function drawPerso(entity) {
-    if (!entity.hide) {
-        pPerso = layout.hexToPixel(entity.pos);
 
-        // outline
-        ctx.shadowColor = entity.team;
-        ctx.shadowBlur = 0;
-        for (var x = -THICKNESS; x <= THICKNESS; x++) {
-            for (var y = -THICKNESS; y <= THICKNESS; y++) {
-                ctx.shadowOffsetX = x;
-                ctx.shadowOffsetY = y;
-                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
-            }
-        }
-    }
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-}
 //cell types
 const ANY = "ANY";
 const LAVA = "LAVA";
@@ -32,36 +10,10 @@ const PLAYER = "PLAYER";
 const SHADOW = "SHADOW";
 const BOMB = "BOMB";
 
-//summons
-wallImage = new Image();
-wallImage.src = "wall.png";
-
-bombImage = new Image();
-bombImage.src = "bomb.png";
-
-shadowImage = new Image();
-shadowImage.src = "shadow.png"
-
-//glyphs
-damageIcon = new Image();
-damageIcon.src = "fire_icon.png";
-
-rootIcon = new Image();
-rootIcon.src = "net.png"
-
-lavaIcon = new Image();
-lavaIcon.src = "rising.png"
-
-gasIcon = new Image();
-gasIcon.src = "gas.png"
-
-boulderIcon = new Image();
-boulderIcon.src = "boulder.png"
 
 function canCast(caster, spell, targetCell) {
     //check range
     if (outOfRange(caster, spell, targetCell)) return false;
-    console.log("on a la range")
     //check affects types :
     let isAffected = false;
     if (spell.canTarget?.includes(ANY)) {

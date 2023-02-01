@@ -34,9 +34,18 @@ const TABLE_SUMMONS = {
     },
     "infernal": {
         name: "infernal",
-        ttl: 1,
+        ttl: -1,
+        maxHP : 3,
         summonTypes: [INFERNAL, PLAYABLE],
-        auras : [],
+        auras : [
+            { name: "Flame aura", permanent:true,  dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon}
+        ],
+        spells :[
+            {passive:true,cooldown: 0,  name: "Flame aura", permanent:true,  dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon},
+            {passive:true,cooldown: 0,  name: "", permanent:true,  dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon},
+            { passive:true,cooldown: 0, name: "", permanent:true,  dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon},
+
+        ]
     }
 }
 
@@ -58,16 +67,16 @@ const characters = [
     //         // { name: "Meteor", damage: 1, range: 4, cooldown: 5, aoe: "line", glyph: 1, }
     //     ]
     // },
-    // {
-    //     name: "Fisherman",
-    //     src: 'pics/fisherman.png',
-    //     spells: [
-    //         { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
-    //         { name: "Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
-    //         { name: "Belly bump", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [ENTITY] },
-    //         // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
-    //     ]
-    // },
+    {
+        name: "Fisherman",
+        src: 'pics/fisherman.png',
+        spells: [
+            { name: "Hook", dealSpell: fisherman_hook, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
+            { name: "Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
+            { name: "Belly bump", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [ENTITY] },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
+        ]
+    },
     {
         name: "Golem",
         src: 'pics/golem.png',
@@ -78,15 +87,15 @@ const characters = [
             // { name: "Lava triangle", range: 1, cooldown: 5, aoe: "triangle_1", glyph: 1, effect: "lava" }
         ]
     },
-    {
-        name: "Gazeur",
-        src: 'pics/gazeur.png',
-        spells: [
-            { name: "Gaz gaz gaz", dealSpell: damage, range: 0, cooldown: 0, aoe: "single", glyph: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other", glyphIcon: gasIcon, canTarget: [ANY] },
-            { name: "Adrenaline", dealSpell: buffPM, range: 0, cooldown: 2, aoe: "single", type: "BUFF_PM", value: 2, canTarget: [ENTITY] },
-            { name: "Salto", dealSpell: salto, range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [ENTITY] },
-        ]
-    },
+    // {
+    //     name: "Gazeur",
+    //     src: 'pics/gazeur.png',
+    //     spells: [
+    //         { name: "Gaz gaz gaz", dealSpell: damage, range: 0, cooldown: 0, aoe: "single", glyph: 1, color: GLYPH_GAZ, passive: true, permanent: true, onMove: true, selfCast: true, affectsOnly: "other", glyphIcon: gasIcon, canTarget: [ANY] },
+    //         { name: "Adrenaline", dealSpell: buffPM, range: 0, cooldown: 2, aoe: "single", type: "BUFF_PM", value: 2, canTarget: [ENTITY] },
+    //         { name: "Salto", dealSpell: salto, range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [ENTITY] },
+    //     ]
+    // },
     {
         name: "Ninja",
         src: 'pics/ninja.png',

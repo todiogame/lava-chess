@@ -42,32 +42,16 @@ function initGame() {
 
     const TEAM_A_COLOR = "red"
     const TEAM_B_COLOR = "cyan"
-PLAYERS=[]
-let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
+    PLAYERS = []
+    let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
     for (let i = 0; i < 4; i++) {
-        PLAYERS.push( new Player(new Entity(characters[charactersIds[i]].name, 
-            i%2 ? TEAM_B_COLOR: TEAM_A_COLOR, 
-            [], [], 
+        PLAYERS.push(new Playable(new Entity(characters[charactersIds[i]].name,
+            i % 2 ? TEAM_B_COLOR : TEAM_A_COLOR,
+            [], [],
             arrPos[i]),
-        characters[charactersIds[i]].spells))
+            characters[charactersIds[i]].spells))
     }
 
-    // player1 = new Player(
-    //     new Entity(characters[charactersIds[0]].name, TEAM_A_COLOR, [], [], new Hex(0, -3, 3)),
-    //     characters[charactersIds[0]].spells);
-
-
-    // player1 = new Player(characters[charactersIds[0]], TEAM_A_COLOR, new Hex(0, -3, 3))
-    // player2 = new Player(characters[charactersIds[1]], TEAM_B_COLOR, new Hex(0, 3, -3))
-    // player3 = new Player(characters[charactersIds[3]], TEAM_A_COLOR, new Hex(3, -3, 0))
-    // player4 = new Player(characters[charactersIds[2]], TEAM_B_COLOR, new Hex(-3, 3, 0))
-
-    // PLAYERS = [
-    //     player1,
-    //     player2,
-    //     player3,
-    //     player4
-    // ];
     idCurrentPlayer = 0; //start with player1
     currentPlayer = PLAYERS[idCurrentPlayer]
 
@@ -114,26 +98,28 @@ function endTurn(player) {
 }
 
 function triggerAOE(player) {
-    map.forEach(h => {
-        h.aoe = h.aoe.filter(spellEffect => {
-            if (spellEffect.source == player) { // on fait peter les glyphes du joueur dont c'est le tour
-                spellEffect.glyph -= 1;
-                if (spellEffect.glyph <= 0) { //ils expirent
-                    resolveSpell(h, spellEffect, spellEffect.source.entity);
-                    if (!(spellEffect.permanent)) {
-                        return false;
+    if (!(player.isSummoned))
+        map.forEach(h => {
+            h.aoe = h.aoe.filter(spellEffect => {
+                if (spellEffect.source == player) { // on fait peter les glyphes du joueur dont c'est le tour
+                    console.log("triggerAOE from " + player.name)
+                    spellEffect.glyph -= 1;
+                    if (spellEffect.glyph <= 0) { //ils expirent
+                        resolveSpell(h, spellEffect, spellEffect.source.entity);
+                        if (!(spellEffect.permanent)) {
+                            return false;
+                        }
                     }
                 }
-            }
-            return true;
+                return true;
+            })
         })
-    })
 }
 
 function tickDownBuffs(player) {
     player.entity.auras = player.entity.auras.filter(aura => {
         aura.ttl--
-        return (aura.ttl > 0)
+        return (aura.permanent || aura.ttl > 0)
     })
 }
 
@@ -154,7 +140,6 @@ function killExpiredSummons(player) {
 }
 
 function reduceCD(player) {
-    console.log(player)
     player.spells.forEach(s => { if (s.currentCD > 0) s.currentCD-- })
 }
 

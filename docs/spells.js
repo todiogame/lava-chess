@@ -111,9 +111,15 @@ function summon(cell, spell, casterEntity, targetEntity) {
             casterEntity,
             // onDeath: spell.onDeath
         )
+        if (summoned.auras) summoned.auras.forEach(a => a.source = currentPlayer)
         entities.push(summoned)
-        // PLAYERS.splice(index, 0, item);
+        if (summoned.types.includes(PLAYABLE)) {
+            let summonedP = new Playable(summoned, spell.summon.spells, spell.summon.maxHP)
+            summonedP.isSummoned = true;
+            PLAYERS.splice((idCurrentPlayer + 1) % PLAYERS.length, 0, summonedP);
+        }
     }
+    console.log("SUMMONED ", summoned)
     return summoned;
 }
 

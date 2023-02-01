@@ -196,7 +196,6 @@ function refreshAuras() {
             e.auras.forEach(aura => {
                 //get aoe from aura
                 //calculate destination cells on the map
-                console.log(aura)
                 let listCells = makeAOEFromCell(e.pos, aura.aoe, e.pos, aura.direction);
                 listCells.forEach(element => {
                     //apply aoe on the map

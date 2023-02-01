@@ -22,6 +22,11 @@ function clickRiseLava() {
   // drawMap();
 }
 
+function clickPassTurn() {
+  cleanRangeAndHover();
+  passTurn();
+}
+
 function displayCharacterHUD(player) {
   document.getElementById("name").textContent = player.name;
   document.getElementById("current-hp").textContent = `Current HP: ${player.currentHP}/${player.maxHP}`;
@@ -39,5 +44,12 @@ function displayCharacterHUD(player) {
       button.classList.remove("disabled");
       button.removeAttribute("disabled");
     }
+  }
+  if(player.isSummoned) {
+    document.getElementById("rise-lava").style.display = "none";
+    document.getElementById("pass-turn").style.display = "block";
+  } else {
+    document.getElementById("rise-lava").style.display = "block";
+    // document.getElementById("pass-turn").style.display = "none";
   }
 }

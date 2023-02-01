@@ -1,13 +1,17 @@
 class Player {
-    constructor(character, team, pos) {
-        Object.assign(this, character);
-        this.spells=[];
-        Object.assign(this.spells, character.spells);
+    constructor(entity, spells, maxHP) {
 
-        this.entity = new Entity(this.name,team, this.src, [], [PLAYABLE] , pos)
+        this.name=entity.name;
+        // this.team = entity.team
+        this.spells = spells
+        // Object.assign(this.spells, spells);
+
+        this.entity = entity;
+        this.entity.types.push(PLAYABLE)
+        // new Entity(this.name,team, this.src, [], [PLAYABLE] , pos)
 
         this.movePoint = 1;
-        this.maxHP = 4; //every player has got 4 max hp
+        this.maxHP =  maxHP || 4; //every player has got 4 max hp
         this.currentHP = this.maxHP;
         this.spells.forEach(s => {
             s.currentCD = 0;

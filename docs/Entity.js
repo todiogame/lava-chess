@@ -1,5 +1,5 @@
 class Entity {
-    constructor(name, team, src, auras, types, pos,
+    constructor(name, team, auras, types, pos,
         ttl, owner, summoner) {
         this.name = name,
         this.team = team; //team is a color

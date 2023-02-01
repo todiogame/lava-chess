@@ -103,7 +103,6 @@ function summon(cell, spell, casterEntity, targetEntity) {
         summoned = new Entity(
             spell.summon.name,
             casterEntity.team,
-            spell.summon.src,
             spell.summon.auras,
             spell.summon.summonTypes,
             cell.copy(),

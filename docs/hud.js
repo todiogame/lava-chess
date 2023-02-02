@@ -30,8 +30,8 @@ function clickPassTurn() {
 function displayCharacterHUD(player) {
   if (player) {
     document.getElementById("name").textContent = player.name;
-    document.getElementById("current-hp-text").textContent = `HP: ${player.currentHP}/${player.maxHP}`;
-    document.getElementById("hp-value").style.width = `${(player.currentHP / player.maxHP) * 100}%`;
+    document.getElementById("current-hp-text").textContent = `HP: ${player.entity.currentHP}/${player.entity.maxHP}`;
+    document.getElementById("hp-value").style.width = `${(player.entity.currentHP / player.entity.maxHP) * 100}%`;
     document.getElementById("move-cooldown").textContent = `${player.movePoint} point`;
 
     for (let i = 0; i < player.spells.length; i++) {
@@ -75,7 +75,7 @@ const displayPlayers = () => {
   let playerList = "";
 
   PLAYERS.forEach(player => {
-    if (!player.dead) playerList += `<p>${player.currentHP}/${player.maxHP} - ${player.name}</p>`;
+    if (!player.dead) playerList += `<p>${player.entity.currentHP}/${player.entity.maxHP} - ${player.name}</p>`;
   });
   
   playerHud.innerHTML = playerList;

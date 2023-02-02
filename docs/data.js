@@ -54,7 +54,10 @@ const TABLE_SUMMONS = {
         ttl: -1,
         summonTypes: [BARREL],
         maxHP: 1,
-        onDeath: () => { console.log("raledagoni") }
+        onDeath: rasta_barrel_explode,
+        auras: [
+            { name: "Barrel AOE preview", permanent: true, dealSpell: nothing, aoe: "area_1", isAura: true, glyph: 1, color: GLYPH_PREVIEW,  }
+        ],
     },
 }
 

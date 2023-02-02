@@ -12,7 +12,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
-        if(aoe == "straight_line_space_1"){
+        if (aoe == "straight_line_space_1") {
             res = persoPos.linedraw(cell);
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
@@ -37,6 +37,11 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             }
             res.unshift(cell);
         }
+        if (aoe == "curly") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let founds = cell.neighbors(found)
+            res = [found, ...founds]
+        }
         if (aoe == "ninja_slash") {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))
@@ -57,7 +62,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             }
             res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
         }
-        if(aoe == "tentacle_hit"){
+        if (aoe == "tentacle_hit") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
             let third;
             if (found) {

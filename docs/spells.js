@@ -14,19 +14,25 @@ function findMapCell(cell) {
 }
 
 function findEntityOnCell(cell) {
-    if (cell) return entities.find(e => (cell.distance(e.pos) == 0))
+    if (cell) return entities.find(e => (e?.pos && cell.equals(e.pos)))
 }
 function findPlayerFromEntity(entity) {
     if (entity) return PLAYERS.find(p => p.entity == entity)
 }
 function killEntity(entity) {
     let killedPlayer = PLAYERS.find(p => p.entity == entity)
-    if(killedPlayer && !killedPlayer.dead) killedPlayer.die() 
+    if (killedPlayer && !killedPlayer.dead) killedPlayer.die()
     entities = entities.filter(e => e != entity)
 }
 
 // GENERIC
 // deaspell correspond a la fonction du spell 
+function nothing(cell, spell, casterEntity, targetEntity) {
+}
+function damage(cell, spell, casterEntity, targetEntity) {
+    if (targetEntity && !targetEntity.isInvulnerable) targetEntity.damage();
+}
+
 function pull(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
         targetEntity.pos = (cell.subtract(casterEntity.pos)).scale(1 / cell.distance(casterEntity.pos)).add(casterEntity.pos);
@@ -64,12 +70,7 @@ function root(cell, spell, casterEntity, targetEntity) {
         targetplayer.loseMovePoint(99);
     }
 }
-function damage(cell, spell, casterEntity, targetEntity) {
-    let targetplayer = findPlayerFromEntity(targetEntity)
-    if (targetplayer) {
-        targetplayer.damage();
-    }
-}
+
 function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
@@ -106,19 +107,21 @@ function summon(cell, spell, casterEntity, targetEntity) {
             spell.summon.auras,
             spell.summon.summonTypes,
             cell.copy(),
+            spell.summon.maxHP,
             spell.summon.ttl,
             currentPlayer,
             casterEntity,
-            // onDeath: spell.onDeath
+            spell.summon.onDeath,
+            spell.summon.flags,
         )
         if (summoned.auras) summoned.auras.forEach(a => a.source = currentPlayer)
 
         entities.push(summoned)
 
         if (summoned.types.includes(PLAYABLE)) {
-            let summonedP = new Playable(summoned, spell.summon.spells, spell.summon.maxHP)
+            let summonedP = new Playable(summoned, spell.summon.spells)
             summonedP.isSummoned = true;
-            PLAYERS.splice((idCurrentPlayer + 1) % (PLAYERS.length+1), 0, summonedP);
+            PLAYERS.splice((idCurrentPlayer + 1) % (PLAYERS.length + 1), 0, summonedP);
         }
     }
     console.log("SUMMONED ", summoned)
@@ -150,4 +153,11 @@ function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
     tentacleHit.direction = direction;
     tentacleHit.source = currentPlayer;
     return tentacle;
+}
+
+//on death spells
+function rasta_barrel_explode(casterEntity){
+    console.log("Barrel exploses !")
+    let listCells = makeAOEFromCell(casterEntity.pos, "ring_1");
+    listCells.forEach(cell => resolveSpell(cell, {dealSpell : damage}, casterEntity))
 }

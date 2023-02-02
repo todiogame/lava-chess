@@ -174,7 +174,7 @@ const characters = [
         name: "Time Traveller",
         spells: [
             { name: "Time Machine", dealSpell: summon, summon: TABLE_SUMMONS["time_machine"], range: 3, rangeMin: 1, cooldown: 1, aoe: "single", glyph: 0, canTarget: [EMPTY] },
-            { name: "Backwards Hit", dealSpell: time_backwards_hit, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
+            { name: "Backwards Hit", dealSpell: time_backwards_hit, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [ENTITY] },
             { name: "Silence Lance", dealSpell: silence, range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph: 1, color: GLYPH_PURPLE, glyphIcon: silenceIcon, canTarget: [ANY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
         ]
@@ -184,7 +184,7 @@ const characters = [
         spells: [
             { name: "Undead Army", dealSpell: summon, summon: TABLE_SUMMONS["zombie"], range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [EMPTY] },
             { name: "Happy Flower", dealSpell: shaman_flower, range: 9, rangeMin: 2, cooldown: 2, aoe: "single", glyph: 1, permanent: true, canTarget: [EMPTY], color: GLYPH_FLOWER, glyphIcon: flowerIcon },
-            { name: "Voodoo Curse", dealSpell: silence, range: 1, rangeMin:1, cooldown: 1, aoe: "single", canTarget: [PLAYABLE] },
+            { name: "Voodoo Curse", dealSpell: silence, range: 1, rangeMin:1, cooldown: 2, aoe: "single", canTarget: [PLAYABLE] },
         ]
     },
     // {

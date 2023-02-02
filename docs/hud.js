@@ -63,7 +63,8 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-    if(!TEST)  document.getElementById("pass-turn").style.display = "none";
+    // if(!TEST)  
+    document.getElementById("pass-turn").style.display = "none";
     }
   }
   displayTimeline(player);

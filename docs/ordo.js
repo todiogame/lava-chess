@@ -26,8 +26,8 @@ function initMap() {
     // map.map(h => h.aoe = []);
 }
 
-TEST = false;
-STARTER = [8]
+TEST = true;
+STARTER = [8,7,6,5]
 
 function initGame() {
 

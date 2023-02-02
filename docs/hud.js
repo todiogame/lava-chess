@@ -36,18 +36,19 @@ function displayCharacterHUD(player) {
 
     for (let i = 0; i < player.spells.length; i++) {
       let spell = player.spells[i];
-      let button = document.getElementById(`spell-${i}`);
-      button.textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
-      button.setAttribute("data-spell", spell.name);
-      if (spell.currentCD > 0 || spell.passive|| (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
-        button.classList.add("disabled");
-        button.setAttribute("disabled", true);
-      } else {
-        button.classList.remove("disabled");
-        button.removeAttribute("disabled");
+      if (spell) {
+        let button = document.getElementById(`spell-${i}`);
+        button.textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
+        button.setAttribute("data-spell", spell.name);
+        if (spell.currentCD > 0 || spell.passive || (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
+          button.classList.add("disabled");
+          button.setAttribute("disabled", true);
+        } else {
+          button.classList.remove("disabled");
+          button.removeAttribute("disabled");
+        }
       }
     }
-
     let moveButton = document.getElementById(`move`);
     if (player.movePoint <= 0) {
       moveButton.classList.add("disabled");
@@ -62,7 +63,7 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-      // document.getElementById("pass-turn").style.display = "none";
+    if(!TEST)  document.getElementById("pass-turn").style.display = "none";
     }
   }
   displayTimeline(player);
@@ -76,7 +77,7 @@ const displayTimeline = (currentP) => {
 
   PLAYERS.forEach(p => {
     if (!p.dead)
-     playerList += `<p  ${p == currentP ? `class="highlight"`: ``}>${p.entity.currentHP}/${p.entity.maxHP} - ${p.name}</p>`;
+      playerList += `<p  ${p == currentP ? `class="highlight"` : ``}>${p.entity.currentHP}/${p.entity.maxHP} - ${p.name}</p>`;
 
   });
 

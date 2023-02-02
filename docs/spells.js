@@ -83,6 +83,12 @@ function buffPM(cell, spell, casterEntity, targetEntity) {
         targetplayer.buffPM(spell.value || 1);
     }
 }
+function buffPO(cell, spell, casterEntity, targetEntity) {
+    let targetplayer = findPlayerFromEntity(targetEntity)
+    if (targetplayer) {
+        targetplayer.buffPO(spell.value || 1);
+    }
+}
 
 function riseLava(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
@@ -173,6 +179,23 @@ function assassin_smokebomb(cell, spell, casterEntity, targetEntity, direction, 
 function time_backwards_hit(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     push(cell, spell, targetEntity, casterEntity,)
+}
+
+function zombie_attack(cell, spell, casterEntity, targetEntity) {
+    damage(cell, spell, casterEntity, targetEntity)
+    casterEntity.die();
+}
+function shaman_flower(cell, spell, casterEntity, targetEntity) {
+    if (targetEntity == casterEntity) {
+        spell.permanent = false;
+        //heal
+        targetEntity.heal()
+        //buff PO
+        buffPO(cell, spell, casterEntity, targetEntity)
+
+    }
+}
+function debuffCD(cell, spell, casterEntity, targetEntity) {
 
 }
 

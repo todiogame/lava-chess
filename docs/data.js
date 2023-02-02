@@ -44,8 +44,8 @@ const TABLE_SUMMONS = {
         ],
         spells: [
             { passive: true, cooldown: 0, name: "Flame aura", permanent: true, dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { passive: true, cooldown: 0, name: "", permanent: true, dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
-            { passive: true, cooldown: 0, name: "", permanent: true, dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon },
+            { passive: true, cooldown: 0, name: "" },
+            { passive: true, cooldown: 0, name: "" },
 
         ]
     },
@@ -70,13 +70,26 @@ const TABLE_SUMMONS = {
             { name: "Explosion", dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, },
         ],
     },
+
+    "zombie": {
+        name: "Zombie",
+        ttl: -1,
+        maxHP: 1,
+        summonTypes: [PLAYABLE],
+        auras: [],
+        spells: [
+            //just an hud indication, this spell works with the aura
+            { name: "Zombie Attack", dealSpell: zombie_attack, range: 1, rangeMin: 1, cooldown: 0, aoe: "single", canTarget: [ENTITY] },
+            { passive: true, cooldown: 0, name: "" },
+            { passive: true, cooldown: 0, name: "" },
+        ]
+    },
 }
 
-// let onDeath = () => { console.log("raledagoni") }
 
 const LAVA_SPELL =
 {
-    name: "LAVA_SPELL", dealSpell: riseLava, range: 99, aoe: "single", canTarget: [EMPTY]
+    name: "LAVA_SPELL", dealSpell: riseLava, range: 9, aoe: "single", canTarget: [EMPTY]
     // color: ORANGE, effect: "lava", glyphIcon: lavaIcon
 };
 const characters = [
@@ -143,7 +156,7 @@ const characters = [
     {
         name: "Rasta",
         spells: [
-            { name: "Gatling Shot", dealSpell: damage, range: 99, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [ANY], color: GLYPH_BROWN, glyphIcon: damageIcon },
+            { name: "Gatling Shot", dealSpell: damage, range: 9, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [ANY], color: GLYPH_BROWN, glyphIcon: damageIcon },
             { name: "Rolling Barrel", dealSpell: summon, summon: TABLE_SUMMONS["barrel"], range: 2, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [EMPTY] },
             { name: "Jamming Retreat", dealSpell: buffPM, value: 2, range: 0, cooldown: 3, aoe: "single", canTarget: [ENTITY] },
         ]
@@ -151,8 +164,8 @@ const characters = [
     {
         name: "Assassin",
         spells: [
-            { name: "Silent Bullet", dealSpell: damage, range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [ENTITY] },
             { name: "Backstab", dealSpell: damage, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
+            { name: "Silent Bullet", dealSpell: damage, range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [ENTITY] },
             { name: "Smoke bomb", dealSpell: assassin_smokebomb, range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self", canTarget: [EMPTY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
         ]
@@ -162,8 +175,16 @@ const characters = [
         spells: [
             { name: "Time Machine", dealSpell: summon, summon: TABLE_SUMMONS["time_machine"], range: 3, rangeMin: 1, cooldown: 1, aoe: "single", glyph: 0, canTarget: [EMPTY] },
             { name: "Backwards Hit", dealSpell: time_backwards_hit, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
-            { name: "Silence Lance", dealSpell: silence, range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph:1, color: GLYPH_PURPLE, glyphIcon: silenceIcon,  canTarget: [ANY] },
+            { name: "Silence Lance", dealSpell: silence, range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph: 1, color: GLYPH_PURPLE, glyphIcon: silenceIcon, canTarget: [ANY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
+        ]
+    },
+    {
+        name: "Shaman",
+        spells: [
+            { name: "Undead Army", dealSpell: summon, summon: TABLE_SUMMONS["zombie"], range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [EMPTY] },
+            { name: "Happy Flower", dealSpell: shaman_flower, range: 9, rangeMin: 2, cooldown: 2, aoe: "single", glyph: 1, permanent: true, canTarget: [EMPTY], color: GLYPH_FLOWER, glyphIcon: flowerIcon },
+            { name: "Voodoo Curse", dealSpell: silence, range: 1, rangeMin:1, cooldown: 1, aoe: "single", canTarget: [PLAYABLE] },
         ]
     },
     // {

@@ -242,7 +242,9 @@ function canCast(caster, spell, targetCell) {
     //add other tests : line of sight, blocked case ?
 }
 function outOfRange(caster, spell, targetCell) {
-    return (caster.pos.distance(targetCell) > spell.range)
+    let casterPlayer = findPlayerFromEntity(caster)
+    let rangeSpell = casterPlayer.bonusPO ? casterPlayer.bonusPO + spell.range : spell.range;
+    return (caster.pos.distance(targetCell) > rangeSpell)
         || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
         || ((spell.aoe && spell.aoe.includes("straight_line")) && !(targetCell.isSameLine(caster.pos)));
 }

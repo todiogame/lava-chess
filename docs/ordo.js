@@ -24,11 +24,10 @@ function initMap() {
         h.rand4 = Math.floor(Math.random() * 4)
     })
     // map.map(h => h.aoe = []);
-
-    
-
-
 }
+
+TEST = false;
+STARTER = [8]
 
 function initGame() {
 
@@ -40,7 +39,7 @@ function initGame() {
     nbPions = 4;
 
     charactersIds = [];
-    charactersIds.push();
+    if (TEST) charactersIds.push(...STARTER);
     while (charactersIds.length < nbPions) {
         let randomInt = Math.floor(Math.random() * characters.length);
         if (!charactersIds.includes(randomInt)) {

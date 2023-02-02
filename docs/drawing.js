@@ -31,7 +31,8 @@ gasIcon.src = "pics/gas.png"
 boulderIcon = new Image();
 boulderIcon.src = "pics/boulder.png"
 
-
+flowerIcon = new Image();
+flowerIcon.src = "pics/flower.png"
 
 function drawEntities() {
     entities.forEach(e => drawPerso(e))
@@ -81,6 +82,7 @@ const GLYPH_BLUE = "rgb(50, 150, 255, 0.2)";
 const GLYPH_BROWN = "rgb(50, 50, 30, 0.3)";
 const GLYPH_ORANGE = "rgb(255, 65, 0, 0.5)";
 const GLYPH_PURPLE = "rgb(255,0,255, 0.3)"
+const GLYPH_FLOWER = "rgb(30, 205, 50, 0.3)";
 
 const GLYPH_GAZ = "rgb(100, 255, 150, 0.3)";
 const GLYPH_PREVIEW = "rgb(255, 65, 0, 0.2)";

@@ -5,7 +5,10 @@ class Entity {
         this.name = name,
             this.team = team; //team is a color
         this.image = new Image();
-        this.image.src = "pics/" + name.toLowerCase() + ".png";
+        
+        this.image.src = "pics/" + name.toLowerCase() +
+        (name.toLowerCase() == "zombie" ? Math.floor(Math.random() * 2) : "" )
+        + ".png";
         this.auras = auras;
         this.types = [ENTITY, ...types]
         this.pos = pos;
@@ -29,6 +32,11 @@ class Entity {
         Anim.splash(this.pos, "-1")
         //traiter la mort
         if (this.currentHP <= 0) this.die();
+    }
+
+    heal(){ //all spells deal 1 damage in this game
+        if(this.currentHP < this.maxHP) this.currentHP++;
+        console.log(this.name + " heals !! HP:" + this.currentHP + "/" + this.maxHP)
     }
 
     die() {

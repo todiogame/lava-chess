@@ -21,6 +21,11 @@ class Playable {
         if (parseInt(value)) this.movePoint += value;
     }
 
+    buffPO(value) {
+        console.log("buff PO " + this.name + " by " + value)
+        if (parseInt(value)) this.bonusPO = this.bonusPO ? this.bonusPO + value : value;
+    }
+
     loseMovePoint(value) {
         console.log("remove PM from " + this.name)
         if (!parseInt(value)) value = 1;
@@ -33,7 +38,7 @@ class Playable {
     }
 
     die() {
-        console.log("player "+ this.name + " is dead...")
+        console.log("player " + this.name + " is dead...")
         //kill him and kill babies too
         entities = entities.filter(e => e != this.entity && e.owner != this)
         PLAYERS.forEach(p => {

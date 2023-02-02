@@ -1,7 +1,7 @@
 class Entity {
     constructor(name, team, auras, types, pos, maxHP,
         ttl, owner, summoner, onDeath, flags) {
-        
+
         this.name = name,
             this.team = team; //team is a color
         this.image = new Image();
@@ -33,21 +33,20 @@ class Entity {
 
     die() {
         console.log("entity " + this.name + " is dead...")
-        //cast onDeath();
-        if (typeof this.onDeath === 'function') {
-            console.log("ondeath barrel")
-            this.onDeath(this)
-
-        }
         //remove from entities
         entities = entities.filter(e => e != this)
+        //cast onDeath();
+        if (typeof this.onDeath === 'function') {
+            this.onDeath(this)
+        }
+
         //if it is a player, kill the player too
         let targetplayer = findPlayerFromEntity(this)
         if (targetplayer) targetplayer.die();
 
     }
 
-    isEnemy(otherEntity){
+    isEnemy(otherEntity) {
         if (otherEntity) return this.team != otherEntity.team;
     }
 }

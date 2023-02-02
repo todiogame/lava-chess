@@ -62,23 +62,25 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-      document.getElementById("pass-turn").style.display = "none";
+      // document.getElementById("pass-turn").style.display = "none";
     }
   }
-  displayPlayers();
+  displayTimeline(player);
 
 }
 
 
-const displayPlayers = () => {
+const displayTimeline = (currentP) => {
   const playerHud = document.querySelector("#timeline");
   let playerList = "";
 
-  PLAYERS.forEach(player => {
-    if (!player.dead) playerList += `<p>${player.entity.currentHP}/${player.entity.maxHP} - ${player.name}</p>`;
+  PLAYERS.forEach(p => {
+    if (!p.dead)
+     playerList += `<p  ${p == currentP ? `class="highlight"`: ``}>${p.entity.currentHP}/${p.entity.maxHP} - ${p.name}</p>`;
+
   });
 
   playerHud.innerHTML = playerList;
-  let playersHTML = document.querySelectorAll("#timeline p");
-  if (idCurrentPlayer || idCurrentPlayer === 0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
+  // let playersHTML = document.querySelectorAll("#timeline p");
+  // if (idCurrentPlayer || idCurrentPlayer === 0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
 };

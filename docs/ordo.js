@@ -31,10 +31,11 @@ function initGame() {
     //map
     N = 5;
     map = [];
+    nbPions = 4;
 
     charactersIds = [];
     charactersIds.push();
-    while (charactersIds.length < 4) {
+    while (charactersIds.length < nbPions) {
         let randomInt = Math.floor(Math.random() * characters.length);
         if (!charactersIds.includes(randomInt)) {
             charactersIds.push(randomInt);
@@ -47,7 +48,7 @@ function initGame() {
 
     PLAYERS = []
     let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < nbPions; i++) {
         PLAYERS.push(new Playable(new Entity(characters[charactersIds[i]].name,
             i % 2 ? TEAM_B_COLOR : TEAM_A_COLOR,
             [], [],

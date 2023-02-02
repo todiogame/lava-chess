@@ -39,7 +39,7 @@ function displayCharacterHUD(player) {
       let button = document.getElementById(`spell-${i}`);
       button.textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
       button.setAttribute("data-spell", spell.name);
-      if (spell.currentCD > 0 || spell.passive) {
+      if (spell.currentCD > 0 || spell.passive|| (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
         button.classList.add("disabled");
         button.setAttribute("disabled", true);
       } else {
@@ -77,8 +77,8 @@ const displayPlayers = () => {
   PLAYERS.forEach(player => {
     if (!player.dead) playerList += `<p>${player.entity.currentHP}/${player.entity.maxHP} - ${player.name}</p>`;
   });
-  
+
   playerHud.innerHTML = playerList;
   let playersHTML = document.querySelectorAll("#timeline p");
-  if (idCurrentPlayer || idCurrentPlayer===0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
+  if (idCurrentPlayer || idCurrentPlayer === 0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
 };

@@ -13,7 +13,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
         if (aoe == "straight_line_inferno") {
-            let dirLine = (cell.subtract(persoPos)).scale(1 / persoPos.distance(cell) );
+            let dirLine = (cell.subtract(persoPos)).scale(1 / persoPos.distance(cell));
             console.log()
             let found = map.find(b => persoPos.add(dirLine).distance(b) == 0);
             // res = persoPos.linedraw(cell);
@@ -22,9 +22,9 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
                 found = map.find(b => found.add(dirLine).distance(b) == 0);
             }
             res.unshift(cell);
-            let non =[];
+            let non = [];
             AOE["area_1"].forEach(a => non.push(persoPos.add(a)))
-            res = res.filter(e => !(non.some(n => n.equals(e))))        
+            res = res.filter(e => !(non.some(n => n.equals(e))))
         }
         if (aoe == "pair") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
@@ -47,6 +47,17 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
             let founds = cell.neighbors(found)
             res = [found, ...founds]
+        }
+        if (aoe == "handspinner") {
+            let indexDir;
+            Hex.directions.forEach((d, i) => {
+                if (d.equals(direction)) indexDir = i;
+            })
+            res.push(cell)
+            res.push(cell.add(direction))
+            res.push(cell.add(Hex.direction((indexDir + 2) % 6)))
+            res.push(cell.add(Hex.direction((indexDir + 4) % 6)))
+
         }
         if (aoe == "ninja_slash") {
             AOE["ring_1"].forEach(a => {

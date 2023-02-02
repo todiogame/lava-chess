@@ -33,7 +33,7 @@ function initGame() {
     map = [];
 
     charactersIds = [];
-    // charactersIds.push(6);
+    charactersIds.push(7);
     while (charactersIds.length < 4) {
         let randomInt = Math.floor(Math.random() * characters.length);
         if (!charactersIds.includes(randomInt)) {

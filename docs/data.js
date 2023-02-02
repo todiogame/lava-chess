@@ -59,6 +59,17 @@ const TABLE_SUMMONS = {
             { name: "Barrel AOE preview", permanent: true, dealSpell: nothing, aoe: "area_1", isAura: true, glyph: 1, color: GLYPH_PREVIEW, }
         ],
     },
+
+    "time_machine": {
+        name: "time_machine",
+        ttl: 1,
+        summonTypes: [],
+        maxHP: 1,
+        auras: [
+            { name: "Time Machine", dealSpell: blink, aoe: "single", isAura: true, glyph: 1, color: GLYPH_PREVIEW, },
+            { name: "Explosion", dealSpell: damage, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, },
+        ],
+    },
 }
 
 // let onDeath = () => { console.log("raledagoni") }
@@ -116,7 +127,7 @@ const characters = [
     {
         name: "Ninja",
         spells: [
-            { name: "Cast Shadow", dealSpell: summon, summon: TABLE_SUMMONS["shadow"], range: 2, rangeMin: 1, cooldown: 3, aoe: "single", glyph: 0, canTarget: [EMPTY] },
+            { name: "Cast Shadow", dealSpell: summon, summon: TABLE_SUMMONS["shadow"], range: 2, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [EMPTY] },
             { name: "Spinning Slash", dealSpell: damage, range: 0, cooldown: 2, aoe: "ninja_slash", canTarget: [PLAYABLE] },
             { name: "Master of Illusion", dealSpell: switcheroo, range: 8, cooldown: 2, aoe: "single", canTarget: [SHADOW] },
         ]
@@ -141,8 +152,17 @@ const characters = [
         name: "Assassin",
         spells: [
             { name: "Silent Bullet", dealSpell: damage, range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [ENTITY] },
-            { name: "Backstab", dealSpell: damage, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY]},
-            { name: "Smoke bomb",dealSpell: assassin_smokebomb, range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self",  canTarget: [EMPTY]},
+            { name: "Backstab", dealSpell: damage, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
+            { name: "Smoke bomb", dealSpell: assassin_smokebomb, range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self", canTarget: [EMPTY] },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
+        ]
+    },
+    {
+        name: "Time Traveller",
+        spells: [
+            { name: "Time Machine", dealSpell: summon, summon: TABLE_SUMMONS["time_machine"], range: 3, rangeMin: 1, cooldown: 1, aoe: "single", glyph: 0, canTarget: [EMPTY] },
+            { name: "Backwards Hit", dealSpell: time_backwards_hit, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY] },
+            { name: "Silence Lance", dealSpell: silence, range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph:1, color: GLYPH_PURPLE, glyphIcon: silenceIcon,  canTarget: [ANY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
         ]
     },
@@ -159,7 +179,7 @@ const characters = [
     //     spells: [
     //         { name: "Cleave", damage: 1, range: 2, cooldown: 2, aoe: "single", glyph: 1, color: GLYPH_BLUE, },
     //         { name: "Shield Bash", damage: 1, range: 1, cooldown: 3, aoe: "single", glyph: 1, color: GLYPH_BLUE, },
-    //         { name: "Charge", damage: 1, range: 3, cooldown: 4, aoe: "line", glyph: 1, color: GLYPH_BLUE, },
+    //         { name: "Charge", damage: 1, range: 3, cooldown: 4, aoe: "line", glyph: 1, color: GLYPH_BLUE, }
     //         // { name: "Whirlwind", damage: 1, range: 1, cooldown: 5, aoe: "cone", glyph: 1, }
     //     ]
     // },

@@ -71,6 +71,12 @@ function root(cell, spell, casterEntity, targetEntity) {
     }
 }
 
+function silence(cell, spell, casterEntity, targetEntity) {
+    if (targetEntity) targetEntity.auras.push(
+        { name: "silence", ttl: 2 }
+    );
+}
+
 function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
@@ -90,8 +96,8 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
 }
 
 function blink(cell, spell, casterEntity, targetEntity) {
-    if (!targetEntity) //empty cell
-        casterEntity.pos = cell;
+    // if (!targetEntity) //empty cell
+    casterEntity.pos = cell;
 }
 
 function summon(cell, spell, casterEntity, targetEntity) {
@@ -136,6 +142,7 @@ function golem_boulder(cell, spell, casterEntity, targetEntity) {
         riseLava(cell, spell, casterEntity, targetEntity)
     }
 }
+
 // add this when we add LOS maybe (ldv)
 /*
 function fisherman_hook(cell, spell, casterEntity, targetEntity) {
@@ -143,10 +150,12 @@ function fisherman_hook(cell, spell, casterEntity, targetEntity) {
     if (casterEntity.isEnemy(targetEntity)) damage(cell, spell, casterEntity, targetEntity)
     return res
 }*/
+
 function fisherman_push(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     push(cell, spell, casterEntity, targetEntity)
 }
+
 function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
     console.log("demo tentacle")
     let tentacle = summon(cell, spell, casterEntity, targetEntity)
@@ -155,14 +164,21 @@ function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
     tentacleHit.source = currentPlayer;
     return tentacle;
 }
+
 function assassin_smokebomb(cell, spell, casterEntity, targetEntity, direction, mainCell) {
     if (targetEntity != casterEntity) root(cell, spell, casterEntity, targetEntity);
     casterEntity.pos = mainCell;
 }
 
+function time_backwards_hit(cell, spell, casterEntity, targetEntity) {
+    damage(cell, spell, casterEntity, targetEntity)
+    push(cell, spell, targetEntity, casterEntity,)
+
+}
+
 //on death spells
-function rasta_barrel_explode(casterEntity){
+function rasta_barrel_explode(casterEntity) {
     console.log("Barrel exploses !")
     let listCells = makeAOEFromCell(casterEntity.pos, "ring_1");
-    listCells.forEach(cell => resolveSpell(cell, {dealSpell : damage}, casterEntity))
+    listCells.forEach(cell => resolveSpell(cell, { dealSpell: damage }, casterEntity))
 }

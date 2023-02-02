@@ -101,7 +101,7 @@ const characters = [
     {
         name: "Fisherman",
         spells: [
-            { name: "Bait Hook", dealSpell: pull, range: 4, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
+            { name: "Bait Hook", dealSpell: pull, range: 5, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [ENTITY] },
             { name: "Fishing Net", dealSpell: root, range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
             { name: "Belly Bump", dealSpell: fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [ENTITY] },
             // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }

@@ -15,12 +15,18 @@ function initMap() {
         }
     }
 
-    //add lava
     map.map(h => {
+        //add lava
         if (h.len() <= N - 1) h.floor = true;
+        //prepare aoe arrays
+        h.aoe = []
+        //add random id for tiles
+        h.rand4 = Math.floor(Math.random() * 4)
     })
-    //prepare aoe arrays
-    map.map(h => h.aoe = []);
+    // map.map(h => h.aoe = []);
+
+    
+
 
 }
 

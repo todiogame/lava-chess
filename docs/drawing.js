@@ -2,8 +2,15 @@ const SIZE_PERSO = 64;
 const SIZE_TILE = 95;
 const THICKNESS = 1;
 
-tileImage = new Image();
-tileImage.src = "pics/tile.png"
+tile0Image = new Image();
+tile0Image.src = "pics/tile0.png"
+tile1Image = new Image();
+tile1Image.src = "pics/tile1.png"
+tile2Image = new Image();
+tile2Image.src = "pics/tile2.png"
+tile3Image = new Image();
+tile3Image.src = "pics/tile3.png"
+tileImage=[tile0Image,tile1Image,tile2Image,tile3Image]
 
 //glyphs
 damageIcon = new Image();
@@ -122,7 +129,8 @@ function drawMap() {
 
 function drawFloor(h){
     pPerso = layout.hexToPixel(h);
-    ctx.drawImage(tileImage, pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);
+    // tileImage[Math.floor(Math.random() * 4)] //kek
+    ctx.drawImage(tileImage[h.rand4], pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);
 }
 
 function paintCell(mapCell, color, glyphIcon) {

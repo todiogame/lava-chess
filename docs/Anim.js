@@ -56,10 +56,10 @@ static mainLoop() {
         intervalId = setInterval(update, 16);
     }
 
-    static splash(entity, text) {
+    static splash(pos, text) {
         {
-            console.log('splash', entity, text)
-            const coords = layout.hexToPixel(entity.pos); // {x,y}
+            // console.log('splash', entity, text)
+            const coords = layout.hexToPixel(pos); // {x,y}
             const colors = ['#ffc000', '#ff3b3b', '#ff8400'];
             const bubbles = 25;
     

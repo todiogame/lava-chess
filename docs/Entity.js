@@ -26,7 +26,7 @@ class Entity {
     damage() { //all spells deal 1 damage in this game
         this.currentHP--;
         console.log(this.name + " suffers damage !! HP:" + this.currentHP + "/" + this.maxHP)
-        Anim.splash(this, "-1")
+        Anim.splash(this.pos, "-1")
         //traiter la mort
         if (this.currentHP <= 0) this.die();
     }

@@ -1,5 +1,9 @@
 const SIZE_PERSO = 64;
+const SIZE_TILE = 92;
 const THICKNESS = 1;
+
+tileImage = new Image();
+tileImage.src = "pics/tile.png"
 
 //glyphs
 damageIcon = new Image();
@@ -34,7 +38,7 @@ function drawPerso(entity) {
             for (var y = -THICKNESS; y <= THICKNESS; y++) {
                 ctx.shadowOffsetX = x;
                 ctx.shadowOffsetY = y;
-                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
+                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO * 3 / 4, SIZE_PERSO, SIZE_PERSO);
             }
         }
     }
@@ -93,7 +97,8 @@ function drawMap() {
         pts.forEach(p => ctx.lineTo(p.x, p.y));
         ctx.closePath();
         ctx.stroke();
-        if (h.floor) paintCell(h, EARTH)
+        // if (h.floor) paintCell(h, EARTH)
+        if(h.floor) drawFloor(h)
         if (h.range) paintCell(h, colorRange)
         if (h.hit) paintCell(h, SPELL_HIT)
 
@@ -108,6 +113,11 @@ function drawMap() {
     })
     drawEntities();
     displayCharacterHUD(currentPlayer)
+}
+
+function drawFloor(h){
+    pPerso = layout.hexToPixel(h);
+    ctx.drawImage(tileImage, pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);
 }
 
 function paintCell(mapCell, color, glyphIcon) {

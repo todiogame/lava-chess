@@ -46,4 +46,8 @@ class Entity {
         if (targetplayer) targetplayer.die();
 
     }
+
+    isEnemy(otherEntity){
+        if (otherEntity) return this.team != otherEntity.team;
+    }
 }

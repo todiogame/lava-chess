@@ -147,7 +147,7 @@ function castSpell(caster, spell, cell, exactPtH) {
                     if (h.distance(affectedCell) == 0) {
                         // instant spell deals their effect instantly
                         if (!spell.glyph) {
-                            alreadyAffected = resolveSpell(h, spell, caster, direction) ? true : alreadyAffected;
+                            alreadyAffected = resolveSpell(h, spell, caster, direction, cell) ? true : alreadyAffected;
                         }
                         // glyph spells drop a glyph
                         else {

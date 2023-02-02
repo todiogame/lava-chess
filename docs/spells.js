@@ -1,9 +1,9 @@
 
-function resolveSpell(cell, spell, casterEntity, direction) {
+function resolveSpell(cell, spell, casterEntity, direction, mainCell) {
     //direction only use for tentacle now
     targetCell = findMapCell(cell)
     let targetEntity = findEntityOnCell(targetCell);
-    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity, direction)
+    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity, direction, mainCell)
     checkAnyoneInLava()
 
     return result;
@@ -136,12 +136,13 @@ function golem_boulder(cell, spell, casterEntity, targetEntity) {
         riseLava(cell, spell, casterEntity, targetEntity)
     }
 }
-//nerf du fisherman, plus de dommages, plus besoin de fonction speciale
-// function fisherman_hook(cell, spell, casterEntity, targetEntity) {
-//     let res = pull(cell, spell, casterEntity, targetEntity)
-//     damage(cell, spell, casterEntity, targetEntity)
-//     return res
-// }
+// add this when we add LOS maybe (ldv)
+/*
+function fisherman_hook(cell, spell, casterEntity, targetEntity) {
+    let res = pull(cell, spell, casterEntity, targetEntity)
+    if (casterEntity.isEnemy(targetEntity)) damage(cell, spell, casterEntity, targetEntity)
+    return res
+}*/
 function fisherman_push(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     push(cell, spell, casterEntity, targetEntity)
@@ -153,6 +154,10 @@ function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
     tentacleHit.direction = direction;
     tentacleHit.source = currentPlayer;
     return tentacle;
+}
+function assassin_smokebomb(cell, spell, casterEntity, targetEntity, direction, mainCell) {
+    if (targetEntity != casterEntity) root(cell, spell, casterEntity, targetEntity);
+    casterEntity.pos = mainCell;
 }
 
 //on death spells

@@ -56,7 +56,7 @@ const TABLE_SUMMONS = {
         maxHP: 1,
         onDeath: rasta_barrel_explode,
         auras: [
-            { name: "Barrel AOE preview", permanent: true, dealSpell: nothing, aoe: "area_1", isAura: true, glyph: 1, color: GLYPH_PREVIEW,  }
+            { name: "Barrel AOE preview", permanent: true, dealSpell: nothing, aoe: "area_1", isAura: true, glyph: 1, color: GLYPH_PREVIEW, }
         ],
     },
 }
@@ -132,9 +132,18 @@ const characters = [
     {
         name: "Rasta",
         spells: [
-            { name: "Gatling Shot", dealSpell: damage, range: 99, cooldown: 1, aoe: "line", aoeSize:5, glyph: 1, canTarget: [ANY], color: GLYPH_BROWN, glyphIcon: damageIcon },
+            { name: "Gatling Shot", dealSpell: damage, range: 99, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [ANY], color: GLYPH_BROWN, glyphIcon: damageIcon },
             { name: "Rolling Barrel", dealSpell: summon, summon: TABLE_SUMMONS["barrel"], range: 2, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [EMPTY] },
             { name: "Jamming Retreat", dealSpell: buffPM, value: 2, range: 0, cooldown: 3, aoe: "single", canTarget: [ENTITY] },
+        ]
+    },
+    {
+        name: "Assassin",
+        spells: [
+            { name: "Silent Bullet", dealSpell: damage, range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [ENTITY] },
+            { name: "Backstab", dealSpell: damage, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [ENTITY]},
+            { name: "Smoke bomb",dealSpell: assassin_smokebomb, range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self",  canTarget: [EMPTY]},
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
         ]
     },
     // {
@@ -161,15 +170,6 @@ const characters = [
     //         { name: "Silent Shot", damage: 1, range: 3, cooldown: 3, aoe: "single", glyph: 1, color: GLYPH_BLUE, },
     //         { name: "Rapid Fire", damage: 1, range: 2, cooldown: 4, aoe: "line", glyph: 1, color: GLYPH_BLUE, },
     //         // { name: "Vault", damage: 1, range: 1, cooldown: 5, aoe: "self", glyph: 1, }
-    //     ]
-    // },
-    // {
-    //     name: "Assassin",
-    //     spells: [
-    //         { name: "Backstab", damage: 1, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", glyph: 1, color: GLYPH_BLUE, },
-    //         { name: "Smoke bomb", damage: 1, range: 2, cooldown: 3, aoe: "area", glyph: 1, color: GLYPH_BLUE, },
-    //         { name: "Blink strike", damage: 1, range: 3, cooldown: 4, aoe: "line", glyph: 1, color: GLYPH_BLUE, },
-    //         // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
     //     ]
     // },
 ];

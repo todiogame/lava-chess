@@ -70,6 +70,16 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             }
             res = third ? [found, third] : (found ? [found] : []);
         }
+        if (aoe == "single_straight_line") {
+            AOE["single"].forEach(a => {
+                res.push(cell.add(a))
+            })
+        }
+        if (aoe == "ring_1_on_self") {
+            AOE["ring_1"].forEach(a => {
+                res.push(persoPos.add(a))
+            })
+        }
     }
 
     return res;

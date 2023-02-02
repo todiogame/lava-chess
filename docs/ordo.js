@@ -33,7 +33,7 @@ function initGame() {
     map = [];
 
     charactersIds = [];
-    // charactersIds.push(5,3);
+    // charactersIds.push(6);
     while (charactersIds.length < 4) {
         let randomInt = Math.floor(Math.random() * characters.length);
         if (!charactersIds.includes(randomInt)) {
@@ -61,17 +61,6 @@ function initGame() {
     entities = [];
     PLAYERS.forEach(p => entities.push(p.entity))
 
-
-    // lava.onload = () => {
-    //     drawMap();
-    // }
-    // PLAYERS.forEach(p => {
-    //     p.entity.image.onload = () => {
-    //         drawEntities();
-    //     }
-    // })
-
-    //   requestAnimationFrame(Anim.mainLoop);
 }
 function playTurn() {
     if (currentPlayer.dead) {

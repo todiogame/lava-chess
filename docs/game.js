@@ -46,7 +46,7 @@ canvas.onmousemove = function (e) {
         else if (modeClic == "SPELL") {
             if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
                 var arrayHighlight = makeAOEFromCell(found, currentPlayer.spells[spellID].aoe,
-                    currentPlayer.entity.pos, findClicDirection(found, hPtHover))
+                    currentPlayer.entity.pos, findClicDirection(found, hPtHover), currentPlayer.spells[spellID].aoeSize)
                 map.map(h => {
                     arrayHighlight.forEach(element => {
                         if (h.distance(element) == 0) h.hover = true;
@@ -137,7 +137,7 @@ function castSpell(caster, spell, cell, exactPtH) {
         caster.auras.push(spellEffect)
     } else {
         let direction = findClicDirection(cell, exactPtH);
-        var arrayAOE = makeAOEFromCell(cell, spell.aoe, caster.pos, direction)
+        var arrayAOE = makeAOEFromCell(cell, spell.aoe, caster.pos, direction, spell.aoeSize)
         // console.log(arrayAOE)
         let alreadyAffected = false
         arrayAOE.forEach(affectedCell => {
@@ -196,7 +196,7 @@ function refreshAuras() {
             e.auras.forEach(aura => {
                 //get aoe from aura
                 //calculate destination cells on the map
-                let listCells = makeAOEFromCell(e.pos, aura.aoe, e.pos, aura.direction);
+                let listCells = makeAOEFromCell(e.pos, aura.aoe, e.pos, aura.direction, aura.aoeSize);
                 listCells.forEach(element => {
                     //apply aoe on the map
                     map.forEach(h => {

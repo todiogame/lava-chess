@@ -33,6 +33,7 @@ function initGame() {
     map = [];
 
     charactersIds = [];
+    // charactersIds.push(5,3);
     while (charactersIds.length < 4) {
         let randomInt = Math.floor(Math.random() * characters.length);
         if (!charactersIds.includes(randomInt)) {
@@ -42,13 +43,15 @@ function initGame() {
 
     const TEAM_A_COLOR = "red"
     const TEAM_B_COLOR = "cyan"
+    const MAX_HP_PLAYER = 4;
+
     PLAYERS = []
     let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
     for (let i = 0; i < 4; i++) {
         PLAYERS.push(new Playable(new Entity(characters[charactersIds[i]].name,
             i % 2 ? TEAM_B_COLOR : TEAM_A_COLOR,
             [], [],
-            arrPos[i]),
+            arrPos[i], MAX_HP_PLAYER),
             characters[charactersIds[i]].spells))
     }
 
@@ -131,7 +134,7 @@ function killExpiredSummons(player) {
         if (e.owner == player) {
             e.ttl--
             if (e.ttl == 0) {
-                // if (e.onDeath) e.onDeath(); //can we do this ?? yes
+                if (e.onDeath) e.onDeath();
                 return false
             }
         }

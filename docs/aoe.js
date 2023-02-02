@@ -1,4 +1,5 @@
-function makeAOEFromCell(cell, aoe, persoPos, direction) {
+function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
+    aoeSize = aoeSize || 1;
     var res = [];
     if (AOE[aoe]?.length) AOE[aoe].forEach(a => res.push(cell.add(a)))
     else {
@@ -11,7 +12,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction) {
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
-        if(aoe == "straight_line_space_1"){
+        if (aoe == "straight_line_space_1") {
             res = persoPos.linedraw(cell);
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
@@ -28,13 +29,18 @@ function makeAOEFromCell(cell, aoe, persoPos, direction) {
             let founds = cell.neighbors(found)
             res = [cell, found, ...founds]
         }
-        if (aoe == "line_3") {
-            let found = map.find(b => cell.add(direction).distance(b) == 0)
-            let third;
-            if (found) {
-                third = map.find(b => cell.subtract(found).add(cell).distance(b) == 0)
+        if (aoe == "line") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0);
+            for (let i = 1; i < aoeSize && found; i++) {
+              res.push(found);
+              found = map.find(b => found.add(direction).distance(b) == 0);
             }
-            res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
+            res.unshift(cell);
+        }
+        if (aoe == "curly") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let founds = cell.neighbors(found)
+            res = [found, ...founds]
         }
         if (aoe == "ninja_slash") {
             AOE["ring_1"].forEach(a => {
@@ -56,7 +62,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction) {
             }
             res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
         }
-        if(aoe == "tentacle_hit"){
+        if (aoe == "tentacle_hit") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
             let third;
             if (found) {

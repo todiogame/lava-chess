@@ -67,6 +67,7 @@ const GLYPH_BLUE = "rgb(50, 150, 255, 0.2)";
 const GLYPH_BROWN = "rgb(50, 50, 30, 0.3)";
 const GLYPH_ORANGE = "rgb(255, 65, 0, 0.5)";
 const GLYPH_GAZ = "rgb(100, 255, 150, 0.3)";
+const GLYPH_PREVIEW = "rgb(255, 65, 0, 0.2)";
 
 let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;

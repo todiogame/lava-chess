@@ -81,9 +81,9 @@ const characters = [
     {
         name: "Mage",
         spells: [
-            { name: "Inferno Strike", dealSpell: damage, range: 4, rangeMin: 2, cooldown: 1, aoe: "straight_line_space_1", glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
-            { name: "Freezing Curse", dealSpell: root, range: 2, rangeMin: 2, cooldown: 2, aoe: "square", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
-            { name: "Force Wave", dealSpell: push, range: 0, cooldown: 3, aoe: "ring_1", canTarget: [PLAYABLE] },
+            { name: "Inferno Strike", dealSpell: damage, range: 4, rangeMin: 2, cooldown: 1, aoe: "straight_line_inferno", glyph: 1, color: GLYPH_BROWN, glyphIcon: damageIcon, canTarget: [ANY] },
+            { name: "Freezing Curse", dealSpell: root, range: 2, rangeMin: 2, cooldown: 3, aoe: "square", glyph: 1, color: GLYPH_BLUE, glyphIcon: rootIcon, canTarget: [ANY] },
+            { name: "Force Wave", dealSpell: push, range: 0, cooldown: 2, aoe: "ring_1", canTarget: [PLAYABLE] },
             // { name: "Blink", dealSpell: blink, range: 3, cooldown: 3, aoe: "single", glyph: 0, canTarget: [EMPTY] },
         ]
     },

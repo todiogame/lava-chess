@@ -1,5 +1,5 @@
 const SIZE_PERSO = 64;
-const SIZE_TILE = 92;
+const SIZE_TILE = 95;
 const THICKNESS = 1;
 
 tileImage = new Image();

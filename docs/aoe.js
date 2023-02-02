@@ -12,13 +12,19 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
             res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
         }
-        if (aoe == "straight_line_space_1") {
-            res = persoPos.linedraw(cell);
-            res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
-            res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
-            let non = [];
-            AOE["ring_1"].forEach(a => non.push(persoPos.add(a)))
-            res = res.filter(e => !(non.some(n => n.equals(e))))
+        if (aoe == "straight_line_inferno") {
+            let dirLine = (cell.subtract(persoPos)).scale(1 / persoPos.distance(cell) );
+            console.log()
+            let found = map.find(b => persoPos.add(dirLine).distance(b) == 0);
+            // res = persoPos.linedraw(cell);
+            for (let i = 1; i < 5 && found; i++) {
+                res.push(found);
+                found = map.find(b => found.add(dirLine).distance(b) == 0);
+            }
+            res.unshift(cell);
+            let non =[];
+            AOE["area_1"].forEach(a => non.push(persoPos.add(a)))
+            res = res.filter(e => !(non.some(n => n.equals(e))))        
         }
         if (aoe == "pair") {
             let found = map.find(b => cell.add(direction).distance(b) == 0)
@@ -32,8 +38,8 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
         if (aoe == "line") {
             let found = map.find(b => cell.add(direction).distance(b) == 0);
             for (let i = 1; i < aoeSize && found; i++) {
-              res.push(found);
-              found = map.find(b => found.add(direction).distance(b) == 0);
+                res.push(found);
+                found = map.find(b => found.add(direction).distance(b) == 0);
             }
             res.unshift(cell);
         }

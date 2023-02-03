@@ -68,21 +68,25 @@ function switcheroo(cell, spell, casterEntity, targetEntity) {
 function root(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
-        Anim.splash_pm(cell, `-${targetplayer.movePoint > 0 ? targetplayer.movePoint : ""}`)
+        Anim.splash_debuff(cell, `-${targetplayer.movePoint > 0 ? targetplayer.movePoint : ""}`, "PM")
         targetplayer.loseMovePoint(99);
     }
 }
 
 function silence(cell, spell, casterEntity, targetEntity) {
-    if (targetEntity) targetEntity.auras.push(
+    if (targetEntity) {
+        Anim.splash_debuff(cell, ``, "PA")
+        targetEntity.auras.push(
         { name: "silence", ttl: 2 }
     );
+}
 }
 
 function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.buffPM(spell.value || 1);
+        Anim.splash_debuff(cell, `+${spell.value || 1}`, "PM")
     }
 }
 function buffPO(cell, spell, casterEntity, targetEntity) {
@@ -93,11 +97,12 @@ function buffPO(cell, spell, casterEntity, targetEntity) {
 }
 
 function riseLava(cell, spell, casterEntity, targetEntity) {
+    Anim.splash_lava(cell)
     if (targetEntity) {
         // kill entities on the cell
         killEntity(targetEntity)
     }
-    cellM = findMapCell(cell);
+    const cellM = findMapCell(cell);
     cellM.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
     cellM.floor = false;
 
@@ -106,6 +111,7 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
 function blink(cell, spell, casterEntity, targetEntity) {
     // if (!targetEntity) //empty cell
     casterEntity.pos = cell;
+    Anim.splash_flash(cell)
 }
 
 function summon(cell, spell, casterEntity, targetEntity) {
@@ -176,7 +182,8 @@ function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
 
 function assassin_smokebomb(cell, spell, casterEntity, targetEntity, direction, mainCell) {
     if (targetEntity != casterEntity) root(cell, spell, casterEntity, targetEntity);
-    casterEntity.pos = mainCell;
+    //casterEntity.pos = mainCell;
+    blink(mainCell, spell, casterEntity, targetEntity)
 }
 
 function time_backwards_hit(cell, spell, casterEntity, targetEntity) {

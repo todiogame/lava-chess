@@ -86,6 +86,7 @@ function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.buffPM(spell.value || 1);
+        Anim.splash_debuff(cell, `+${spell.value || 1}`, "PM")
     }
 }
 function buffPO(cell, spell, casterEntity, targetEntity) {
@@ -181,7 +182,8 @@ function demo_tentacle(cell, spell, casterEntity, targetEntity, direction) {
 
 function assassin_smokebomb(cell, spell, casterEntity, targetEntity, direction, mainCell) {
     if (targetEntity != casterEntity) root(cell, spell, casterEntity, targetEntity);
-    casterEntity.pos = mainCell;
+    //casterEntity.pos = mainCell;
+    blink(mainCell, spell, casterEntity, targetEntity)
 }
 
 function time_backwards_hit(cell, spell, casterEntity, targetEntity) {

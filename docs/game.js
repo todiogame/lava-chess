@@ -1,6 +1,7 @@
 let modeClic
 let spellID
 //map
+let RADIUS_MAP = 5;
 let map
 // Create our image
 let lava

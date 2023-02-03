@@ -16,12 +16,13 @@ Pour demarrer : les init
 
 //browserify :
 //client
+//init la map
 quand on joue => envoyer les infos au serveur
 quand on attend son tour => recevoir les infos
 enlever les buttons onclick = "action" et utiliser a la place addEventListener
 
  // serveur :
-init la map
+init les persos
 envoyer aux deux clients
 envoyer "a ton tour" a un client et l'ecouter
 quand ya une instruction => envoyer a l'autre

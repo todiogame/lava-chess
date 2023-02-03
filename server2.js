@@ -6,9 +6,8 @@ const ordo = require('./lib/ordo.js');
 const c = require('./lib/const.js');
 
 // Serve the public directory
-app.use(express.static(path.join(__dirname, 'docs')));
-// app.use(express.static(__dirname + '/public'));
-
+// app.use(express.static(path.join(__dirname, 'public')));
+app.use(express.static('public'))
 // Start the server
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
@@ -78,11 +77,9 @@ function handleMessage(ws, data){
 
 function startGame(clientA, clientB) {
   console.log("GAME STARTS")
-  clientA.send("GAME STARTS")
-  clientB.send("GAME STARTS")
-  let map = ordo.initMap(c.MAP_RADIUS);
-  clientA.send(encode("map", map))
-  clientB.send(encode("map", map))
+  // let map = ordo.initMap(c.MAP_RADIUS);
+  // clientA.send(encode("map", map))
+  // clientB.send(encode("map", map))
   let PLAYERS = ordo.initPlayers(c.NB_PAWNS);
   PLAYERS.forEach(p=>console.log(p.name))
   clientA.send(encode("PLAYERS", PLAYERS))

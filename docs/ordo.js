@@ -1,11 +1,11 @@
 function ordonanceur() {
     initGame();
-    initMap()
+    initMap(RADIUS_MAP)
     // pickPerso()
     // placePerso()
 }
 
-function initMap() {
+    function initMap(N) {
 
     for (let q = -N; q <= N; q++) {
         let r1 = Math.max(-N, -q - N);

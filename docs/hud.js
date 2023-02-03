@@ -38,7 +38,8 @@ function displayCharacterHUD(player) {
       let spell = player.spells[i];
       if (spell) {
         let button = document.getElementById(`spell-${i}`);
-        button.textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
+        button.getElementsByClassName( 'content' )[0].textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
+        button.getElementsByClassName( 'tooltip' )[0].textContent = `${spell.description}`;
         button.setAttribute("data-spell", spell.name);
         if (spell.currentCD > 0 || spell.passive || (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
           button.classList.add("disabled");

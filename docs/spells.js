@@ -119,8 +119,8 @@ function summon(cell, spell, casterEntity, targetEntity) {
         summoned = new Entity(
             spell.summon.name,
             casterEntity.team,
-            spell.summon.auras,
-            spell.summon.summonTypes,
+            spell.summon.auras ? spell.summon.auras : [],
+            spell.summon.summonTypes ? spell.summon.summonTypes : [],
             cell.copy(),
             spell.summon.maxHP,
             spell.summon.ttl,

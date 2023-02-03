@@ -14,7 +14,7 @@ function showCastRange() {
     else if (modeClic == "RISE_LAVA") {
         // any cell that is next to lava and doesnt contain an entity
         map.map(found => {
-            if (canRiseLava(found)) found.range = true;
+            if (canRiseLava(found)) found.hit = true;
         })
     }
 }

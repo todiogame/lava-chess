@@ -136,5 +136,262 @@ static mainLoop() {
             explode(coords.x, coords.y, text);
         }
     }
-}
 
+    static splash_invo(pos) {
+        {
+            const coords = layout.hexToPixel(pos); // {x,y}
+            const colors = ['#394053', '#4E4A59', '#6E6362', '#839073', '#7CAE7A'];
+            const bubbles = 50;
+    
+            const explode = (x, y) => {
+                let particles = [];
+                let ratio = window.devicePixelRatio;
+                let c = document.createElement('canvas');
+                let ctx = c.getContext('2d');
+    
+                c.style.position = 'absolute';
+                c.style.left = x - 100 + 'px';
+                c.style.top = y - 100 + 'px';
+                c.style.pointerEvents = 'none';
+                c.style.width = 200 + 'px';
+                c.style.height = 200 + 'px';
+                c.style.zIndex = 100;
+                c.width = 200 * ratio;
+                c.height = 200 * ratio;
+                c.style.zIndex = "9999999"
+                let startY = c.height * 6 / 10;
+                ctx.textY = startY;
+                document.body.appendChild(c);
+    
+    
+                for (var i = 0; i < bubbles; i++) {
+                    particles.push({
+                        x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+                        y: r(startY * 0.9, startY * 1.2),
+                        radius: r(20, 40),
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        speed: r(2, 3),
+                        opacity: r(0.5, 1, true),
+                    });
+    
+                }
+    
+                render(particles, ctx, c.width, c.height);
+                setTimeout(() => document.body.removeChild(c), 1000);
+            };
+    
+            const render = (particles, ctx, width, height) => {
+                requestAnimationFrame(() => render(particles, ctx, width, height));
+                ctx.clearRect(0, 0, width, height);
+    
+                particles.forEach((p, i) => {
+                    var x = p.x;
+                    var y = p.y;
+                    var width = p.radius;
+                    var height = p.radius;
+    
+                    p.y -= p.speed;
+                    //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+    
+                    p.opacity -= 0.01;
+    
+                    if (p.opacity < 0 || p.radius < 0) return;
+    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.globalAlpha = p.opacity;
+                    var topCurveHeight = height * 0.3;
+                    ctx.moveTo(x, y + topCurveHeight);
+    
+                    ctx.beginPath();
+                    ctx.strokeRect(r(50, 140), r(50, 140), r(1, 20), r(1, 20));
+    
+                    ctx.closePath();
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.restore();
+    
+                });
+    
+                return ctx;
+            };
+    
+            const r = (a, b, c) => parseFloat((Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(c ? c : 0));
+            explode(coords.x, coords.y);
+        }
+    }
+    static splash_flash(pos) {
+        {
+            const coords = layout.hexToPixel(pos); // {x,y}
+            const colors = ['#fff'];
+            const bubbles = 20;
+    
+            const explode = (x, y) => {
+                let particles = [];
+                let ratio = window.devicePixelRatio;
+                let c = document.createElement('canvas');
+                let ctx = c.getContext('2d');
+    
+                c.style.position = 'absolute';
+                c.style.left = x - 100 + 'px';
+                c.style.top = y - 100 + 'px';
+                c.style.pointerEvents = 'none';
+                c.style.width = 200 + 'px';
+                c.style.height = 200 + 'px';
+                c.style.zIndex = 100;
+                c.width = 200 * ratio;
+                c.height = 200 * ratio;
+                c.style.zIndex = "9999999"
+                let startY = c.height * 6 / 10;
+                ctx.textY = startY;
+                document.body.appendChild(c);
+    
+    
+                for (var i = 0; i < bubbles; i++) {
+                    particles.push({
+                        x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+                        y: r(startY * 0.9, startY * 1.2),
+                        radius: r(20, 40),
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        speed: r(2, 3),
+                        opacity: r(0.5, 1, true),
+                    });
+    
+                }
+    
+                render(particles, ctx, c.width, c.height);
+                setTimeout(() => document.body.removeChild(c), 1000);
+            };
+    
+            const render = (particles, ctx, width, height) => {
+                requestAnimationFrame(() => render(particles, ctx, width, height));
+                ctx.clearRect(0, 0, width, height);
+    
+                particles.forEach((p, i) => {
+                    var x = p.x;
+                    var y = p.y;
+                    var width = p.radius;
+                    var height = p.radius;
+    
+                    p.y -= p.speed;
+                    //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+    
+                    p.opacity -= 0.01;
+    
+                    if (p.opacity < 0 || p.radius < 0) return;
+    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.globalAlpha = p.opacity;
+                    var topCurveHeight = height * 0.3;
+                    ctx.moveTo(x, y + topCurveHeight);
+    
+                    ctx.beginPath();
+                    ctx.strokeRect(r(60, 140), r(50, 140), r(1, 6), r(1, 6));
+    
+                    ctx.closePath();
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.restore();
+    
+                });
+    
+                return ctx;
+            };
+    
+            const r = (a, b, c) => parseFloat((Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(c ? c : 0));
+            explode(coords.x, coords.y);
+        }
+    }
+
+    static splash_pm(pos, text) {
+        {
+            const coords = layout.hexToPixel(pos); // {x,y}
+            const colors = ['#42612B', '#569629', '#59EB2D', '#9FFF6B', '#7DFF81'];
+            const bubbles = 10;
+    
+            const explode = (x, y, text) => {
+                let particles = [];
+                let ratio = window.devicePixelRatio;
+                let c = document.createElement('canvas');
+                let ctx = c.getContext('2d');
+    
+                c.style.position = 'absolute';
+                c.style.left = x - 100 + 'px';
+                c.style.top = y - 100 + 'px';
+                c.style.pointerEvents = 'none';
+                c.style.width = 200 + 'px';
+                c.style.height = 200 + 'px';
+                c.style.zIndex = 100;
+                c.width = 200 * ratio;
+                c.height = 200 * ratio;
+                c.style.zIndex = "9999999"
+                let startY = c.height * 6 / 10;
+                ctx.textY = startY;
+                document.body.appendChild(c);
+    
+    
+                for (var i = 0; i < bubbles; i++) {
+                    particles.push({
+                        x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+                        y: r(startY * 0.9, startY * 1.2),
+                        radius: r(20, 40),
+                        color: colors[Math.floor(Math.random() * colors.length)],
+                        speed: r(2, 3),
+                        opacity: r(0.5, 1, true),
+                    });
+    
+                }
+    
+                render(particles, ctx, c.width, c.height, text);
+                setTimeout(() => document.body.removeChild(c), 1000);
+            };
+    
+            const render = (particles, ctx, width, height, text) => {
+                requestAnimationFrame(() => render(particles, ctx, width, height, text));
+                ctx.clearRect(0, 0, width, height);
+                ctx.globalAlpha = 1.0;
+                ctx.font = 'bold 30px serif';
+                ctx.fillStyle = '#273919';
+                ctx.fillText(text, width / 4, ctx.textY);
+                ctx.textY -= height / 100;
+                particles.forEach((p, i) => {
+                    var x = p.x;
+                    var y = p.y;
+                    var width = p.radius;
+                    var height = p.radius;
+    
+                    p.y -= p.speed;
+                    //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+    
+                    p.opacity -= 0.01;
+    
+                    if (p.opacity < 0 || p.radius < 0) return;
+    
+                    ctx.save();
+                    ctx.beginPath();
+                    ctx.globalAlpha = p.opacity;
+                    var topCurveHeight = height * 0.3;
+                    ctx.moveTo(x, y + topCurveHeight);
+    
+                    ctx.beginPath();
+    
+    
+                    ctx.arc((r(60, 140)), r(85, 125), r(3, 10), 0, 2 * Math.PI);
+    
+                    ctx.stroke();
+                    ctx.closePath();
+                    ctx.fillStyle = p.color;
+                    ctx.fill();
+                    ctx.restore();
+    
+                });
+    
+                return ctx;
+            };
+    
+            const r = (a, b, c) => parseFloat((Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(c ? c : 0));
+            explode(coords.x, coords.y, text);
+        }
+    }
+}

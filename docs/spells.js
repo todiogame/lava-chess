@@ -57,6 +57,7 @@ function salto(cell, spell, casterEntity, targetEntity) {
     }
 }
 function switcheroo(cell, spell, casterEntity, targetEntity) {
+    Anim.splash_flash(cell)
     if (targetEntity) {
         const save = cell.copy()
         targetEntity.pos = casterEntity.pos
@@ -67,6 +68,7 @@ function switcheroo(cell, spell, casterEntity, targetEntity) {
 function root(cell, spell, casterEntity, targetEntity) {
     let targetplayer = findPlayerFromEntity(targetEntity)
     if (targetplayer) {
+        Anim.splash_pm(cell, `-${targetplayer.movePoint > 0 ? targetplayer.movePoint : ""}`)
         targetplayer.loseMovePoint(99);
     }
 }
@@ -108,6 +110,7 @@ function blink(cell, spell, casterEntity, targetEntity) {
 
 function summon(cell, spell, casterEntity, targetEntity) {
     var summoned;
+    Anim.splash_invo(cell)
     if (!targetEntity) { //empty cell
         //if unique summon, kill previous one
         if (spell.summon.isUnique) {

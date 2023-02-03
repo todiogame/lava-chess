@@ -1,9 +1,7 @@
 const express = require('express');
-const path = require('path');
 const app = express();
 
-const ordo = require('./lib/ordo.js');
-const c = require('./lib/const.js');
+const Game = require('./lib/Game')
 
 // Serve the public directory
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -31,9 +29,12 @@ wss.getUniqueID = function () {
   return s4() + s4() + '-' + s4();
 };
 const clients = []
+const games = []
+
 wss.on('connection', function connection(ws, req) {
   ws.id = wss.getUniqueID();
   clients.push(ws);
+
 //show all clients
   wss.clients.forEach(function each(client) {
     console.log('Client.ID: ' + client.id);
@@ -46,8 +47,7 @@ wss.on('connection', function connection(ws, req) {
 
     clientA.other = clientB;
     clientB.other = clientA;
-
-    startGame(clientA, clientB);
+    games.push(new Game(clientA, clientB));
   }
 
 
@@ -74,19 +74,3 @@ wss.on('connection', function connection(ws, req) {
 function handleMessage(ws, data){
 }
 
-
-function startGame(clientA, clientB) {
-  console.log("GAME STARTS")
-  // let map = ordo.initMap(c.MAP_RADIUS);
-  // clientA.send(encode("map", map))
-  // clientB.send(encode("map", map))
-  let PLAYERS = ordo.initPlayers(c.NB_PAWNS);
-  PLAYERS.forEach(p=>console.log(p.name))
-  clientA.send(encode("PLAYERS", PLAYERS))
-  clientB.send(encode("PLAYERS", PLAYERS))
-}
-
-function encode(type, data){
-  // console.log("sending type:",type)
-  return JSON.stringify({type: type, data: data})
-}

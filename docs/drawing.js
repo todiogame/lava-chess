@@ -10,7 +10,7 @@ tile2Image = new Image();
 tile2Image.src = "pics/tile2.png"
 tile3Image = new Image();
 tile3Image.src = "pics/tile3.png"
-tileImage=[tile0Image,tile1Image,tile2Image,tile3Image]
+tileImage = [tile0Image, tile1Image, tile2Image, tile3Image]
 
 //glyphs
 damageIcon = new Image();
@@ -91,45 +91,47 @@ let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;
 
 function drawMap() {
-    // console.log(map)
-    let colorHover = SPELL_HOVER;
-    let colorRange = SPELL_RANGE;
-    if (modeClic == "MOVE") {
-        colorHover = MOVE_HOVER;
-        colorRange = MOVE_RANGE;
-    }
-    ctx.fillStyle = ORANGE
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    // ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(lava, 0, 0, 700, 600);
-
-
-    map.forEach(h => {
-        // draw Hexagon
-        ctx.beginPath();
-        let pts = layout.polygonCorners(h)
-        pts.forEach(p => ctx.lineTo(p.x, p.y));
-        ctx.closePath();
-        ctx.stroke();
-        // if (h.floor) paintCell(h, EARTH)
-        if(h.floor) drawFloor(h)
-        if (h.range) paintCell(h, colorRange)
-        if (h.hit) paintCell(h, SPELL_HIT)
-
-        if (h.aoe.length) {
-            h.aoe.forEach(spell => {
-                paintCell(h, spell.color, spell.glyphIcon)
-            })
+    if (map) {
+        // console.log(map)
+        let colorHover = SPELL_HOVER;
+        let colorRange = SPELL_RANGE;
+        if (modeClic == "MOVE") {
+            colorHover = MOVE_HOVER;
+            colorRange = MOVE_RANGE;
         }
+        ctx.fillStyle = ORANGE
+        // ctx.clearRect(0, 0, canvas.width, canvas.height);
+        // ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.drawImage(lava, 0, 0, 700, 600);
 
-        if (h.hover) paintCell(h, colorHover)
 
-    })
-    drawEntities();
-    displayCharacterHUD(currentPlayer)
+        map.forEach(h => {
+            // draw Hexagon
+            ctx.beginPath();
+            let pts = layout.polygonCorners(h)
+            pts.forEach(p => ctx.lineTo(p.x, p.y));
+            ctx.closePath();
+            ctx.stroke();
+            // if (h.floor) paintCell(h, EARTH)
+            if (h.floor) drawFloor(h)
+            if (h.range) paintCell(h, colorRange)
+            if (h.hit) paintCell(h, SPELL_HIT)
+
+            if (h.aoe.length) {
+                h.aoe.forEach(spell => {
+                    paintCell(h, spell.color, spell.glyphIcon)
+                })
+            }
+
+            if (h.hover) paintCell(h, colorHover)
+
+        })
+        drawEntities();
+        displayCharacterHUD(currentPlayer)
+    }
 }
 
-function drawFloor(h){
+function drawFloor(h) {
     pPerso = layout.hexToPixel(h);
     // tileImage[Math.floor(Math.random() * 4)] //kek
     ctx.drawImage(tileImage[h.rand4], pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);

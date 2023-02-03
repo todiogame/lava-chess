@@ -1,18 +1,24 @@
 todo:
-Rasta
 Ultis
 Ajouter description
 - hover : infobulle
 
-bugfix : salto dams le mur
 rework gazeur ?
-rembourser le CD si le spell a foire
 
 gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding
-fin de partie 2 equipes
 ______________________
+Mode multi :
 
+definir une liste de fonctions de "librairie" dont le serveur aura besoin
+
+Pour demarrer : les init
+
+//browserify :
+//client
+quand on joue => envoyer les infos au serveur
+quand on attend son tour => recevoir les infos
+enlever les buttons onclick = "action" et utiliser a la place addEventListener
 
  // serveur :
 init la map
@@ -21,9 +27,12 @@ envoyer "a ton tour" a un client et l'ecouter
 quand ya une instruction => envoyer a l'autre
 fin du tour => donner la main a l'autre
 
-//client
-quand on joue => envoyer les infos au serveur
-quand on attend son tour => recevoir les infos
+modifs a faire :
+- ajouter des exports des fonctions utiles :
+dans un premier temps, juste initMap et initGame.
+
+on va faire client.html identique a index.html mais qui laisse le serveur init la game.
+
 
 //commun
 faire un systeme d'actions

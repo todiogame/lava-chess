@@ -1,8 +1,7 @@
 todo:
 Ultis
-Ajouter description
 - hover : infobulle
-
+fix bug inferno double damage
 rework gazeur ?
 
 gerer la fin de partie quand on ne peux plus enlever de cases

@@ -37,8 +37,6 @@ connect();
 function recreatePlayers(data) {
     return data.map(p => {
         let en = new Entity(p.entity.name, p.entity.team, p.entity.auras, p.entity.types, p.entity.pos, p.entity.maxHP)
-        en.image = new Image();
-        en.image.src = en.src;
         return new Playable(en, p.spells)
     })
 }
@@ -46,7 +44,8 @@ function recreatePlayers(data) {
 
 function goGame() {
     console.log("recieved all, go game")
-    map = ordo.initMap(c.MAP_RADIUS);
+    CLIENT_SIDE = true;
+    map = ordo.initMap(c.CONSTANTS.MAP_RADIUS);
 
     idCurrentPlayer = 0; //start with player1
     currentPlayer = PLAYERS[idCurrentPlayer]

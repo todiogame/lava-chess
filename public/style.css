@@ -59,6 +59,27 @@ h1#name {
   background-color: #e2b807;
 }
 
+.spells button .tooltip {
+  visibility: hidden;
+  width: 220px;
+  background-color: #5b3a1c;
+  color: #ffc107;
+  text-align: center;
+  border-radius: 10px;
+  padding: 20px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  font-size: 18px;
+  /* font-weight: bold; */
+  position: absolute;
+  z-index: 1;
+  top: 10%;
+  left: 70%;
+  /* transform: translateX(-00%); */
+}
+.spells button:hover .tooltip {
+  visibility: visible;
+}
+
 .spells .disabled,
 .move .disabled,
 .rise-lava .disabled {

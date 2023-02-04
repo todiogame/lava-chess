@@ -3,7 +3,8 @@ const Entity = require("./lib/Entity");
 const Playable = require("./lib/Playable");
 const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
-const ordo = require ("./lib/ordo");
+const ordo = require("./lib/ordo");
+const logic = require("./lib/gameLogic")
 
 var socket;
 
@@ -25,26 +26,27 @@ function connect() {
     socket.onmessage = function (event) {
         const { type, data } = JSON.parse(event.data);
 
-        if (type == "PLAYERS") PLAYERS = goGame(recreatePlayers(data));
+        if (type == "PLAYERS") {
+            PLAYERS = recreatePlayers(data)
+            goGame();
+        }
 
     };
 }
 connect();
 
-function recreatePlayers(data){
+function recreatePlayers(data) {
     return data.map(p => {
         let en = new Entity(p.entity.name, p.entity.team, p.entity.auras, p.entity.types, p.entity.pos, p.entity.maxHP)
-        en.image = new Image();
-        en.image.src = en.src;
-        return new Playable(en, p.spells) 
+        return new Playable(en, p.spells)
     })
 }
 
 
-function goGame( PLAYERS) {
+function goGame() {
     console.log("recieved all, go game")
-    let modeClic = "MOVE"
-    let map = ordo.initMap(c.MAP_RADIUS);
+    CLIENT_SIDE = true;
+    map = ordo.initMap(c.CONSTANTS.MAP_RADIUS);
 
     idCurrentPlayer = 0; //start with player1
     currentPlayer = PLAYERS[idCurrentPlayer]
@@ -53,28 +55,32 @@ function goGame( PLAYERS) {
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
-
+    logic.listenToMouse()
     Anim.mainLoop()
 
 }
-},{"./lib/Entity":2,"./lib/Playable":4,"./lib/client/Anim":5,"./lib/const":7,"./lib/ordo":8}],2:[function(require,module,exports){
-const c =  require('./const.js');
+},{"./lib/Entity":2,"./lib/Playable":4,"./lib/client/Anim":6,"./lib/const":9,"./lib/gameLogic":10,"./lib/ordo":12}],2:[function(require,module,exports){
+const c = require('./const.js');
+const { Hex } = require('./Hex.js');
 
 module.exports = class Entity {
     constructor(name, team, auras, types, pos, maxHP,
         ttl, owner, summoner, onDeath, flags) {
 
-        this.name = name,
-            this.team = team; //team is a color
+        this.name = name;
+        this.team = team; //team is a color
 
-        // this.image = new Image();
 
         this.src = "pics/" + name.toLowerCase() +
             (name.toLowerCase() == "zombie" ? Math.floor(Math.random() * 2) : "")
             + ".png";
+        if (typeof window && this.src) {
+            this.image = new Image();
+            this.image.src = this.src;
+        }
         this.auras = auras;
-        this.types = [c.ENTITY, ...types]
-        this.pos = pos;
+        this.types = [c.TYPES.ENTITY, ...types]
+        this.pos = new Hex(pos.q, pos.r, pos.s)
 
         this.maxHP = maxHP || 4; //every player has got 4 max hp
         this.currentHP = this.maxHP;
@@ -92,7 +98,6 @@ module.exports = class Entity {
     damage() { //all spells deal 1 damage in this game
         this.currentHP--;
         console.log(this.name + " suffers damage !! HP:" + this.currentHP + "/" + this.maxHP)
-        Anim.splash(this.pos, "-1")
         //traiter la mort
         if (this.currentHP <= 0) this.die();
     }
@@ -112,7 +117,7 @@ module.exports = class Entity {
         }
 
         //if it is a player, kill the player too
-        let targetplayer = findPlayerFromEntity(this)
+        let targetplayer = utils.findPlayerFromEntity(this)
         if (targetplayer) targetplayer.die();
 
     }
@@ -121,7 +126,7 @@ module.exports = class Entity {
         if (otherEntity) return this.team != otherEntity.team;
     }
 }
-},{"./const.js":7}],3:[function(require,module,exports){
+},{"./Hex.js":3,"./const.js":9}],3:[function(require,module,exports){
 // Generated code -- CC0 -- No Rights Reserved -- http://www.redblobgames.com/grids/hexagons/
 class Point {
     constructor(x, y) {
@@ -496,7 +501,7 @@ module.exports = class Playable {
         // Object.assign(this.spells, spells);
 
         this.entity = entity;
-        this.entity.types.push(c.PLAYABLE)
+        this.entity.types.push(c.TYPES.PLAYABLE)
 
         this.movePoint = 1;
         if(this.spells) this.spells.forEach(s => {
@@ -545,9 +550,146 @@ module.exports = class Playable {
         }
     }
 }
-},{"./const.js":7}],5:[function(require,module,exports){
+},{"./const.js":9}],5:[function(require,module,exports){
+const { Point, Hex, Layout } = require("./Hex")
+
+function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
+    aoeSize = aoeSize || 1;
+    var res = [];
+    if (AOE[aoe] && AOE[aoe].length) AOE[aoe].forEach(a => res.push(cell.add(a)))
+    else {
+        if (aoe == "line_from_caster") {
+            res = persoPos.linedraw(cell);
+            res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
+        }
+        if (aoe == "straight_line") {
+            res = persoPos.linedraw(cell);
+            res = res.filter(e => e.q != persoPos.q || e.r != persoPos.r) //remove perso cell
+            res = res.filter(e => e.q == persoPos.q || e.r == persoPos.r || e.s == persoPos.s)
+        }
+        if (aoe == "straight_line_inferno") {
+            let dirLine = (cell.subtract(persoPos)).scale(1 / persoPos.distance(cell));
+            let found = map.find(b => persoPos.add(dirLine).distance(b) == 0);
+            // res = persoPos.linedraw(cell);
+            for (let i = 1; i < 5 && found; i++) {
+                res.push(found);
+                found = map.find(b => found.add(dirLine).distance(b) == 0);
+            }
+            res.unshift(cell);
+            let non = [];
+            AOE["area_1"].forEach(a => non.push(persoPos.add(a)))
+            res = res.filter(e => !(non.some(n => n.equals(e))))
+        }
+        if (aoe == "pair") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            res = found ? [cell, found] : [cell];
+        }
+        if (aoe == "square") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let founds = cell.neighbors(found)
+            res = [cell, found, ...founds]
+        }
+        if (aoe == "line") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0);
+            for (let i = 1; i < aoeSize && found; i++) {
+                res.push(found);
+                found = map.find(b => found.add(direction).distance(b) == 0);
+            }
+            res.unshift(cell);
+        }
+        if (aoe == "curly") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let founds = cell.neighbors(found)
+            res = [found, ...founds]
+        }
+        if (aoe == "handspinner") {
+            let indexDir;
+            Hex.directions.forEach((d, i) => {
+                if (d.equals(direction)) indexDir = i;
+            })
+            res.push(cell)
+            res.push(cell.add(direction))
+            res.push(cell.add(Hex.direction((indexDir + 2) % 6)))
+            res.push(cell.add(Hex.direction((indexDir + 4) % 6)))
+
+        }
+        if (aoe == "ninja_slash") {
+            AOE["ring_1"].forEach(a => {
+                res.push(cell.add(a))
+            })
+            const shadow = entities.find(e => e.types.includes(SHADOW))
+            if (shadow) {
+                AOE["ring_1"].forEach(a => {
+                    if (!persoPos.equals(shadow.pos.add(a))) //remove ninja pos so he doesnt get damage
+                        res.push(shadow.pos.add(a))
+                })
+            }
+        }
+        if (aoe == "tentacle") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let third;
+            if (found) {
+                third = map.find(b => found.add(direction).distance(b) == 0)
+            }
+            res = third ? [cell, found, third] : (found ? [cell, found] : [cell]);
+        }
+        if (aoe == "tentacle_hit") {
+            let found = map.find(b => cell.add(direction).distance(b) == 0)
+            let third;
+            if (found) {
+                third = map.find(b => found.add(direction).distance(b) == 0)
+            }
+            res = third ? [found, third] : (found ? [found] : []);
+        }
+        if (aoe == "single_straight_line") {
+            AOE["single"].forEach(a => {
+                res.push(cell.add(a))
+            })
+        }
+        if (aoe == "ring_1_on_self") {
+            AOE["ring_1"].forEach(a => {
+                res.push(persoPos.add(a))
+            })
+        }
+    }
+
+    return res;
+}
+
+
+const AOE = {
+    "single": [
+        new Hex(0, 0, 0),
+    ],
+    "area_1": [
+        new Hex(0, 0, 0),
+        new Hex(1, -1, 0),
+        new Hex(1, 0, -1),
+        new Hex(0, 1, -1),
+        new Hex(0, -1, 1),
+        new Hex(-1, 1, 0),
+        new Hex(-1, 0, 1),
+    ],
+    "ring_1": [
+        new Hex(1, -1, 0),
+        new Hex(1, 0, -1),
+        new Hex(0, 1, -1),
+        new Hex(0, -1, 1),
+        new Hex(-1, 1, 0),
+        new Hex(-1, 0, 1),
+    ],
+}
+
+
+module.exports = {
+    makeAOEFromCell
+};
+
+},{"./Hex":3}],6:[function(require,module,exports){
 const drawing = require("./drawing")
 const {Point, Hex, Layout} = require("../Hex");
+const drawings = require("./drawing")
+
 module.exports = class Anim {
     // static mainLoop() {
     //     drawMap();
@@ -567,8 +709,8 @@ static mainLoop() {
     static animateMove(entity, toCell, duration) {
         if (!duration) duration = 5000;
 
-        const fromP = layout.hexToPixel(entity.pos);
-        const toP = layout.hexToPixel(toCell)
+        const fromP = drawings.layout.hexToPixel(entity.pos);
+        const toP = drawings.layout.hexToPixel(toCell)
         Anim.animateImage(entity, fromP.x, fromP.y, toP.x, toP.y, duration)
     }
     // Parameters:
@@ -609,7 +751,7 @@ static mainLoop() {
     static splash(pos, text) {
         {
             // console.log('splash', entity, text)
-            const coords = layout.hexToPixel(pos); // {x,y}
+            const coords = drawings.layout.hexToPixel(pos); // {x,y}
             const colors = ['#ffc000', '#ff3b3b', '#ff8400'];
             const bubbles = 25;
     
@@ -689,8 +831,23 @@ static mainLoop() {
 }
 
 
-},{"../Hex":3,"./drawing":6}],6:[function(require,module,exports){
-const {Point, Hex, Layout} = require("../Hex")
+},{"../Hex":3,"./drawing":7}],7:[function(require,module,exports){
+const { Point, Hex, Layout } = require("../Hex")
+const { displayCharacterHUD } = require("./hud")
+
+const SCALE = 40;
+const SIZE_GLYPH = 64;
+
+let origin = new Point(350, 300)
+const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
+// Create the grid container
+const canvas = document.getElementById('canvas');
+canvas.width = 700;
+canvas.height = 600;
+
+const ctx = canvas.getContext('2d');
+
+
 const SIZE_PERSO = 64;
 const SIZE_TILE = 95;
 const THICKNESS = 1;
@@ -727,8 +884,17 @@ boulderIcon.src = "pics/boulder.png"
 flowerIcon = new Image();
 flowerIcon.src = "pics/flower.png"
 
+ARRAY_ICONS = {
+    "damageIcon": damageIcon,
+    "rootIcon": rootIcon,
+    "silenceIcon": silenceIcon,
+    'gasIcon': gasIcon,
+    "boulderIcon": boulderIcon,
+    "flowerIcon": flowerIcon
+}
+
 function drawEntities() {
-    entities.forEach(e => {if (e.image) drawPerso(e)})
+    entities.forEach(e => { if (e.image) drawPerso(e) })
 }
 function drawPerso(entity) {
     // console.log(entity)
@@ -750,18 +916,6 @@ function drawPerso(entity) {
     ctx.shadowBlur = 0;
 }
 
-const SCALE = 40;
-const SIZE_GLYPH = 64;
-
-let origin = new Point(350, 300)
-const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
-// Create the grid container
-const canvas = document.getElementById('canvas');
-canvas.width = 700;
-canvas.height = 600;
-
-const ctx = canvas.getContext('2d');
-
 const ORANGE = "rgb(255, 65, 0, 0.7)";
 const EARTH = "rgb(220, 150, 30)";
 
@@ -770,31 +924,35 @@ const MOVE_RANGE = "rgb(30, 205, 0, 0.5)";
 const SPELL_HOVER = "rgb(255, 0, 0, 0.5)";
 const SPELL_RANGE = "rgb(255, 100, 100, 0.4)";
 const SPELL_HIT = "rgb(255, 50, 50, 0.5)";
-
-const GLYPH_BLUE = "rgb(50, 150, 255, 0.2)";
-const GLYPH_BROWN = "rgb(50, 50, 30, 0.3)";
-const GLYPH_ORANGE = "rgb(255, 65, 0, 0.5)";
-const GLYPH_PURPLE = "rgb(255,0,255, 0.3)"
-const GLYPH_FLOWER = "rgb(30, 205, 50, 0.3)";
-
-const GLYPH_GAZ = "rgb(100, 255, 150, 0.3)";
-const GLYPH_PREVIEW = "rgb(255, 65, 0, 0.2)";
+const ARRAY_GLYPH_COLOR= {
+    "GLYPH_BLUE": "rgb(50, 150, 255, 0.2)",
+    "GLYPH_BROWN": "rgb(50, 50, 30, 0.3)",
+    "GLYPH_ORANGE": "rgb(255, 65, 0, 0.5)",
+    "GLYPH_PURPLE": "rgb(255,0,255, 0.3)",
+    "GLYPH_FLOWER": "rgb(30, 205, 50, 0.3)",
+    "GLYPH_GAZ": "rgb(100, 255, 150, 0.3)",
+    "GLYPH_PREVIEW": "rgb(255, 65, 0, 0.2)",
+};
 
 let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;
 
+// Create our image
+lava = new Image();
+lava.src = './pics/lavasmall.png'
+
 function drawMap() {
     if (map) {
         // console.log(map)
-        let colorHover = SPELL_HOVER;
-        let colorRange = SPELL_RANGE;
-        if (modeClic == "MOVE") {
-            colorHover = MOVE_HOVER;
-            colorRange = MOVE_RANGE;
-        }
-        ctx.fillStyle = ORANGE
+        let colorHoverSpell = SPELL_HOVER;
+        let colorRangeSpell = SPELL_RANGE;
+
+        let colorHoverMove = MOVE_HOVER;
+        let colorRangeMove = MOVE_RANGE;
+
+        // ctx.fillStyle = ORANGE
         // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
         ctx.drawImage(lava, 0, 0, 700, 600);
 
 
@@ -807,16 +965,18 @@ function drawMap() {
             ctx.stroke();
             // if (h.floor) paintCell(h, EARTH)
             if (h.floor) drawFloor(h)
-            if (h.range) paintCell(h, colorRange)
+            if (h.rangeMove) paintCell(h, colorRangeMove)
+            if (h.rangeSpell) paintCell(h, colorRangeSpell)
             if (h.hit) paintCell(h, SPELL_HIT)
 
             if (h.aoe.length) {
                 h.aoe.forEach(spell => {
-                    paintCell(h, spell.color, spell.glyphIcon)
+                    paintCell(h,  ARRAY_GLYPH_COLOR[spell.color], ARRAY_ICONS[spell.glyphIcon])
                 })
             }
 
-            if (h.hover) paintCell(h, colorHover)
+            if (h.hoverMove) paintCell(h, colorHoverMove)
+            if (h.hoverSpell) paintCell(h, colorHoverSpell)
 
         })
         drawEntities();
@@ -842,282 +1002,583 @@ function paintCell(mapCell, color, glyphIcon) {
     }
 }
 
+function findHexFromEvent(eventX, eventY) {
+    return layout.pixelToHex(new Point(eventX - canvasLeft, eventY - canvasTop))
+}
+
 module.exports = {
-    drawMap
+    drawMap, findHexFromEvent, origin, layout, canvas, ctx
 };
-},{"../Hex":3}],7:[function(require,module,exports){
-const s =
-    require('./spells.js')
+},{"../Hex":3,"./hud":8}],8:[function(require,module,exports){
 
-module.exports =
-    Object.freeze({
-        MAP_RADIUS: 5,
-        NB_PAWNS: 4,
+function displayCharacterHUD(player) {
+  if (player) {
+    document.getElementById("name").textContent = player.name;
+    document.getElementById("current-hp-text").textContent = `HP: ${player.entity.currentHP}/${player.entity.maxHP}`;
+    document.getElementById("hp-value").style.width = `${(player.entity.currentHP / player.entity.maxHP) * 100}%`;
+    document.getElementById("move-cooldown").textContent = `${player.movePoint} point`;
+
+    for (let i = 0; i < player.spells.length; i++) {
+      let spell = player.spells[i];
+      if (spell) {
+        let button = document.getElementById(`spell-${i}`);
+        button.getElementsByClassName( 'content' )[0].textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
+        button.getElementsByClassName( 'tooltip' )[0].textContent = `${spell.description}`;
+        button.setAttribute("data-spell", spell.name);
+        if (spell.currentCD > 0 || spell.passive || (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
+          button.classList.add("disabled");
+          button.setAttribute("disabled", true);
+        } else {
+          button.classList.remove("disabled");
+          button.removeAttribute("disabled");
+        }
+      }
+    }
+    let moveButton = document.getElementById(`move`);
+    if (player.movePoint <= 0) {
+      moveButton.classList.add("disabled");
+      moveButton.setAttribute("disabled", true);
+    } else {
+      moveButton.classList.remove("disabled");
+      moveButton.removeAttribute("disabled");
+    }
+
+    if (player.isSummoned) {
+      document.getElementById("rise-lava").style.display = "none";
+      document.getElementById("pass-turn").style.display = "block";
+    } else {
+      document.getElementById("rise-lava").style.display = "block";
+    if(!TEST)  
+    document.getElementById("pass-turn").style.display = "none";
+    }
+  }
+  // displayTimeline(player);
+
+}
 
 
-        //cell types
-        ANY: "ANY",
-        LAVA: "LAVA",
-        EMPTY: "EMPTY",
-        //entities types
-        ENTITY: "ENTITY",
-        PLAYABLE: "PLAYABLE",
-        // summons types
-        SHADOW: "SHADOW",
-        BOMB: "BOMB",
-        INFERNAL: "INFERNAL",
-        BARREL: "BARREL",
+const displayTimeline = (currentP) => {
+  const playerHud = document.querySelector("#timeline");
+  let playerList = "";
 
-        //GLYPHS COLORS
-ARRAY_GLYPH_COLOR :{
-            "GLYPH_BLUE": "rgb(50, 150, 255, 0.2)",
-        "GLYPH_BROWN": "rgb(50, 50, 30, 0.3)",
-        "GLYPH_ORANGE": "rgb(255, 65, 0, 0.5)",
-        "GLYPH_PURPLE": "rgb(255,0,255, 0.3)",
-        "GLYPH_FLOWER": "rgb(30, 205, 50, 0.3)",
+  PLAYERS.forEach(p => {
+    if (!p.dead)
+      playerList += `<p  ${p == currentP ? `class="highlight"` : ``}>${p.entity.currentHP}/${p.entity.maxHP} - ${p.name}</p>`;
 
-        "GLYPH_GAZ": "rgb(100, 255, 150, 0.3)",
-        "GLYPH_PREVIEW": "rgb(255, 65, 0, 0.2)",
+  });
+
+  playerHud.innerHTML = playerList;
+  // let playersHTML = document.querySelectorAll("#timeline p");
+  // if (idCurrentPlayer || idCurrentPlayer === 0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
+};
+
+module.exports = {
+  displayCharacterHUD
+};
+},{}],9:[function(require,module,exports){
+const CONSTANTS = Object.freeze({
+    MAP_RADIUS: 5,
+    NB_PAWNS: 4,
+
+})
+
+const TYPES = Object.freeze({
+    //cell types
+    ANY: "ANY",
+    LAVA: "LAVA",
+    EMPTY: "EMPTY",
+    //entities types
+    ENTITY: "ENTITY",
+    PLAYABLE: "PLAYABLE",
+    // summons types
+    SHADOW: "SHADOW",
+    BOMB: "BOMB",
+    INFERNAL: "INFERNAL",
+    BARREL: "BARREL",
+})
+
+const GAMEDATA = Object.freeze({
+//summons
+TABLE_SUMMONS: {
+    "shadow": {
+        name: "shadow",
+            ttl: -1,
+                summonTypes: [TYPES.SHADOW],
+                    isUnique: true,
+            },
+    "wall": {
+        name: "wall",
+            ttl: 1,
+                summonTypes: [],
+            },
+    "tentacle": {
+        name: "tentacle",
+            ttl: 1,
+                summonTypes: [],
+                    auras: [
+                        { name: "Tentacle Hit", dealSpell: "damage", aoe: "tentacle_hit", isAura: true, glyph: 1, color: "GLYPH_BROWN", }
+                    ],
+            },
+    "infernal": {
+        name: "Infernal",
+            ttl: -1,
+                maxHP: 3,
+                    isUnique: true,
+                        summonTypes: [TYPES.INFERNAL, TYPES.PLAYABLE],
+                            auras: [
+                                { name: "Flame aura", permanent: true, dealSpell: "damage", aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon" }
+                            ],
+                                spells: [
+                                    { passive: true, cooldown: 0, name: "Flame aura", permanent: true, dealSpell: "damage", aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon" },
+                                    { passive: true, cooldown: 0, name: "" },
+                                    { passive: true, cooldown: 0, name: "" },
+
+                                ]
+    },
+    "barrel": {
+        name: "barrel",
+            ttl: -1,
+                summonTypes: [TYPES.BARREL],
+                    maxHP: 1,
+                        onDeath: "rasta_barrel_explode",
+                            auras: [
+                                { name: "Barrel AOE preview", permanent: true, dealSpell: "nothing", aoe: "area_1", isAura: true, glyph: 1, color: "GLYPH_PREVIEW", }
+                            ],
+            },
+
+    "time_machine": {
+        name: "time_machine",
+            ttl: 1,
+                summonTypes: [],
+                    maxHP: 1,
+                        auras: [
+                            { name: "Time Machine", dealSpell: "blink", aoe: "single", isAura: true, glyph: 1, color: "GLYPH_PREVIEW", },
+                            { name: "Explosion", dealSpell: "damage", aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", },
+                        ],
+            },
+
+    "zombie": {
+        name: "Zombie",
+            ttl: -1,
+                maxHP: 1,
+                    summonTypes: [TYPES.PLAYABLE],
+                        auras: [],
+                            spells: [
+                                //just an hud indication, this spell works with the aura
+                                { name: "Zombie Attack", dealSpell: "zombie_attack", range: 1, rangeMin: 1, cooldown: 0, aoe: "single", canTarget: [TYPES.ENTITY] },
+                                { passive: true, cooldown: 0, name: "" },
+                                { passive: true, cooldown: 0, name: "" },
+                            ]
+    },
 },
 
-        //summons
-        TABLE_SUMMONS: {
-            "shadow": {
-                name: "shadow",
-                ttl: -1,
-                summonTypes: [this.SHADOW],
-                isUnique: true,
-            },
-            "wall": {
-                name: "wall",
-                ttl: 1,
-                summonTypes: [],
-            },
-            "tentacle": {
-                name: "tentacle",
-                ttl: 1,
-                summonTypes: [],
-                auras: [
-                    { name: "Tentacle Hit", dealSpell: s.damage, aoe: "tentacle_hit", isAura: true, glyph: 1, color: "GLYPH_BROWN", }
-                ],
-            },
-            "infernal": {
-                name: "Infernal",
-                ttl: -1,
-                maxHP: 3,
-                isUnique: true,
-                summonTypes: [this.INFERNAL,this.PLAYABLE],
-                auras: [
-                    { name: "Flame aura", permanent: true, dealSpell: s.damage, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon" }
-                ],
-                spells: [
-                    { passive: true, cooldown: 0, name: "Flame aura", permanent: true, dealSpell: s.damage, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon" },
-                    { passive: true, cooldown: 0, name: "" },
-                    { passive: true, cooldown: 0, name: "" },
 
-                ]
-            },
-            "barrel": {
-                name: "barrel",
-                ttl: -1,
-                summonTypes: [this.BARREL],
-                maxHP: 1,
-                onDeath: s.rasta_barrel_explode,
-                auras: [
-                    { name: "Barrel AOE preview", permanent: true, dealSpell: s.nothing, aoe: "area_1", isAura: true, glyph: 1, color: "GLYPH_PREVIEW", }
-                ],
-            },
-
-            "time_machine": {
-                name: "time_machine",
-                ttl: 1,
-                summonTypes: [],
-                maxHP: 1,
-                auras: [
-                    { name: "Time Machine", dealSpell: s.blink, aoe: "single", isAura: true, glyph: 1, color: "GLYPH_PREVIEW", },
-                    { name: "Explosion", dealSpell: s.damage, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", },
-                ],
-            },
-
-            "zombie": {
-                name: "Zombie",
-                ttl: -1,
-                maxHP: 1,
-                summonTypes: [this.PLAYABLE],
-                auras: [],
-                spells: [
-                    //just an hud indication, this spell works with the aura
-                    { name: "Zombie Attack", dealSpell: s.zombie_attack, range: 1, rangeMin: 1, cooldown: 0, aoe: "single", canTarget: [this.ENTITY] },
-                    { passive: true, cooldown: 0, name: "" },
-                    { passive: true, cooldown: 0, name: "" },
-                ]
-            },
-        },
-
-
-        LAVA_SPELL: {
-            name: "LAVA_SPELL", dealSpell: s.riseLava, range: 9, aoe: "single", canTarget: [this.EMPTY]
-            // color: ORANGE, effect: "lava", glyphIcon: "lavaIcon"
-        },
-        CHARACTERS: [
-            {
-                name: "Mage",
-                spells: [
-                    { name: "Inferno Strike", dealSpell: s.damage, range: 4, rangeMin: 2, cooldown: 1, aoe: "straight_line_inferno", glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon", canTarget: [this.ANY], description: "Deals damage in a straight line." },
-                    { name: "Freezing Curse", dealSpell: s.root, range: 2, rangeMin: 2, cooldown: 3, aoe: "square", canTarget: [this.ANY], description: "Instantly roots targets in a square area." },
-                    { name: "Force Wave", dealSpell: s.push, range: 0, cooldown: 2, aoe: "ring_1", canTarget: [this.PLAYABLE], description: "Pushes out anyone around the caster in a ring area." },
-                    // { name: "Blink", dealSpell: s.blink, range: 3, cooldown: 3, aoe: "single", glyph: 0, canTarget: [this.EMPTY] },
-                ]
-            },
-            {
-                name: "Fisherman",
-                spells: [
-                    { name: "Bait Hook", dealSpell: s.pull, range: 5, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [this.ENTITY], description: "Pulls first target in a straight line." },
-                    { name: "Fishing Net", dealSpell: s.root, range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: "GLYPH_BLUE", glyphIcon: "rootIcon", canTarget: [this.ANY], description: "Drops a 2-cells net that roots targets who start their turn inside." },
-                    { name: "Belly Bump", dealSpell: s.fisherman_push, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [this.ENTITY], description: "Pushes target and deals instant damage." },
-                    // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
-                ]
-            },
-            {
-                name: "Golem",
-                spells: [
-                    { name: "Boulder Smash", dealSpell: s.golem_boulder, range: 4, cooldown: 1, aoe: "single", glyph: 1, color: "GLYPH_ORANGE", onMiss: "lava", glyphIcon: "boulderIcon", canTarget: [this.ANY], description: "Deals damage, but if the cell was empty, rise lava." },
-                    { name: "Magma Wall", dealSpell: s.summon, summon: "wall", range: 3, cooldown: 3, aoe: "curly", ttl: 1, canTarget: [this.ANY], description: "Summons a wall in a curly area around a targeted cell." },
-                    { name: "Explosion", dealSpell: s.damage, range: 0, cooldown: 2, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", canTarget: [this.PLAYABLE], description: "Deals damage around the caster." },
-                ]
-            },
-            {
-                name: "Ninja",
-                spells: [
-                    { name: "Cast Shadow", dealSpell: s.summon, summon:"shadow", range: 2, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [this.EMPTY], description: "Summons a shadow that can cast Spinning Slash." },
-                    { name: "Spinning Slash", dealSpell: s.damage, range: 0, cooldown: 2, aoe: "ninja_slash", canTarget: [this.PLAYABLE], description: "Deals instant damage in a circular area around the caster and its shadow." },
-                    { name: "Master of Illusion", dealSpell: s.switcheroo, range: 8, cooldown: 2, aoe: "single", canTarget: [this.SHADOW], description: "Swaps the positions of the caster and its shadow." },
-                ]
-            },
-            {
-                name: "Demonist",
-                spells: [
-                    { name: "Spawn Tentacle", dealSpell: s.demo_tentacle, summon:"tentacle", range: 3, rangeMin: 3, cooldown: 1, aoe: "tentacle", onlyFirst: true, canTarget: [this.EMPTY], description: "Spawns a tentacle that damages in a line." },
-                    { name: "Summon Infernal", dealSpell: s.summon, summon: "infernal", range: 1, rangeMin: 1, cooldown: 5, aoe: "single", canTarget: [this.EMPTY], description: "Summons an infernal with a burning aura." },
-                    { name: "Speed Boost", dealSpell: s.buffPM, range: 1, cooldown: 3, aoe: "single", canTarget: [this.ENTITY], description: "Grants 1 more movement point to an ally." },
-                ]
-            },
-            {
-                name: "Rasta",
-                spells: [
-                    { name: "Gatling Shot", dealSpell: s.damage, range: 9, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [this.ANY], color: "GLYPH_BROWN", glyphIcon: "damageIcon", description: "Deals damage in a straight line." },
-                    { name: "Rolling Barrel", dealSpell: s.summon, summon: "barrel", range: 2, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [this.EMPTY], description: "Places explosive barrel." },
-                    { name: "Jamming Retreat", dealSpell: s.buffPM, value: 2, range: 0, cooldown: 3, aoe: "single", canTarget: [this.ENTITY], description: "Grants 2 more movement points to the caster." },
-                ]
-            },
-            {
-                name: "Assassin",
-                spells: [
-                    { name: "Backstab", dealSpell: s.damage, range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [this.ENTITY], description: "Deals instant damage to a single target in close range." },
-                    { name: "Silent Bullet", dealSpell: s.damage, range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [this.ENTITY], description: "Deals instant damage to a single target in a straight line at 3 range." },
-                    { name: "Smoke bomb", dealSpell: s.assassin_smokebomb, range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self", canTarget: [this.EMPTY], description: "Instantly roots all targets at close range and moves one cell." },
-                    // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, description: "Marks a single target within 4 range for additional damage." }
-                ]
-            },
-            {
-                name: "Time Traveller",
-                spells: [
-                    { name: "Time Machine", dealSpell: s.summon, summon: "time_machine", range: 3, rangeMin: 1, cooldown: 1, aoe: "single", glyph: 0, canTarget: [this.EMPTY], description: "Summons a time machine that explodes next turn, dealing damage around it and teleporting the caster to its location." },
-                    { name: "Backwards Hit", dealSpell: s.time_backwards_hit, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [this.ENTITY], description: "Deals instant damage to a single target in close range, the caster then gets pushed backwards." },
-                    { name: "Silence Lance", dealSpell: s.silence, range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph: 1, color: "GLYPH_PURPLE", glyphIcon: "silenceIcon", canTarget: [this.ANY], description: "Silences in a handspinner area." },
-                    // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, description: "Marks a single target within 4 range for additional damage." }
-                ]
-            },
-            {
-                name: "Shaman",
-                spells: [
-                    { name: "Undead Army", dealSpell: s.summon, summon: "zombie", range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [this.EMPTY], description: "Summons a zombie." },
-                    { name: "Happy Flower", dealSpell: s.shaman_flower, range: 9, rangeMin: 3, cooldown: 2, aoe: "single", glyph: 1, permanent: true, canTarget: [this.EMPTY], color: 'GLYPH_FLOWER', glyphIcon: "flowerIcon", description: "Creates a happy flower that heals and boosts the caster's range when he starts his turn on the glyph." },
-                    { name: "Voodoo Curse", dealSpell: s.silence, range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [this.PLAYABLE], description: "Instantly silences a single target." },
-                ]
-            },
+LAVA_SPELL: {
+    name: "LAVA_SPELL", dealSpell: "riseLava", range: 9, aoe: "single", canTarget: [TYPES.EMPTY]
+    // color: ORANGE, effect: "lava", glyphIcon: "lavaIcon"
+},
+CHARACTERS: [
+    {
+        name: "Mage",
+        spells: [
+            { name: "Inferno Strike", dealSpell: "damage", range: 4, rangeMin: 2, cooldown: 1, aoe: "straight_line_inferno", glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon", canTarget: [TYPES.ANY], description: "Deals damage in a straight line." },
+            { name: "Freezing Curse", dealSpell: "root", range: 2, rangeMin: 2, cooldown: 3, aoe: "square", canTarget: [TYPES.ANY], description: "Instantly roots targets in a square area." },
+            { name: "Force Wave", dealSpell: "push", range: 0, cooldown: 2, aoe: "ring_1", canTarget: [TYPES.PLAYABLE], description: "Pushes out anyone around the caster in a ring area." },
+            // { name: "Blink", dealSpell: "blink", range: 3, cooldown: 3, aoe: "single", glyph: 0, canTarget: [TYPES.EMPTY] },
         ]
+    },
+    {
+        name: "Fisherman",
+        spells: [
+            { name: "Bait Hook", dealSpell: "pull", range: 5, rangeMin: 1, cooldown: 3, aoe: "straight_line", onlyFirst: true, canTarget: [TYPES.ENTITY], description: "Pulls first target in a straight line." },
+            { name: "Fishing Net", dealSpell: "root", range: 4, cooldown: 2, aoe: "pair", glyph: 1, color: "GLYPH_BLUE", glyphIcon: "rootIcon", canTarget: [TYPES.ANY], description: "Drops a 2-cells net that roots targets who start their turn inside." },
+            { name: "Belly Bump", dealSpell: "fisherman_push", range: 1, rangeMin: 1, cooldown: 2, aoe: "single", value: "1", canTarget: [TYPES.ENTITY], description: "Pushes target and deals instant damage." },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, }
+        ]
+    },
+    {
+        name: "Golem",
+        spells: [
+            { name: "Boulder Smash", dealSpell: "golem_boulder", range: 4, cooldown: 1, aoe: "single", glyph: 1, color: "GLYPH_ORANGE", onMiss: "lava", glyphIcon: "boulderIcon", canTarget: [TYPES.ANY], description: "Deals damage, but if the cell was empty, rise lava." },
+            { name: "Magma Wall", dealSpell: "summon", summon: "wall", range: 3, cooldown: 3, aoe: "curly", ttl: 1, canTarget: [TYPES.ANY], description: "Summons a wall in a curly area around a targeted cell." },
+            { name: "Explosion", dealSpell: "damage", range: 0, cooldown: 2, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", canTarget: [TYPES.PLAYABLE], description: "Deals damage around the caster." },
+        ]
+    },
+    {
+        name: "Ninja",
+        spells: [
+            { name: "Cast Shadow", dealSpell: "summon", summon: "shadow", range: 2, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [TYPES.EMPTY], description: "Summons a shadow that can cast Spinning Slash." },
+            { name: "Spinning Slash", dealSpell: "damage", range: 0, cooldown: 2, aoe: "ninja_slash", canTarget: [TYPES.PLAYABLE], description: "Deals instant damage in a circular area around the caster and its shadow." },
+            { name: "Master of Illusion", dealSpell: "switcheroo", range: 8, cooldown: 2, aoe: "single", canTarget: [TYPES.SHADOW], description: "Swaps the positions of the caster and its shadow." },
+        ]
+    },
+    {
+        name: "Demonist",
+        spells: [
+            { name: "Spawn Tentacle", dealSpell: "demo_tentacle", summon: "tentacle", range: 3, rangeMin: 3, cooldown: 1, aoe: "tentacle", onlyFirst: true, canTarget: [TYPES.EMPTY], description: "Spawns a tentacle that damages in a line." },
+            { name: "Summon Infernal", dealSpell: "summon", summon: "infernal", range: 1, rangeMin: 1, cooldown: 5, aoe: "single", canTarget: [TYPES.EMPTY], description: "Summons an infernal with a burning aura." },
+            { name: "Speed Boost", dealSpell: "buffPM", range: 1, cooldown: 3, aoe: "single", canTarget: [TYPES.ENTITY], description: "Grants 1 more movement point to an ally." },
+        ]
+    },
+    {
+        name: "Rasta",
+        spells: [
+            { name: "Gatling Shot", dealSpell: "damage", range: 9, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [TYPES.ANY], color: "GLYPH_BROWN", glyphIcon: "damageIcon", description: "Deals damage in a straight line." },
+            { name: "Rolling Barrel", dealSpell: "summon", summon: "barrel", range: 2, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [TYPES.EMPTY], description: "Places explosive barrel." },
+            { name: "Jamming Retreat", dealSpell: "buffPM", value: 2, range: 0, cooldown: 3, aoe: "single", canTarget: [TYPES.ENTITY], description: "Grants 2 more movement points to the caster." },
+        ]
+    },
+    {
+        name: "Assassin",
+        spells: [
+            { name: "Backstab", dealSpell: "damage", range: 1, rangeMin: 1, cooldown: 1, aoe: "single", canTarget: [TYPES.ENTITY], description: "Deals instant damage to a single target in close range." },
+            { name: "Silent Bullet", dealSpell: "damage", range: 3, rangeMin: 3, cooldown: 2, aoe: "single_straight_line", canTarget: [TYPES.ENTITY], description: "Deals instant damage to a single target in a straight line at 3 range." },
+            { name: "Smoke bomb", dealSpell: "assassin_smokebomb", range: 1, rangeMin: 1, cooldown: 3, aoe: "ring_1_on_self", canTarget: [TYPES.EMPTY], description: "Instantly roots all targets at close range and moves one cell." },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, description: "Marks a single target within 4 range for additional damage." }
+        ]
+    },
+    {
+        name: "Time Traveller",
+        spells: [
+            { name: "Time Machine", dealSpell: "summon", summon: "time_machine", range: 3, rangeMin: 1, cooldown: 1, aoe: "single", glyph: 0, canTarget: [TYPES.EMPTY], description: "Summons a time machine that explodes next turn, dealing damage around it and teleporting the caster to its location." },
+            { name: "Backwards Hit", dealSpell: "time_backwards_hit", range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [TYPES.ENTITY], description: "Deals instant damage to a single target in close range, the caster then gets pushed backwards." },
+            { name: "Silence Lance", dealSpell: "silence", range: 3, rangeMin: 0, cooldown: 2, aoe: "handspinner", glyph: 1, color: "GLYPH_PURPLE", glyphIcon: "silenceIcon", canTarget: [TYPES.ANY], description: "Silences in a handspinner area." },
+            // { name: "Mark", damage: 1, range: 4, cooldown: 5, aoe: "single", glyph: 1, description: "Marks a single target within 4 range for additional damage." }
+        ]
+    },
+    {
+        name: "Shaman",
+        spells: [
+            { name: "Undead Army", dealSpell: "summon", summon: "zombie", range: 1, rangeMin: 1, cooldown: 3, aoe: "single", canTarget: [TYPES.EMPTY], description: "Summons a zombie." },
+            { name: "Happy Flower", dealSpell: "shaman_flower", range: 9, rangeMin: 3, cooldown: 2, aoe: "single", glyph: 1, permanent: true, canTarget: [TYPES.EMPTY], color: 'GLYPH_FLOWER', glyphIcon: "flowerIcon", description: "Creates a happy flower that heals and boosts the caster's range when he starts his turn on the glyph." },
+            { name: "Voodoo Curse", dealSpell: "silence", range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [TYPES.PLAYABLE], description: "Instantly silences a single target." },
+        ]
+    },
+]
     })
-},{"./spells.js":9}],8:[function(require,module,exports){
-const {Point, Hex, Layout} = require('./Hex.js');
-const c =  require('./const.js');
-const Playable = require('./Playable');
-const Entity = require('./Entity');
 
-function ordonanceur() {
-    initGame();
-    map = initMap(c.RADIUS_MAP)
-    // pickPerso()
-    // placePerso()
+module.exports = {
+    CONSTANTS, TYPES, GAMEDATA
 }
+},{}],10:[function(require,module,exports){
+const { Point, Hex, Layout } = require("./Hex")
+const drawing = require("./client/drawing")
+const utils = require("./gameUtils")
+const c = require("./const")
+const aoes = require("./aoe")
+const s = require("./spells")
 
-function initMap(N) {
-    map = []
-    console.log("init map size ", N)
 
-    for (let q = -N; q <= N; q++) {
-        let r1 = Math.max(-N, -q - N);
-        let r2 = Math.min(N, -q + N);
-        for (let r = r1; r <= r2; r++) {
-            map.push(new Hex(q, r, -q - r));
+let modeClic = "MOVE"
+let spellID = 0;
+function listenToMouse() {
+
+    console.log(map)
+    console.log(PLAYERS)
+    console.log(entities)
+
+    // //map
+    // let RADIUS_MAP = 5;
+    // let map
+    // // Create our image
+    // let lava
+    // let charactersIds
+    // var player1
+    // var player2
+    // var player3
+    // var player4
+
+    // var PLAYERS
+    // var idCurrentPlayer
+    // var currentPlayer
+
+    // var entities
+
+    canvas.onmousemove = function (e) {
+        // console.log("hover")
+        map.map(b => b.hoverMove = b.hoverSpell = false)
+
+        let hPtHover = drawing.findHexFromEvent(e.pageX, e.pageY)
+        let hPtHoverRound = (hPtHover.round());
+
+        let found = map.find(b => hPtHoverRound.distance(b) == 0);
+        if (found) {
+
+
+            //show move indicator
+            if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
+                found.hoverMove = true;
+            }
+
+            //show spell aoe indicator
+            else if (modeClic == "SPELL") {
+                if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
+                    var arrayHighlight = aoes.makeAOEFromCell(found, currentPlayer.spells[spellID].aoe,
+                        currentPlayer.entity.pos, findClicDirection(found, hPtHover), currentPlayer.spells[spellID].aoeSize)
+                        map.map(h => {
+                        arrayHighlight.forEach(element => {
+                            if (h.distance(element) == 0) h.hoverSpell = true;
+                        });
+                    })
+                }
+            } else if (modeClic == "RISE_LAVA") {
+                if (canRiseLava(found)) found.hoverSpell = true;
+            }
         }
+        // drawMap()
     }
 
-    map.map(h => {
-        //add lava
-        if (h.len() <= N - 1) h.floor = true;
-        //prepare aoe arrays
-        h.aoe = []
-        //add random id for tiles
-        h.rand4 = Math.floor(Math.random() * 4)
+
+
+    canvas.addEventListener('click', function (event) {
+        // console.log("click, current modeclilk " + modeClic)
+        map.map(h => h.hoverMove = h.hoverSpell = false)
+
+        let hPtClick = drawing.findHexFromEvent(event.pageX, event.pageY)
+        let hPtClickRound = (hPtClick.round());
+
+        let found = map.find(b => hPtClickRound.distance(b) == 0);
+        if (found) {
+            //if mode move, move
+            if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
+                currentPlayer.loseMovePoint(); //use PM
+                moveEntity(currentPlayer.entity, found)
+            }
+            if (modeClic == "SPELL") {
+                if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
+                    castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, hPtClick);
+                } else {
+                    //cancel spellcast
+                    modeClic = "MOVE"
+                    cleanRangeAndHover()
+                }
+            }
+            if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
+                castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
+                passTurn();
+            }
+        }
+        // drawMap();
+
+    }, false);
+
+}
+
+function moveEntity(entity, cell) {
+    // Anim.animateMove (entity, cell)
+    //sprlls onmove a remettre pour le gazeur
+    // var onMoveSpells = PLAYERS.find(p => p.entity == entity)?.spells.filter(s => s.onMove)
+    // if (onMoveSpells.length) onMoveSpells.forEach(s => castSpell(entity, s, cell));
+    entity.pos = cell;
+    //reset modeclic
+    // modeClic = ""
+    refreshAuras();
+    //clean map from range and hover indicators
+    cleanRangeAndHover()
+    // drawMap();
+}
+
+function findClicDirection(cell, exactPtH) {
+    if (cell && exactPtH) {
+        var arrayDistances = []
+        Hex.directions.forEach(d => arrayDistances.push(d.distance(exactPtH.subtract(cell))))
+        return Hex.directions[arrayDistances.indexOf(Math.min(...arrayDistances))]
+    }
+}
+function castSpell(caster, spell, cell, exactPtH) {
+    if (spell.selfCast) cell = caster.pos;
+    console.log("CASTING SPELL " + spell.name + " in pos ", cell.q, cell.r, cell.s)
+
+    if (spell.isAura) {
+        var spellEffect = {};
+        Object.assign(spellEffect, spell);
+        spellEffect.source = currentPlayer;
+        caster.auras.push(spellEffect)
+    } else {
+        let direction = findClicDirection(cell, exactPtH);
+        var arrayAOE = aoes.makeAOEFromCell(cell, spell.aoe, caster.pos, direction, spell.aoeSize)
+        // console.log(arrayAOE)
+        let alreadyAffected = false
+        arrayAOE.forEach(affectedCell => {
+            // console.log(alreadyAffected)
+            if (!(spell.onlyFirst) || !alreadyAffected) {
+                map.map(h => {
+                    if (h.distance(affectedCell) == 0) {
+                        // instant spell deals their effect instantly
+                        if (!spell.glyph) {
+                            alreadyAffected = s.resolveSpell(h, spell, caster, direction, cell) ? true : alreadyAffected;
+                        }
+                        // glyph spells drop a glyph
+                        else {
+                            var spellEffect = {};
+                            Object.assign(spellEffect, spell);
+                            spellEffect.source = currentPlayer;
+                            if (h.floor && (!spellEffect.permanent || !h.aoe.find(s => s.name == spell.name)))
+                                h.aoe.push(spellEffect);
+                        }
+                    }
+                });
+            }
+        })
+    }
+
+    refreshAuras(); //to show new auras
+    //spell goes on cooldown
+    spell.currentCD = spell.cooldown;
+    //reset modeclic
+    modeClic = "MOVE"
+    //clean map from range and hover indicators
+    cleanRangeAndHover()
+    // drawMap();
+    //todo rembourser le CD si le spell a foire
+}
+
+function refreshAuras() {
+    //vide les auras de la map (and remove gas over lava)
+    map.forEach(h => h.aoe = h.aoe.filter(aoe => !aoe.isAura && !(!h.floor && aoe.permanent)));
+    // boucle sur les entities pour remettre les auras
+    entities.forEach(e => {
+        if (e.auras?.length) {
+            e.auras.forEach(aura => {
+                //get aoe from aura
+                //calculate destination cells on the map
+                let listCells = aoes.makeAOEFromCell(e.pos, aura.aoe, e.pos, aura.direction, aura.aoeSize);
+                listCells.forEach(element => {
+                    //apply aoe on the map
+                    map.forEach(h => {
+                        if (h.distance(element) == 0) {
+                            //copy aura and push on all cells
+                            var spellEffect = {};
+                            Object.assign(spellEffect, aura);
+                            h.aoe.push(spellEffect);
+                        }
+                    });
+                })
+            })
+        }
     })
-    // map.map(h => h.aoe = []);
-
-    return map;
 }
 
-TEST = false;
-STARTER = [8, 7, 6, 5]
-
-function initPlayers(nbPions) {
-
-    // modeClic = "MOVE"; //MOVE or SPELL
-    // spellID = 0; //0 to 3
-    //map
-    // map = [];
-    // nbPions = 4;
-
-    charactersIds = [];
-    if (TEST) charactersIds.push(...STARTER);
-    while (charactersIds.length < nbPions) {
-        let randomInt = Math.floor(Math.random() * c.CHARACTERS.length);
-        if (!charactersIds.includes(randomInt)) {
-            charactersIds.push(randomInt);
+function canCast(caster, spell, targetCell) {
+    //check range
+    if (outOfRange(caster, spell, targetCell)) return false;
+    //check affects types :
+    let isAffected = false;
+    if (spell.canTarget?.includes(c.TYPES.ANY)) {
+        isAffected = true;
+    } else {
+        //targetCell is map cell with info
+        var typesCell = new Set()
+        if (!targetCell.floor) typesCell.add(c.TYPES.LAVA)
+        else {
+            let entity = entities.find(e => e.pos.distance(targetCell) == 0)
+            if (!entity) typesCell.add(c.TYPES.EMPTY)
+            else {
+                typesCell.add(c.TYPES.ENTITY)
+                entity.types.forEach(item => typesCell.add(item))
+            }
         }
+        //at this point we have 
+        spell.canTarget?.forEach(typesSpell => {
+            if (typesCell.has(typesSpell)) isAffected = true;
+        });
     }
-
-    const TEAM_A_COLOR = "red"
-    const TEAM_B_COLOR = "cyan"
-    const MAX_HP_PLAYER = 4;
-
-    PLAYERS = []
-    let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
-    for (let i = 0; i < nbPions; i++) {
-        PLAYERS.push(new Playable(new Entity(c.CHARACTERS[charactersIds[i]].name,
-            i % 2 ? TEAM_B_COLOR : TEAM_A_COLOR,
-            [], [],
-            arrPos[i], MAX_HP_PLAYER),
-            c.CHARACTERS[charactersIds[i]].spells))
-    }
-    return PLAYERS;
-    // idCurrentPlayer = 0; //start with player1
-    // currentPlayer = PLAYERS[idCurrentPlayer]
-
-    // entities = [];
-    // PLAYERS.forEach(p => entities.push(p.entity))
-
+    return isAffected;
+    //add other tests : line of sight, blocked case ?
 }
-function playTurn() {
+function outOfRange(caster, spell, targetCell) {
+    // let casterPlayer = utils.findPlayerFromEntity(caster)
+    // let rangeSpell = casterPlayer.bonusPO ? casterPlayer.bonusPO + spell.range : spell.range;
+   let rangeSpell = spell.range;
+    return (caster.pos.distance(targetCell) > rangeSpell)
+        || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
+        || ((spell.aoe && spell.aoe.includes("straight_line")) && !(targetCell.isSameLine(caster.pos)));
+}
+
+function canMove(entity, posCase, max) {
+    //en attendant 1 case max
+    if (!posCase.floor) return false;
+    if (max > 1) max = 1;
+    res = (entity?.pos?.distance(posCase) <= max) && utils.isFree(posCase) && posCase.floor; //and other blocked cases
+    return res
+}
+function canRiseLava(cell) {
+    // autorise seulement si la case est a cote de 3 cases de lave
+    var res = false;
+    if (utils.isFree(cell) && cell.floor && !cell.aoe.find(spell => spell.effect == "lava")) {
+        let lavaCells = 0;
+        map.forEach(h => {
+            if (Hex.directions.find(d => h.distance(d.add(cell)) == 0 && h && !h.floor)) {
+                lavaCells++;
+            }
+        });
+        res = lavaCells >= 3;
+    }
+    return res;
+}
+
+function showCastRange() {
+    cleanRangeAndHover()
+    if (modeClic == "MOVE")
+        map.map(h => {
+            if (canMove(currentPlayer.entity, h, currentPlayer.movePoint))
+                h.rangeMove = true;
+        })
+    if (modeClic == "SPELL")
+        map.map(h => {
+            if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], h))
+                h.hit = true;
+            else if (!outOfRange(currentPlayer.entity, currentPlayer.spells[spellID], h))
+                h.rangeSpell = true;
+        })
+    else if (modeClic == "RISE_LAVA") {
+        // any cell that is next to lava and doesnt contain an entity
+        map.map(found => {
+            if (canRiseLava(found)) found.hit = true;
+        })
+    }
+}
+function cleanRangeAndHover() {
+    map.map(h => h.hoverMove = h.hoverSpell = h.rangeMove = h.rangeSpell = h.hit = false)
+}
+
+function clickSpell(id) {
+    modeClic = "SPELL"
+    spellID = id
+    showCastRange();
+    // drawMap();
+  }
+  
+  function clickSpell0() { clickSpell(0) }
+  function clickSpell1() { clickSpell(1) }
+  function clickSpell2() { clickSpell(2) }
+  
+  
+  function clickMove() {
+    if (currentPlayer.movePoint) modeClic = "MOVE"
+    showCastRange();
+    // drawMap();
+  }
+  
+  
+  function clickRiseLava() {
+    modeClic = "RISE_LAVA"
+    showCastRange();
+    // drawMap();
+  }
+  
+  function clickPassTurn() {
+    passTurn();
+  }
+  
+  document.getElementById("move").addEventListener('click',clickMove)
+  document.getElementById("rise-lava").addEventListener('click',clickRiseLava)
+  document.getElementById("pass-turn").addEventListener('click',clickPassTurn)
+  document.getElementById("spell-0").addEventListener('click',clickSpell0)
+  document.getElementById("spell-1").addEventListener('click',clickSpell1)
+  document.getElementById("spell-2").addEventListener('click',clickSpell2)
+  
+  function playTurn() {
     if (currentPlayer.dead) {
         triggerAOE(currentPlayer);
         passTurn()
@@ -1135,7 +1596,6 @@ function beginTurn(player) {
     tickDownBuffs(player)
     killExpiredSummons(player);
     refreshAuras() //to remove expired auras
-    // if (player.team == "PLAYABLE")
     modeClic = "MOVE"
 }
 function endTurn(player) {
@@ -1152,7 +1612,7 @@ function triggerAOE(player) {
                     console.log("triggerAOE from " + player.name)
                     spellEffect.glyph -= 1;
                     if (spellEffect.glyph <= 0) { //ils expirent
-                        resolveSpell(h, spellEffect, spellEffect.source.entity);
+                        s.resolveSpell(h, spellEffect, spellEffect.source.entity);
                         if (!(spellEffect.permanent)) {
                             return false;
                         }
@@ -1209,12 +1669,12 @@ function checkWinCondition() { //appelee a la mort d'un joueur
     if (listAlive.length == 0) {
         console.log("EVERYBODY IS DEAD")
         alert("EVERYBODY IS DEAD")
-        ordonanceur();
+        // ordonanceur();
     }
     else if (listAlive.length == 1) {
         console.log(listAlive[0].name + " WON THE GAME !")
         alert(listAlive[0].name + " WON THE GAME !")
-        ordonanceur();
+        // ordonanceur();
     }
     else {
         if (checkSameTeam(listAlive))
@@ -1231,20 +1691,11 @@ function checkSameTeam(listAlive) {
     return true;
 }
 
+
 module.exports = {
-    initMap, initPlayers
+    listenToMouse,
 };
-},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":7}],9:[function(require,module,exports){
-
-function resolveSpell(cell, spell, casterEntity, direction, mainCell) {
-    //direction only use for tentacle now
-    targetCell = findMapCell(cell)
-    let targetEntity = findEntityOnCell(targetCell);
-    let result = spell.dealSpell(targetCell, spell, casterEntity, targetEntity, direction, mainCell)
-    checkAnyoneInLava()
-
-    return result;
-}
+},{"./Hex":3,"./aoe":5,"./client/drawing":7,"./const":9,"./gameUtils":11,"./spells":13}],11:[function(require,module,exports){
 //HELPERS
 function findMapCell(cell) {
     return map.find(h => h.distance(cell) == 0)
@@ -1256,18 +1707,148 @@ function findEntityOnCell(cell) {
 function findPlayerFromEntity(entity) {
     if (entity) return PLAYERS.find(p => p.entity == entity)
 }
-function killEntity(entity) {
-    let killedPlayer = PLAYERS.find(p => p.entity == entity)
-    if (killedPlayer && !killedPlayer.dead) killedPlayer.die()
-    entities = entities.filter(e => e != entity)
+
+function isFree(cellToCheck) { //cell contains no entity
+    // find cell in map
+    let cell = map.find(h => h.distance(cellToCheck) == 0)
+    if (!cell) return true
+    var res = true;
+    entities.forEach(e => {
+        if (e.pos.distance(cell) == 0) {
+            res = false;
+        }
+    })
+    return res;
 }
 
+module.exports = {
+    findMapCell,
+    findEntityOnCell,
+    findPlayerFromEntity,
+    isFree,
+};
+
+},{}],12:[function(require,module,exports){
+const {Point, Hex, Layout} = require('./Hex.js');
+const c =  require('./const.js');
+const Playable = require('./Playable');
+const Entity = require('./Entity');
+const s = require("./spells")
+
+function ordonanceur() {
+    initGame();
+    map = initMap(c.RADIUS_MAP)
+    // pickPerso()
+    // placePerso()
+}
+
+function initMap(N) {
+    map = []
+    console.log("init map size ", N)
+
+    for (let q = -N; q <= N; q++) {
+        let r1 = Math.max(-N, -q - N);
+        let r2 = Math.min(N, -q + N);
+        for (let r = r1; r <= r2; r++) {
+            map.push(new Hex(q, r, -q - r));
+        }
+    }
+
+    map.map(h => {
+        //add lava
+        if (h.len() <= N - 1) h.floor = true;
+        //prepare aoe arrays
+        h.aoe = []
+        //add random id for tiles
+        h.rand4 = Math.floor(Math.random() * 4)
+    })
+    // map.map(h => h.aoe = []);
+
+    return map;
+}
+
+TEST = false;
+STARTER = [8, 7, 6, 5]
+
+function initPlayers(nbPions) {
+
+    //randomize characters
+    charactersIds = [];
+    if (TEST) charactersIds.push(...STARTER);
+    while (charactersIds.length < nbPions) {
+        let randomInt = Math.floor(Math.random() * c.GAMEDATA.CHARACTERS.length);
+        if (!charactersIds.includes(randomInt)) {
+            charactersIds.push(randomInt);
+        }
+    }
+
+    const TEAM_A_COLOR = "red"
+    const TEAM_B_COLOR = "cyan"
+    const MAX_HP_PLAYER = 4;
+
+    PLAYERS = []
+    let arrPos = [new Hex(0, -3, 3), new Hex(0, 3, -3), new Hex(3, -3, 0), new Hex(-3, 3, 0)];
+    for (let i = 0; i < nbPions; i++) {
+        PLAYERS.push(new Playable(new Entity(c.GAMEDATA.CHARACTERS[charactersIds[i]].name,
+            i % 2 ? TEAM_B_COLOR : TEAM_A_COLOR,
+            [], [],
+            arrPos[i], MAX_HP_PLAYER),
+            c.GAMEDATA.CHARACTERS[charactersIds[i]].spells))
+    }
+    return PLAYERS;
+    // idCurrentPlayer = 0; //start with player1
+    // currentPlayer = PLAYERS[idCurrentPlayer]
+
+    // entities = [];
+    // PLAYERS.forEach(p => entities.push(p.entity))
+
+}
+
+module.exports = {
+    initMap, initPlayers,
+};
+},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":9,"./spells":13}],13:[function(require,module,exports){
+const utils = require("./gameUtils")
+const aoes = require("./aoe")
+const Entity = require("./Entity")
+const Playable = require("./Playable")
+const c = require("./const")
+if (typeof window) {
+    Anim = require("./client/Anim");
+}
+
+function resolveSpell(cell, spellData, casterEntity, direction, mainCell) {
+    //direction only use for tentacle now and maincell for assassin smoke bomb
+    targetCell = utils.findMapCell(cell)
+    let targetEntity = utils.findEntityOnCell(targetCell);
+    let realSpell = LIB_SPELLS[spellData.dealSpell]
+    let result = realSpell(targetCell, spellData, casterEntity, targetEntity, direction, mainCell)
+    checkAnyoneInLava()
+
+    return result;
+}
+
+
 // GENERIC
+function checkAnyoneInLava() {
+    entities = entities.filter(e => {
+        found = map.find(h => e.pos.distance(h) == 0)
+        if (found && !found.floor) {
+            //aie aie aie
+            entity.die();
+            return false;
+        }
+        return true;
+    })
+}
 // deaspell correspond a la fonction du spell 
 function nothing(cell, spell, casterEntity, targetEntity) {
 }
 function damage(cell, spell, casterEntity, targetEntity) {
-    if (targetEntity && !targetEntity.isInvulnerable) targetEntity.damage();
+    if (targetEntity && !targetEntity.isInvulnerable) {
+        if (typeof window) Anim.splash(targetCell, "-1")
+        targetEntity.damage();
+    }
 }
 
 function pull(cell, spell, casterEntity, targetEntity) {
@@ -1284,7 +1865,7 @@ function push(cell, spell, casterEntity, targetEntity) {
         let direction = (destination.subtract(casterEntity.pos));
         for (let n = 0; n < value; n++) {
             destination = destination.add(direction) //loop for pushing
-            if (isFree(destination)) targetEntity.pos = destination;
+            if (utils.isFree(destination)) targetEntity.pos = destination;
         }
     }
 }
@@ -1302,7 +1883,7 @@ function switcheroo(cell, spell, casterEntity, targetEntity) {
 }
 
 function root(cell, spell, casterEntity, targetEntity) {
-    let targetplayer = findPlayerFromEntity(targetEntity)
+    let targetplayer = utils.findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.loseMovePoint(99);
     }
@@ -1315,13 +1896,13 @@ function silence(cell, spell, casterEntity, targetEntity) {
 }
 
 function buffPM(cell, spell, casterEntity, targetEntity) {
-    let targetplayer = findPlayerFromEntity(targetEntity)
+    let targetplayer = utils.findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.buffPM(spell.value || 1);
     }
 }
 function buffPO(cell, spell, casterEntity, targetEntity) {
-    let targetplayer = findPlayerFromEntity(targetEntity)
+    let targetplayer = utils.findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.buffPO(spell.value || 1);
     }
@@ -1330,9 +1911,9 @@ function buffPO(cell, spell, casterEntity, targetEntity) {
 function riseLava(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
         // kill entities on the cell
-        killEntity(targetEntity)
+        targetEntity.die();
     }
-    cellM = findMapCell(cell);
+    cellM = utils.findMapCell(cell);
     cellM.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
     cellM.floor = false;
 
@@ -1345,30 +1926,32 @@ function blink(cell, spell, casterEntity, targetEntity) {
 
 function summon(cell, spell, casterEntity, targetEntity) {
     var summoned;
-    if (!targetEntity) { //empty cell
+    let summonData = c.GAMEDATA.TABLE_SUMMONS[spell.summon];
+    if (summonData && !targetEntity) { //empty cell
         //if unique summon, kill previous one
-        if (spell.summon.isUnique) {
-            killEntity(entities.find(e => e.name == spell.summon.name && e.summoner == casterEntity))
+        if (summonData.isUnique) {
+            let previous = (entities.find(e => e.name == summonData.name && e.summoner == casterEntity))
+            if (previous) previous.die()
         }
         summoned = new Entity(
-            spell.summon.name,
+            summonData.name,
             casterEntity.team,
-            spell.summon.auras,
-            spell.summon.summonTypes,
+            summonData.auras ? summonData.auras : [],
+            summonData.summonTypes ? summonData.summonTypes : [],
             cell.copy(),
-            spell.summon.maxHP,
-            spell.summon.ttl,
+            summonData.maxHP,
+            summonData.ttl,
             currentPlayer,
             casterEntity,
-            spell.summon.onDeath,
-            spell.summon.flags,
+            summonData.onDeath,
+            summonData.flags,
         )
         if (summoned.auras) summoned.auras.forEach(a => a.source = currentPlayer)
 
         entities.push(summoned)
 
-        if (summoned.types.includes(PLAYABLE)) {
-            let summonedP = new Playable(summoned, spell.summon.spells)
+        if (summoned.types.includes(c.TYPES.PLAYABLE)) {
+            let summonedP = new Playable(summoned, summonData.spells)
             summonedP.isSummoned = true;
             PLAYERS.splice((idCurrentPlayer + 1) % (PLAYERS.length + 1), 0, summonedP);
         }
@@ -1439,16 +2022,38 @@ function debuffCD(cell, spell, casterEntity, targetEntity) {
 //on death spells
 function rasta_barrel_explode(casterEntity) {
     console.log("Barrel exploses !")
-    let listCells = makeAOEFromCell(casterEntity.pos, "ring_1");
+    let listCells = aoes.makeAOEFromCell(casterEntity.pos, "ring_1");
     listCells.forEach(cell => resolveSpell(cell, { dealSpell: damage }, casterEntity))
 }
 
+const LIB_SPELLS = {
+    "resolveSpell": resolveSpell,
+    "nothing": nothing,
+    "damage": damage,
+    "pull": pull,
+    "push": push,
+    "salto": salto,
+    "switcheroo": switcheroo,
+    "root": root,
+    "silence": silence,
+    "buffPM": buffPM,
+    "buffPO": buffPO,
+    "riseLava": riseLava,
+    "blink": blink,
+    "summon": summon,
+    "golem_boulder": golem_boulder,
+    "fisherman_push": fisherman_push,
+    "demo_tentacle": demo_tentacle,
+    "assassin_smokebomb": assassin_smokebomb,
+    "time_backwards_hit": time_backwards_hit,
+    "zombie_attack": zombie_attack,
+    "shaman_flower": shaman_flower,
+    "debuffCD": debuffCD,
+    "rasta_barrel_explode": rasta_barrel_explode,
+}
+
 module.exports = {
-    resolveSpell,
-    findMapCell,
-    findEntityOnCell,
-    findPlayerFromEntity,
-    killEntity,
+    "resolveSpell": resolveSpell,
     nothing,
     damage,
     pull,
@@ -1461,7 +2066,17 @@ module.exports = {
     buffPO,
     riseLava,
     blink,
-    summon
-  };
-  
-},{}]},{},[1]);
+    summon,
+    golem_boulder,
+    fisherman_push,
+    demo_tentacle,
+    assassin_smokebomb,
+    time_backwards_hit,
+    zombie_attack,
+    shaman_flower,
+    debuffCD,
+    rasta_barrel_explode,
+
+};
+
+},{"./Entity":2,"./Playable":4,"./aoe":5,"./client/Anim":6,"./const":9,"./gameUtils":11}]},{},[1]);

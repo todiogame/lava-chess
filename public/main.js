@@ -74,7 +74,8 @@ module.exports = class Entity {
         this.src = "pics/" + name.toLowerCase() +
             (name.toLowerCase() == "zombie" ? Math.floor(Math.random() * 2) : "")
             + ".png";
-        if (typeof window && this.src) {
+        if ( (typeof window != 'undefined' && window.document) && this.src) {
+            console.log("whyyyy")
             this.image = new Image();
             this.image.src = this.src;
         }
@@ -841,12 +842,14 @@ const SIZE_GLYPH = 64;
 let origin = new Point(350, 300)
 const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
 // Create the grid container
-const canvas = document.getElementById('canvas');
-canvas.width = 700;
-canvas.height = 600;
+var canvas, ctx;
+if (typeof window) {
+    canvas = document.getElementById('canvas');
+    canvas.width = 700;
+    canvas.height = 600;
 
-const ctx = canvas.getContext('2d');
-
+    ctx = canvas.getContext('2d');
+}
 
 const SIZE_PERSO = 64;
 const SIZE_TILE = 95;
@@ -1733,14 +1736,6 @@ const {Point, Hex, Layout} = require('./Hex.js');
 const c =  require('./const.js');
 const Playable = require('./Playable');
 const Entity = require('./Entity');
-const s = require("./spells")
-
-function ordonanceur() {
-    initGame();
-    map = initMap(c.RADIUS_MAP)
-    // pickPerso()
-    // placePerso()
-}
 
 function initMap(N) {
     map = []
@@ -1807,13 +1802,13 @@ function initPlayers(nbPions) {
 module.exports = {
     initMap, initPlayers,
 };
-},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":9,"./spells":13}],13:[function(require,module,exports){
+},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":9}],13:[function(require,module,exports){
 const utils = require("./gameUtils")
 const aoes = require("./aoe")
 const Entity = require("./Entity")
 const Playable = require("./Playable")
 const c = require("./const")
-if (typeof window) {
+if (typeof window != 'undefined' && window.document) {
     Anim = require("./client/Anim");
 }
 
@@ -1846,7 +1841,7 @@ function nothing(cell, spell, casterEntity, targetEntity) {
 }
 function damage(cell, spell, casterEntity, targetEntity) {
     if (targetEntity && !targetEntity.isInvulnerable) {
-        if (typeof window) Anim.splash(targetCell, "-1")
+        if (typeof window != 'undefined' && window.document) Anim.splash(targetCell, "-1")
         targetEntity.damage();
     }
 }

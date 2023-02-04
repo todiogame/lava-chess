@@ -2,6 +2,7 @@ const express = require('express');
 const app = express();
 
 const Game = require('./lib/Game')
+const comm = require('./lib/comm')
 
 // Serve the public directory
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -21,18 +22,11 @@ app.get('/', function (req, res) {
 const WebSocket = require('ws')
 const wss = new WebSocket.Server({ port: 8081 })
 
-
-wss.getUniqueID = function () {
-  function s4() {
-    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-  }
-  return s4() + s4() + '-' + s4();
-};
 const clients = []
 const games = []
 
 wss.on('connection', function connection(ws, req) {
-  ws.id = wss.getUniqueID();
+  ws.id = comm.getUniqueID();
   clients.push(ws);
 
 //show all clients
@@ -44,9 +38,6 @@ wss.on('connection', function connection(ws, req) {
   if (clients.length % 2 === 0) {
     const clientA = clients[clients.length - 2];
     const clientB = clients[clients.length - 1];
-
-    clientA.other = clientB;
-    clientB.other = clientA;
     games.push(new Game(clientA, clientB));
   }
 
@@ -66,11 +57,9 @@ wss.on('connection', function connection(ws, req) {
   ws.on("message", (message) => {
     console.log(`Received message: ${message}`);
     const data = JSON.parse(message);
-    handleMessage(ws, data);
+    comm.handleMessage(ws, data);
   });
 
 });
 
-function handleMessage(ws, data){
-}
 

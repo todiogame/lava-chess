@@ -4,8 +4,20 @@ Ultis
 fix bug inferno double damage
 rework gazeur ?
 
+Animations move for pull/push
+Circle aoe preview when hover for time machine and or barrel ?
+
 gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding
+
+Loading screen
+Highlight the playing character ?
+Can do shields by adding a transparent circle on top of a character
+Rework shaman into mass zombie summoner
+Change flower spell for something else
+Zombie cd1 ou cd2 possible ? A balancer...
+
+Add warrior. ?
 ______________________
 Mode multi :
 
@@ -27,12 +39,7 @@ envoyer "a ton tour" a un client et l'ecouter
 quand ya une instruction => envoyer a l'autre
 fin du tour => donner la main a l'autre
 
-modifs a faire :
-- ajouter des exports des fonctions utiles :
-dans un premier temps, juste initMap et initGame.
-
-on va faire client.html identique a index.html mais qui laisse le serveur init la game.
-
+Client : envoyer instruction move / spell / lava
 
 //commun
 faire un systeme d'actions

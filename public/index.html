@@ -16,26 +16,29 @@
                 <h1 id="name"></h1>
                 <div class="current-hp" id="current-hp">
                     <div class="bar">
-                      <div id="hp-value" class="hp-value" style="width: 70%"></div>
+                        <div id="hp-value" class="hp-value" style="width: 70%"></div>
                     </div>
                     <span class="current-hp-text" id="current-hp-text"></span>
-                  </div>
-                  
+                </div>
+
                 <div class="move">
-                    <button class="cast-spell" id="move" onclick="clickMove()">
+                    <button class="cast-spell" id="move">
                         <span id="move-name">Move </span><span id="move-cooldown"></span>
                     </button>
                 </div>
                 <div class="spells">
-                    <button class="cast-spell" id="spell-0" onclick="clickSpell(0)"></button>
-                    <button class="cast-spell" id="spell-1" onclick="clickSpell(1)"></button>
-                    <button class="cast-spell" id="spell-2" onclick="clickSpell(2)"></button>
+                    <button class="cast-spell" id="spell-0">
+                        <span class="content">xxx</span><span class="tooltip">tooltip</span></button>
+                    <button class="cast-spell" id="spell-1">
+                        <span class="content">xxx</span><span class="tooltip">tooltip</span></button>
+                    <button class="cast-spell" id="spell-2">
+                        <span class="content">xxx</span><span class="tooltip">tooltip</span></button>
                 </div>
                 <div class="rise-lava">
-                    <button class="cast-spell" id="rise-lava" onclick="clickRiseLava()">
+                    <button class="cast-spell" id="rise-lava">
                         <span id="rise-lava-name">Rise lava and pass</span>
                     </button>
-                    <button class="cast-spell" id="pass-turn" onclick="clickPassTurn()">
+                    <button class="cast-spell" id="pass-turn">
                         <span id="passTurn-name">Pass</span>
                     </button>
                 </div>

@@ -1,4 +1,5 @@
 function showCastRange() {
+    cleanRangeAndHover()
     if (modeClic == "MOVE")
         map.map(h => {
             if (canMove(currentPlayer.entity, h, currentPlayer.movePoint))

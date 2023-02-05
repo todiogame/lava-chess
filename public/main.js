@@ -25,10 +25,14 @@ function connect() {
     };
 
     socket.onmessage = function (event) {
-        console.log(event)
+        // console.log(event)
         const received = Network.decode(event.data);
         // console.log("received")
         // console.log(received)
+        if(received.type == "TEAM"){
+            TEAM = received.data;
+            console.log("we are team ",TEAM)
+        }
 
         if (received.type == "PLAYERS") {
             PLAYERS = recreatePlayers(received.data)
@@ -518,7 +522,13 @@ class Network {
         return { type, data } = JSON.parse(message)
     }
 
+    static sendToClient(client, type, data) {
+        console.log("sending", type, data)
+       if (client) client.send(JSON.stringify({ type: type, data: data }))
+    }
+
     static broadcast(game, type, data) {
+        console.log("sending", type, data)
         game.clientA.send(JSON.stringify({ type: type, data: data }))
         game.clientB.send(JSON.stringify({ type: type, data: data }))
     }
@@ -1057,6 +1067,8 @@ module.exports = {
 },{"../Hex":3,"./hud":9}],9:[function(require,module,exports){
 
 function displayCharacterHUD(player) {
+    document.getElementById("team").textContent = (TEAM == player.entity.team) ? "Your turn" : "Enemy's turn";
+    document.getElementById("team").style.color = player.entity.team;
   if (player) {
     document.getElementById("name").textContent = player.name;
     document.getElementById("current-hp-text").textContent = `HP: ${player.entity.currentHP}/${player.entity.maxHP}`;
@@ -1093,8 +1105,7 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-    // if(!TEST)  
-    // document.getElementById("pass-turn").style.display = "none";
+    document.getElementById("pass-turn").style.display = "none"; //comment this line to debug pass
     }
   }
   displayTimeline(player);
@@ -1113,8 +1124,6 @@ const displayTimeline = (currentP) => {
   });
 
   playerHud.innerHTML = playerList;
-  // let playersHTML = document.querySelectorAll("#timeline p");
-  // if (idCurrentPlayer || idCurrentPlayer === 0) playersHTML[idCurrentPlayer]?.classList.add("highlight");
 };
 
 module.exports = {
@@ -1315,30 +1324,10 @@ const s = require("./spells")
 const Network = require("./Network")
 
 
-let modeClic = "MOVE"
+let modeClic = ""
 let spellID = 0;
 function listenToMouse() {
-
-    // console.log(map)
-    // console.log(PLAYERS)
-    // console.log(entities)
-
-    // //map
-    // let RADIUS_MAP = 5;
-    // let map
-    // // Create our image
-    // let lava
-    // let charactersIds
-    // var player1
-    // var player2
-    // var player3
-    // var player4
-
-    // var PLAYERS
-    // var idCurrentPlayer
-    // var currentPlayer
-
-    // var entities
+    modeClic = (TEAM == currentPlayer.entity.team) ? "MOVE" : "";
 
     canvas.onmousemove = function (e) {
         // console.log("hover")
@@ -1379,34 +1368,40 @@ function listenToMouse() {
         // console.log("click, current modeclilk " + modeClic)
         map.map(h => h.hoverMove = h.hoverSpell = false)
 
-        let hPtClick = drawing.findHexFromEvent(event.pageX, event.pageY)
-        let hPtClickRound = (hPtClick.round());
+        if (TEAM == currentPlayer.entity.team) {
+            let hPtClick = drawing.findHexFromEvent(event.pageX, event.pageY)
+            let hPtClickRound = (hPtClick.round());
 
 
-        let found = map.find(b => hPtClickRound.distance(b) == 0);
-        if (found) {
-            let direction = findClicDirection(found, hPtClick);
-            //if mode move, move
-            if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
-                currentPlayer.loseMovePoint(); //use PM
-                Network.clientSendAction("MOVE", found)
-                moveEntity(currentPlayer.entity, found)
-            }
-            if (modeClic == "SPELL") {
-                if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
-                    Network.clientSendAction("SPELL", found, spellID, direction)
-                    castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, direction);
-                } else {
-                    //cancel spellcast
-                    modeClic = "MOVE"
-                    cleanRangeAndHover()
+            let found = map.find(b => hPtClickRound.distance(b) == 0);
+            if (found) {
+                let direction = findClicDirection(found, hPtClick);
+                //if mode move, move
+                if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
+                    currentPlayer.loseMovePoint(); //use PM
+                    Network.clientSendAction("MOVE", found)
+                    moveEntity(currentPlayer.entity, found)
+                }
+                if (modeClic == "SPELL") {
+                    if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
+                        Network.clientSendAction("SPELL", found, spellID, direction)
+                        castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, direction);
+                    } else {
+                        //cancel spellcast
+                        modeClic = "MOVE"
+                        cleanRangeAndHover()
+                    }
+                }
+                if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
+                    Network.clientSendAction("LAVA", found, spellID)
+                    castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
+                    passTurn();
                 }
             }
-            if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
-                Network.clientSendAction("LAVA", found, spellID)
-                castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
-                passTurn();
-            }
+        } else {
+            //not your turn !
+            modeClic = ""
+            cleanRangeAndHover()
         }
     }, false);
 
@@ -1744,6 +1739,9 @@ function findEntityOnCell(cell) {
 function findPlayerFromEntity(entity) {
     if (entity) return PLAYERS.find(p => p.entity == entity)
 }
+function isEntityAlive(entity){
+    if (entity) return entities.find(p => p.entity == entity)
+}
 
 function isFree(cellToCheck) { //cell contains no entity
     // find cell in map
@@ -1791,6 +1789,7 @@ module.exports = {
     findMapCell,
     findEntityOnCell,
     findPlayerFromEntity,
+    isEntityAlive,
     isFree,
     checkWinCondition,
     checkSameTeam,
@@ -2063,7 +2062,8 @@ function time_backwards_hit(cell, spell, casterEntity, targetEntity) {
 
 function zombie_attack(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
-    casterEntity.die();
+    // bugfix : if the zombie is not dead yet after attacking ! (damn barrel)
+    if(utils.isEntityAlive) casterEntity.die();
 }
 function shaman_flower(cell, spell, casterEntity, targetEntity) {
     if (targetEntity == casterEntity) {

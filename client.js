@@ -28,6 +28,10 @@ function connect() {
         const received = Network.decode(event.data);
         // console.log("received")
         // console.log(received)
+        if(received.type == "TEAM"){
+            TEAM = received.data;
+            console.log("we are team ",TEAM)
+        }
 
         if (received.type == "PLAYERS") {
             PLAYERS = recreatePlayers(received.data)

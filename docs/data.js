@@ -17,18 +17,18 @@ const TABLE_SUMMONS = {
   shadow: {
     name: "shadow",
     ttl: -1,
-    summonTypes: [SHADOW],
+    summonTypes: [SHADOW, PROJECTILE],
     isUnique: true,
   },
   wall: {
     name: "wall",
     ttl: 1,
-    summonTypes: [],
+    summonTypes: [PROJECTILE],
   },
   tentacle: {
     name: "tentacle",
     ttl: 1,
-    summonTypes: [],
+    summonTypes: [PROJECTILE],
     auras: [
       {
         name: "Tentacle Hit",

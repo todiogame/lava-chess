@@ -22,6 +22,13 @@ class Anim {
     }, 1000);
   }
 
+  static projectile(summoned, casterEntity, cell) {
+    summoned.pos = casterEntity.pos;
+    summoned.lastPos = layout.hexToPixel(casterEntity.pos);
+    Anim.move(summoned, cell);
+    summoned.pos = cell.copy();
+  }
+
   static splash(pos, text = "") {
     {
       // console.log('splash', entity, text)

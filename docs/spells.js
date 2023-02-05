@@ -137,7 +137,7 @@ function blink(cell, spell, casterEntity, targetEntity) {
 
 function summon(cell, spell, casterEntity, targetEntity) {
   var summoned;
-  Anim.splash_invo(cell);
+
   if (!targetEntity) {
     //empty cell
     //if unique summon, kill previous one
@@ -176,8 +176,8 @@ function summon(cell, spell, casterEntity, targetEntity) {
       );
     }
     if (summoned.types.includes(PROJECTILE)) {
-      Anim.move(summoned, cell);
-    }
+      Anim.projectile(summoned, casterEntity, cell);
+    } else Anim.splash_invo(cell);
   }
   console.log("SUMMONED ", summoned);
   return summoned;

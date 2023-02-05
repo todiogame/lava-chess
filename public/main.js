@@ -5,14 +5,15 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const ordo = require("./lib/ordo");
 const logic = require("./lib/gameLogic")
-const comm = require("./lib/comm")
-var socket;
+const Network = require("./lib/Network")
 
 function connect() {
-    socket = new WebSocket("ws://localhost:8081");
+    var socket = new WebSocket("ws://localhost:8081");
 
     socket.onopen = function (event) {
         console.log("Connected to server");
+        Network.clientSocket = socket;
+        console.log("Network.clientSocket",Network.clientSocket)
     };
 
     socket.onclose = function (event) {
@@ -25,9 +26,9 @@ function connect() {
 
     socket.onmessage = function (event) {
         console.log(event)
-        const received = comm.decode(event.data);
-        console.log("received")
-        console.log(received)
+        const received = Network.decode(event.data);
+        // console.log("received")
+        // console.log(received)
 
         if (received.type == "PLAYERS") {
             PLAYERS = recreatePlayers(received.data)
@@ -49,7 +50,7 @@ function recreatePlayers(data) {
 
 
 function goGame() {
-    console.log("recieved all, go game")
+    // console.log("recieved all, go game")
     CLIENT_SIDE = true;
     map = ordo.initMap(c.CONSTANTS.MAP_RADIUS);
 
@@ -60,12 +61,12 @@ function goGame() {
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
-    logic.listenToMouse(socket)
+    logic.listenToMouse()
     Anim.mainLoop()
 
 }
 
-},{"./lib/Entity":2,"./lib/Playable":4,"./lib/client/Anim":6,"./lib/comm":9,"./lib/const":10,"./lib/gameLogic":11,"./lib/ordo":13}],2:[function(require,module,exports){
+},{"./lib/Entity":2,"./lib/Network":4,"./lib/Playable":5,"./lib/client/Anim":7,"./lib/const":10,"./lib/gameLogic":11,"./lib/ordo":13}],2:[function(require,module,exports){
 const c = require('./const.js');
 const { Hex } = require('./Hex.js');
 const utils = require("./gameUtils")
@@ -498,6 +499,49 @@ module.exports = {Point, Hex, Layout};
 
 
 },{}],4:[function(require,module,exports){
+class Network {
+    static clientSocket;
+
+    static getUniqueID() {
+        function s4() {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        }
+        return s4() + s4() + '-' + s4();
+    }
+
+    static encode(type, data) {
+        return JSON.stringify({ type: type, data: data })
+    }
+
+    static decode(message) {
+        let type, data;
+        return { type, data } = JSON.parse(message)
+    }
+
+    static broadcast(game, type, data) {
+        game.clientA.send(JSON.stringify({ type: type, data: data }))
+        game.clientB.send(JSON.stringify({ type: type, data: data }))
+    }
+
+    static handleMessageFromClient(ws, message) {
+        const received = Network.decode(message);
+
+        if (received.type == "ACTION") {
+            ws.other.send(Network.encode(received.type, received.data))
+        }
+    }
+
+    static clientSendAction(action, cell, spellID, direction) {
+        console.log("clientSocket", Network.clientSocket) 
+        console.log("sending", action, cell)
+        let copy = cell ? cell.copy() : undefined;
+        Network.clientSocket.send(Network.encode("ACTION", { "kind": action, "cell": copy, "spellID":spellID, "direction":direction}))
+    }
+}
+
+module.exports = Network;
+
+},{}],5:[function(require,module,exports){
 const c =  require('./const.js');
 const utils = require("./gameUtils")
 
@@ -558,7 +602,7 @@ module.exports = class Playable {
         }
     }
 }
-},{"./const.js":10,"./gameUtils":12}],5:[function(require,module,exports){
+},{"./const.js":10,"./gameUtils":12}],6:[function(require,module,exports){
 const { Point, Hex, Layout } = require("./Hex")
 const c = require ("./const")
 
@@ -626,7 +670,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))
             })
-            const shadow = entities.find(e => e.types.includes(c.SHADOW))
+            const shadow = entities.find(e => e.types.includes(c.TYPES.SHADOW))
             if (shadow) {
                 AOE["ring_1"].forEach(a => {
                     if (!persoPos.equals(shadow.pos.add(a))) //remove ninja pos so he doesnt get damage
@@ -694,26 +738,17 @@ module.exports = {
     makeAOEFromCell
 };
 
-},{"./Hex":3,"./const":10}],6:[function(require,module,exports){
+},{"./Hex":3,"./const":10}],7:[function(require,module,exports){
 const drawing = require("./drawing")
 const {Point, Hex, Layout} = require("../Hex");
 const drawings = require("./drawing")
 
 module.exports = class Anim {
-    // static mainLoop() {
-    //     drawMap();
-    //     requestAnimationFrame(Anim.mainLoop);
-    // }
-
-// main thread
 
 static mainLoop() {
     drawing.drawMap()
     requestAnimationFrame(Anim.mainLoop);
 }
-
-// mainLoop();
-
 
     static animateMove(entity, toCell, duration) {
         if (!duration) duration = 5000;
@@ -840,12 +875,15 @@ static mainLoop() {
 }
 
 
-},{"../Hex":3,"./drawing":7}],7:[function(require,module,exports){
+},{"../Hex":3,"./drawing":8}],8:[function(require,module,exports){
 const { Point, Hex, Layout } = require("../Hex")
 const { displayCharacterHUD } = require("./hud")
 
 const SCALE = 40;
 const SIZE_GLYPH = 64;
+const SIZE_PERSO = 80;
+const SIZE_TILE = 95;
+const THICKNESS = 1;
 
 let origin = new Point(350, 300)
 const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
@@ -858,10 +896,6 @@ if (typeof window) {
 
     ctx = canvas.getContext('2d');
 }
-
-const SIZE_PERSO = 64;
-const SIZE_TILE = 95;
-const THICKNESS = 1;
 
 tile0Image = new Image();
 tile0Image.src = "pics/tile0.png"
@@ -1020,7 +1054,7 @@ function findHexFromEvent(eventX, eventY) {
 module.exports = {
     drawMap, findHexFromEvent, origin, layout, canvas, ctx
 };
-},{"../Hex":3,"./hud":8}],8:[function(require,module,exports){
+},{"../Hex":3,"./hud":9}],9:[function(require,module,exports){
 
 function displayCharacterHUD(player) {
   if (player) {
@@ -1059,11 +1093,11 @@ function displayCharacterHUD(player) {
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-    if(!TEST)  
-    document.getElementById("pass-turn").style.display = "none";
+    // if(!TEST)  
+    // document.getElementById("pass-turn").style.display = "none";
     }
   }
-  // displayTimeline(player);
+  displayTimeline(player);
 
 }
 
@@ -1085,56 +1119,6 @@ const displayTimeline = (currentP) => {
 
 module.exports = {
   displayCharacterHUD
-};
-},{}],9:[function(require,module,exports){
-
-function getUniqueID() {
-    function s4() {
-        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
-    }
-    return s4() + s4() + '-' + s4();
-};
-
-function encode(type, data) {
-    // console.log("sending type:",type)
-    return JSON.stringify({ type: type, data: data })
-}
-function decode(message) {
-    // console.log("recieved type:",type)
-    return { type, data } = JSON.parse(message)
-}
-
-function broadcast(game, type, data) {
-    // console.log("sending type:",type)
-    game.clientA.send(JSON.stringify({ type: type, data: data }))
-    game.clientB.send(JSON.stringify({ type: type, data: data }))
-}
-
-function handleMessageFromClient(ws, message) {
-    const received = decode(message);
-
-    if (received.type == "ACTION") {
-        //check legal : his turn, can cast, cooldowns
-        // play on server
-        //send to other client
-        ws.other.send(encode(received.type, received.data))
-
-
-        // {"type":"ACTION","data":{"kind":"MOVE", "cell":{"q":0,"r":0,"s":0}}}
-    }
-}
-
-function clientSendAction(socket, action, cell, spellID, direction) {
-    console.log("sending",action,cell)
-    let copy = cell ? cell.copy() : undefined;
-    socket.send(encode("ACTION", { "kind": action, "cell": copy, "spellID":spellID, "direction":direction}))
-}
-
-
-
-
-module.exports = {
-    getUniqueID, encode, decode, broadcast, handleMessageFromClient, clientSendAction
 };
 },{}],10:[function(require,module,exports){
 const CONSTANTS = Object.freeze({
@@ -1328,16 +1312,16 @@ const utils = require("./gameUtils")
 const c = require("./const")
 const aoes = require("./aoe")
 const s = require("./spells")
-const comm = require("./comm")
+const Network = require("./Network")
 
 
 let modeClic = "MOVE"
 let spellID = 0;
-function listenToMouse(socket) {
+function listenToMouse() {
 
-    console.log(map)
-    console.log(PLAYERS)
-    console.log(entities)
+    // console.log(map)
+    // console.log(PLAYERS)
+    // console.log(entities)
 
     // //map
     // let RADIUS_MAP = 5;
@@ -1387,7 +1371,6 @@ function listenToMouse(socket) {
                 if (canRiseLava(found)) found.hoverSpell = true;
             }
         }
-        // drawMap()
     }
 
 
@@ -1398,20 +1381,20 @@ function listenToMouse(socket) {
 
         let hPtClick = drawing.findHexFromEvent(event.pageX, event.pageY)
         let hPtClickRound = (hPtClick.round());
-        
-        
+
+
         let found = map.find(b => hPtClickRound.distance(b) == 0);
         if (found) {
             let direction = findClicDirection(found, hPtClick);
             //if mode move, move
             if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
                 currentPlayer.loseMovePoint(); //use PM
-                comm.clientSendAction(socket, "MOVE", found)
+                Network.clientSendAction("MOVE", found)
                 moveEntity(currentPlayer.entity, found)
             }
             if (modeClic == "SPELL") {
                 if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
-                    comm.clientSendAction(socket, "SPELL", found, spellID, direction)
+                    Network.clientSendAction("SPELL", found, spellID, direction)
                     castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, direction);
                 } else {
                     //cancel spellcast
@@ -1420,13 +1403,11 @@ function listenToMouse(socket) {
                 }
             }
             if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
-                comm.clientSendAction(socket, "LAVA", found, spellID)
+                Network.clientSendAction("LAVA", found, spellID)
                 castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
                 passTurn();
             }
         }
-        // drawMap();
-
     }, false);
 
 }
@@ -1442,7 +1423,6 @@ function moveEntity(entity, cell) {
     refreshAuras();
     //clean map from range and hover indicators
     cleanRangeAndHover()
-    // drawMap();
 }
 
 function findClicDirection(cell, exactPtH) {
@@ -1495,7 +1475,6 @@ function castSpell(caster, spell, cell, direction) {
     modeClic = "MOVE"
     //clean map from range and hover indicators
     cleanRangeAndHover()
-    // drawMap();
     //todo rembourser le CD si le spell a foire
 }
 
@@ -1612,7 +1591,6 @@ function clickSpell(id) {
     modeClic = "SPELL"
     spellID = id
     showCastRange();
-    // drawMap();
 }
 
 function clickSpell0() { clickSpell(0) }
@@ -1623,18 +1601,16 @@ function clickSpell2() { clickSpell(2) }
 function clickMove() {
     if (currentPlayer.movePoint) modeClic = "MOVE"
     showCastRange();
-    // drawMap();
 }
 
 
 function clickRiseLava() {
     modeClic = "RISE_LAVA"
     showCastRange();
-    // drawMap();
 }
 
 function clickPassTurn() {
-    comm.clientSendAction(socket, "PASS",)
+    Network.clientSendAction("PASS",)
     passTurn();
 }
 
@@ -1650,15 +1626,13 @@ function playTurn() {
         triggerAOE(currentPlayer);
         passTurn()
     } else {
-
-        console.log('beginTurn ', currentPlayer.name);
         beginTurn(currentPlayer)
-        // drawMap()
     }
 }
 
 
 function beginTurn(player) {
+    console.log("begin turn ", player.name)
     triggerAOE(player);
     tickDownBuffs(player)
     killExpiredSummons(player);
@@ -1717,11 +1691,8 @@ function reduceCD(player) {
     player.spells.forEach(s => { if (s.currentCD > 0) s.currentCD-- })
 }
 
-function endGame() { }
-
 function passTurn() {
     endTurn(currentPlayer);
-    console.log("pass turn")
     if (PLAYERS.length) {
         idCurrentPlayer++
         if (idCurrentPlayer >= PLAYERS.length) idCurrentPlayer = 0;
@@ -1732,21 +1703,28 @@ function passTurn() {
 
 
 function playAction(action) {
-    console.log("play action ", action.kind)
-    let found = map.find(b => b.equals(action.cell));
-    if (found) {
-        //action is MOVE, SPELL, or LAVA
-        if (action.kind == "MOVE") {
-            currentPlayer.loseMovePoint(); //use PM
-            moveEntity(currentPlayer.entity, found)
-        }
-        else if (action.kind == "SPELL") {
-            castSpell(currentPlayer.entity, currentPlayer.spells[action.spellID], found, action.direction);
+    if (action) {
+        console.log("play action ", action.kind)
+        let found;
+        if (action.cell) found = map.find(b => b.equals(action.cell));
+        if (found) {
+            //action is MOVE, SPELL, or LAVA
+            if (action.kind == "MOVE") {
+                currentPlayer.loseMovePoint(); //use PM
+                moveEntity(currentPlayer.entity, found)
+            }
+            else if (action.kind == "SPELL") {
+                castSpell(currentPlayer.entity, currentPlayer.spells[action.spellID], found, action.direction);
 
+            }
+            else if (action.kind == "LAVA") {
+                castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
+                passTurn();
+            }
         }
-        else if (action.kind == "LAVA") {
-            castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
+        else if (action.kind == "PASS") {
             passTurn();
+
         }
     }
 }
@@ -1754,7 +1732,7 @@ function playAction(action) {
 module.exports = {
     listenToMouse, playAction
 };
-},{"./Hex":3,"./aoe":5,"./client/drawing":7,"./comm":9,"./const":10,"./gameUtils":12,"./spells":14}],12:[function(require,module,exports){
+},{"./Hex":3,"./Network":4,"./aoe":6,"./client/drawing":8,"./const":10,"./gameUtils":12,"./spells":14}],12:[function(require,module,exports){
 //HELPERS
 function findMapCell(cell) {
     return map.find(h => h.distance(cell) == 0)
@@ -1889,7 +1867,7 @@ function initPlayers(nbPions) {
 module.exports = {
     initMap, initPlayers,
 };
-},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":10}],14:[function(require,module,exports){
+},{"./Entity":2,"./Hex.js":3,"./Playable":5,"./const.js":10}],14:[function(require,module,exports){
 const utils = require("./gameUtils")
 const aoes = require("./aoe")
 const Entity = require("./Entity")
@@ -2161,4 +2139,4 @@ module.exports = {
 
 };
 
-},{"./Entity":2,"./Playable":4,"./aoe":5,"./client/Anim":6,"./const":10,"./gameUtils":12}]},{},[1]);
+},{"./Entity":2,"./Playable":5,"./aoe":6,"./client/Anim":7,"./const":10,"./gameUtils":12}]},{},[1]);

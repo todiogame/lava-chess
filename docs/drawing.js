@@ -1,4 +1,4 @@
-const SIZE_PERSO = 64;
+const SIZE_PERSO = 80; //64 before
 const SIZE_TILE = 95;
 const THICKNESS = 1;
 

@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 
 const Game = require('./lib/Game')
-const comm = require('./lib/comm')
+const Network = require('./lib/Network')
 
 // Serve the public directory
 // app.use(express.static(path.join(__dirname, 'public')));
@@ -26,7 +26,7 @@ const clients = []
 const games = []
 
 wss.on('connection', function connection(ws, req) {
-  ws.id = comm.getUniqueID();
+  ws.id = Network.getUniqueID();
   clients.push(ws);
 
 //show all clients
@@ -55,7 +55,7 @@ wss.on('connection', function connection(ws, req) {
   }
 
   ws.on("message", (message) => {
-    comm.handleMessageFromClient(ws, message);
+    Network.handleMessageFromClient(ws, message);
   });
 
 });

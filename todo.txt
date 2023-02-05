@@ -1,18 +1,17 @@
 todo:
 mu;tiplayer bugs :
-- dead players are not removed from game order
 - aoes are not cleaned from the map after trigger => cant reproduce ?
 - missing timeline
-- spinning slash aoe bug
-- cac can target shadow ??
+- separate teams in each client
 
 Ultis
 - hover : infobulle
 fix bug inferno double damage
 rework gazeur ?
+- cac can target shadow ?? => make type invulnerable or something
+anim laggg :(
 
-Animations move for pull/push
-Circle aoe preview when hover for time machine and or barrel ?
+Circle aoe preview when hover before cast spell for time machine and or barrel ?
 
 gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding
@@ -25,38 +24,15 @@ Change flower spell for something else
 Zombie cd1 ou cd2 possible ? A balancer...
 
 Add warrior. ?
+faire le pango
 ______________________
 Mode multi :
+commande pour compiler le client et lancer le serv : 
+browserify client.js -o public/main.js; node server2.js
 
-definir une liste de fonctions de "librairie" dont le serveur aura besoin
-
-Pour demarrer : les init
-
-//browserify :
-//client
-//init la map
-quand on joue => envoyer les infos au serveur
-quand on attend son tour => recevoir les infos
-enlever les buttons onclick = "action" et utiliser a la place addEventListener
-
- // serveur :
-init les persos
-envoyer aux deux clients
 envoyer "a ton tour" a un client et l'ecouter
 quand ya une instruction => envoyer a l'autre
 fin du tour => donner la main a l'autre
 
-Client : envoyer instruction move / spell / lava
+Client : envoyer instruction move / spell / lava / PASS
 
-//commun
-faire un systeme d'actions
-=> rework move et riseLava pour se lancer de la meme maniere que les spells
-Action{
-    constructor(){
-        casterPlayer
-        casterEntity
-        spell
-        cell
-        closest
-    }
-}

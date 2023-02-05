@@ -16,6 +16,7 @@ var idCurrentPlayer;
 var currentPlayer;
 
 var entities;
+var projectiles;
 
 // Create our image
 lava = new Image();

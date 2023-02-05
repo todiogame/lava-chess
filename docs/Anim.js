@@ -13,7 +13,7 @@ class Anim {
 
   static move(entity, cell) {
     entity.lastPos = layout.hexToPixel(entity.pos);
-    entity.movingPos = layout.hexToPixel(entity.pos); //entity.lastPos;
+    entity.movingPos = layout.hexToPixel(entity.pos);
     entity.goal = layout.hexToPixel(cell);
     entity.moving = true;
 
@@ -22,11 +22,47 @@ class Anim {
     }, 1000);
   }
 
-  static projectile(summoned, casterEntity, cell) {
+  static launched(summoned, casterEntity, cell) {
     summoned.pos = casterEntity.pos;
     summoned.lastPos = layout.hexToPixel(casterEntity.pos);
     Anim.move(summoned, cell);
     summoned.pos = cell.copy();
+  }
+  static fall(spell, cell) {
+    //
+    const projectile = {
+      moving: true,
+      glyphIcon: spell.glyphIcon,
+      goal: layout.hexToPixel(cell),
+      movingPos: { x: layout.hexToPixel(cell).x, y: 0 },
+      lastPos: { x: layout.hexToPixel(cell).x, y: 0 },
+    };
+    projectiles.push(projectile);
+    setTimeout(() => {
+      projectile.moving = false;
+    }, 700);
+  }
+
+  static stopAtGoal(movingObject) {
+    // Check if the entity or projectile has gone past the goal
+
+    if (
+      (movingObject.xDirection > 0 &&
+        movingObject.movingPos.x > movingObject.goal.x) ||
+      (movingObject.xDirection < 0 &&
+        movingObject.movingPos.x < movingObject.goal.x)
+    ) {
+      movingObject.movingPos.x = movingObject.goal.x;
+    }
+    if (
+      (movingObject.yDirection > 0 &&
+        movingObject.movingPos.y > movingObject.goal.y) ||
+      (movingObject.yDirection < 0 &&
+        movingObject.movingPos.y < movingObject.goal.y)
+    ) {
+      movingObject.movingPos.y = movingObject.goal.y;
+    }
+    return movingObject.movingPos;
   }
 
   static splash(pos, text = "") {

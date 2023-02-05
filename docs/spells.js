@@ -2,6 +2,14 @@ function resolveSpell(cell, spell, casterEntity, direction, mainCell) {
   //direction only use for tentacle now
   targetCell = findMapCell(cell);
   let targetEntity = findEntityOnCell(targetCell);
+  if (spell?.animation) {
+    switch (spell.animation) {
+      case FALL:
+        Anim.fall(spell, cell);
+        break;
+      //default: nothing
+    }
+  }
   let result = spell.dealSpell(
     targetCell,
     spell,
@@ -175,8 +183,8 @@ function summon(cell, spell, casterEntity, targetEntity) {
         summonedP,
       );
     }
-    if (summoned.types.includes(PROJECTILE)) {
-      Anim.projectile(summoned, casterEntity, cell);
+    if (summoned.types.includes(LAUNCHED)) {
+      Anim.launched(summoned, casterEntity, cell);
     } else Anim.splash_invo(cell);
   }
   console.log("SUMMONED ", summoned);

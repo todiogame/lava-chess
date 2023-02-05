@@ -46,25 +46,12 @@ function drawPerso(entity) {
     pPerso = layout.hexToPixel(entity.pos);
 
     if (entity.moving) {
+      // Moving towards the goal
       entity.xDirection = entity.goal.x - entity.lastPos.x;
       entity.yDirection = entity.goal.y - entity.lastPos.y;
       entity.movingPos.x += entity.xDirection / 20;
       entity.movingPos.y += entity.yDirection / 20;
-
-      // Check if the entity has gone past the goal
-      if (
-        (entity.xDirection > 0 && entity.movingPos.x > entity.goal.x) ||
-        (entity.xDirection < 0 && entity.movingPos.x < entity.goal.x)
-      ) {
-        entity.movingPos.x = entity.goal.x;
-      }
-      if (
-        (entity.yDirection > 0 && entity.movingPos.y > entity.goal.y) ||
-        (entity.yDirection < 0 && entity.movingPos.y < entity.goal.y)
-      ) {
-        entity.movingPos.y = entity.goal.y;
-      }
-      pPerso = entity.movingPos;
+      pPerso = Anim.stopAtGoal(entity);
     }
 
     // outline
@@ -156,6 +143,7 @@ function drawMap() {
       if (h.hover) paintCell(h, colorHover);
     });
     drawEntities();
+    drawProjectiles();
     displayCharacterHUD(currentPlayer);
   }
 }
@@ -188,3 +176,39 @@ function paintCell(mapCell, color, glyphIcon) {
     ctx.globalAlpha = 1;
   }
 }
+
+const drawProjectiles = () => {
+  // console.log("projectiles", projectiles);
+  if (projectiles) {
+    projectiles.forEach((e) => {
+      if (e.glyphIcon && e.moving) drawProjectile(e);
+    });
+  }
+};
+
+const drawProjectile = (projectile) => {
+  let posProjectile = layout.hexToPixel(projectile.goal);
+
+  // Moving towards the goal
+  projectile.xDirection = projectile.goal.x - projectile.lastPos.x;
+  projectile.yDirection = projectile.goal.y - projectile.lastPos.y;
+  projectile.movingPos.x += projectile.xDirection / 20;
+  projectile.movingPos.y += projectile.yDirection / 20;
+
+  // Check if the projectile has gone past the goal
+  posProjectile = Anim.stopAtGoal(projectile);
+
+  for (var x = -THICKNESS; x <= THICKNESS; x++) {
+    for (var y = -THICKNESS; y <= THICKNESS; y++) {
+      ctx.shadowOffsetX = x;
+      ctx.shadowOffsetY = y;
+      ctx.drawImage(
+        projectile.glyphIcon,
+        posProjectile.x - SIZE_TILE / 2,
+        posProjectile.y - SIZE_TILE / 2,
+        SIZE_TILE,
+        SIZE_TILE,
+      );
+    }
+  }
+};

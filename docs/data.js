@@ -5,30 +5,32 @@ const EMPTY = "EMPTY";
 //entities types
 const ENTITY = "ENTITY";
 const PLAYABLE = "PLAYABLE";
-const PROJECTILE = "PROJECTILE";
+const LAUNCHED = "LAUNCHED";
 // summons types
 const SHADOW = "SHADOW";
 const BOMB = "BOMB";
 const INFERNAL = "INFERNAL";
 const BARREL = "BARREL";
+// animations types
+const FALL = "FALL";
 
 //summons
 const TABLE_SUMMONS = {
   shadow: {
     name: "shadow",
     ttl: -1,
-    summonTypes: [SHADOW, PROJECTILE],
+    summonTypes: [SHADOW, LAUNCHED],
     isUnique: true,
   },
   wall: {
     name: "wall",
     ttl: 1,
-    summonTypes: [PROJECTILE],
+    summonTypes: [LAUNCHED],
   },
   tentacle: {
     name: "tentacle",
     ttl: 1,
-    summonTypes: [PROJECTILE],
+    summonTypes: [LAUNCHED],
     auras: [
       {
         name: "Tentacle Hit",
@@ -78,7 +80,7 @@ const TABLE_SUMMONS = {
   barrel: {
     name: "barrel",
     ttl: -1,
-    summonTypes: [BARREL, PROJECTILE],
+    summonTypes: [BARREL, LAUNCHED],
     maxHP: 1,
     onDeath: rasta_barrel_explode,
     auras: [
@@ -175,6 +177,7 @@ const characters = [
         glyphIcon: damageIcon,
         canTarget: [ANY],
         description: "Deals damage in a straight line.",
+        animation: FALL,
       },
       {
         name: "Freezing Curse",
@@ -254,6 +257,7 @@ const characters = [
         glyphIcon: boulderIcon,
         canTarget: [ANY],
         description: "Deals damage, but if the cell was empty, rise lava.",
+        animation: FALL,
       },
       {
         name: "Magma Wall",
@@ -367,6 +371,7 @@ const characters = [
         color: GLYPH_BROWN,
         glyphIcon: damageIcon,
         description: "Deals damage in a straight line.",
+        animation: FALL,
       },
       {
         name: "Rolling Barrel",

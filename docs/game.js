@@ -128,25 +128,7 @@ canvas.addEventListener(
 );
 
 function moveEntity(entity, cell) {
-  entity.lastPos = layout.hexToPixel(entity.pos);
-  entity.movingPos = entity.lastPos;
-  entity.goal = layout.hexToPixel(cell);
-  entity.moving = true;
-  setTimeout(() => {
-    entity.moving = false;
-    console.log(entity.name, "stop");
-  }, 1000);
-  //   entity.moveTime = 0;
-  //   const duration = 1000;
-  //   let start = Date.now();
-  //   let intervalId = setInterval(() => {
-  //     entity.moveTime = Date.now() - start;
-  //     entity.moveProgress = (entity.moveTime / duration) * 100;
-  //     if (entity.moveTime >= duration) {
-  //       clearInterval(intervalId);
-  //       entity.moving = false;
-  //     }
-  //   }, interval);
+  Anim.move(entity, cell);
 
   var onMoveSpells = PLAYERS.find((p) => p.entity == entity)?.spells.filter(
     (s) => s.onMove,

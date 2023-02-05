@@ -46,10 +46,6 @@ function drawPerso(entity) {
     pPerso = layout.hexToPixel(entity.pos);
 
     if (entity.moving) {
-      const xDirection = entity.goal.x - entity.lastPos.x;
-      const yDirection = entity.goal.y - entity.lastPos.y;
-      entity.movingPos.x += xDirection / 10;
-      entity.movingPos.y += yDirection / 10;
       pPerso = entity.movingPos;
     }
 

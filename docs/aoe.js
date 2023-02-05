@@ -14,14 +14,13 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
         }
         if (aoe == "straight_line_inferno") {
             let dirLine = (cell.subtract(persoPos)).scale(1 / persoPos.distance(cell));
-            console.log()
             let found = map.find(b => persoPos.add(dirLine).distance(b) == 0);
             // res = persoPos.linedraw(cell);
             for (let i = 1; i < 5 && found; i++) {
                 res.push(found);
                 found = map.find(b => found.add(dirLine).distance(b) == 0);
             }
-            res.unshift(cell);
+            // res.unshift(cell);
             let non = [];
             AOE["area_1"].forEach(a => non.push(persoPos.add(a)))
             res = res.filter(e => !(non.some(n => n.equals(e))))

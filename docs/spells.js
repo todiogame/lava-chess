@@ -205,9 +205,9 @@ function shaman_flower(cell, spell, casterEntity, targetEntity) {
 
     }
 }
-function debuffCD(cell, spell, casterEntity, targetEntity) {
-
-}
+// function pango_spiky_ball(cell, spell, casterEntity, targetEntity) {
+//     buffPM(null, null, casterEntity, targetEntity)
+// }
 
 //on death spells
 function rasta_barrel_explode(casterEntity) {

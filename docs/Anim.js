@@ -16,24 +16,7 @@ class Anim {
     entity.movingPos = layout.hexToPixel(entity.pos); //entity.lastPos;
     entity.goal = layout.hexToPixel(cell);
     entity.moving = true;
-    entity.xDirection = entity.goal.x - entity.lastPos.x;
-    entity.yDirection = entity.goal.y - entity.lastPos.y;
-    entity.movingPos.x += entity.xDirection / 20;
-    entity.movingPos.y += entity.yDirection / 20;
 
-    // Check if the entity has gone past the goal
-    if (
-      (entity.xDirection > 0 && entity.movingPos.x > entity.goal.x) ||
-      (entity.xDirection < 0 && entity.movingPos.x < entity.goal.x)
-    ) {
-      entity.movingPos.x = entity.goal.x;
-    }
-    if (
-      (entity.yDirection > 0 && entity.movingPos.y > entity.goal.y) ||
-      (entity.yDirection < 0 && entity.movingPos.y < entity.goal.y)
-    ) {
-      entity.movingPos.y = entity.goal.y;
-    }
     setTimeout(() => {
       entity.moving = false;
     }, 1000);

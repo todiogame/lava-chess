@@ -175,6 +175,9 @@ function summon(cell, spell, casterEntity, targetEntity) {
         summonedP,
       );
     }
+    if (summoned.types.includes(PROJECTILE)) {
+      Anim.move(summoned, cell);
+    }
   }
   console.log("SUMMONED ", summoned);
   return summoned;

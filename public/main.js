@@ -642,7 +642,6 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
                 res.push(found);
                 found = map.find(b => found.add(dirLine).distance(b) == 0);
             }
-            res.unshift(cell);
             let non = [];
             AOE["area_1"].forEach(a => non.push(persoPos.add(a)))
             res = res.filter(e => !(non.some(n => n.equals(e))))
@@ -772,7 +771,7 @@ module.exports = class Anim {
   
       setTimeout(() => {
         entity.moving = false;
-      }, 1000);
+      }, 500);
     }
   
     static launched(summoned, casterEntity, cell) {
@@ -790,7 +789,7 @@ module.exports = class Anim {
         movingPos: { x: drawing.layout.hexToPixel(cell).x, y: 0 },
         lastPos: { x: drawing.layout.hexToPixel(cell).x, y: 0 },
       };
-      drawing.projectiles.push(projectile);
+      projectiles.push(projectile);
       setTimeout(() => {
         projectile.moving = false;
       }, 700);
@@ -1348,23 +1347,27 @@ function drawEntities() {
 function drawPerso(entity) {
     //   console.log(entity);
     let pPerso;
-    if (!entity.hide) {
-        pPerso = layout.hexToPixel(entity.pos);
+    pPerso = layout.hexToPixel(entity.pos);
 
-        if (entity.moving) {
-            // Moving towards the goal
-            entity.xDirection = entity.goal.x - entity.lastPos.x;
-            entity.yDirection = entity.goal.y - entity.lastPos.y;
-            entity.movingPos.x += entity.xDirection / 20;
-            entity.movingPos.y += entity.yDirection / 20;
-            pPerso = Anim.stopAtGoal(entity);
-        }
+    if (entity.moving) {
+        // Moving towards the goal
+        entity.xDirection = entity.goal.x - entity.lastPos.x;
+        entity.yDirection = entity.goal.y - entity.lastPos.y;
+        entity.movingPos.x += entity.xDirection / 20;
+        entity.movingPos.y += entity.yDirection / 20;
+        pPerso = Anim.stopAtGoal(entity);
+    }
 
-        // outline
-        ctx.shadowColor = entity.team;
+    // outline
+    if (entity == currentPlayer.entity)
+        drawWithOutline((TEAM == currentPlayer.entity.team) ? "WHITE" : "BLACK", THICKNESS + 2);
+    drawWithOutline(entity.team, THICKNESS);
+
+    function drawWithOutline(color, thick) {
+        ctx.shadowColor = color;
         ctx.shadowBlur = 0;
-        for (var x = -THICKNESS; x <= THICKNESS; x++) {
-            for (var y = -THICKNESS; y <= THICKNESS; y++) {
+        for (var x = -thick; x <= thick; x++) {
+            for (var y = -thick; y <= thick; y++) {
                 ctx.shadowOffsetX = x;
                 ctx.shadowOffsetY = y;
                 ctx.drawImage(
@@ -1372,13 +1375,13 @@ function drawPerso(entity) {
                     pPerso.x - SIZE_PERSO / 2,
                     pPerso.y - (SIZE_PERSO * 3) / 4,
                     SIZE_PERSO,
-                    SIZE_PERSO,
+                    SIZE_PERSO
                 );
             }
         }
+        ctx.shadowColor = "transparent";
+        ctx.shadowBlur = 0;
     }
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
 }
 
 
@@ -1437,68 +1440,68 @@ function drawFloor(h) {
     pPerso = layout.hexToPixel(h);
     // tileImage[Math.floor(Math.random() * 4)] //kek
     ctx.drawImage(
-      tileImage[h.rand4],
-      pPerso.x - SIZE_TILE / 2,
-      pPerso.y - SIZE_TILE / 2,
-      SIZE_TILE,
-      SIZE_TILE,
+        tileImage[h.rand4],
+        pPerso.x - SIZE_TILE / 2,
+        pPerso.y - SIZE_TILE / 2,
+        SIZE_TILE,
+        SIZE_TILE,
     );
-  }
-  
-  function paintCell(mapCell, color, glyphIcon) {
+}
+
+function paintCell(mapCell, color, glyphIcon) {
     ctx.fillStyle = color;
     ctx.fill();
     if (glyphIcon) {
-      let pGlyph = layout.hexToPixel(mapCell);
-      ctx.globalAlpha = 0.7;
-      ctx.drawImage(
-        glyphIcon,
-        pGlyph.x - SIZE_GLYPH / 2,
-        pGlyph.y - SIZE_GLYPH / 2,
-        SIZE_GLYPH,
-        SIZE_GLYPH,
-      );
-      ctx.globalAlpha = 1;
+        let pGlyph = layout.hexToPixel(mapCell);
+        ctx.globalAlpha = 0.7;
+        ctx.drawImage(
+            glyphIcon,
+            pGlyph.x - SIZE_GLYPH / 2,
+            pGlyph.y - SIZE_GLYPH / 2,
+            SIZE_GLYPH,
+            SIZE_GLYPH,
+        );
+        ctx.globalAlpha = 1;
     }
-  }
+}
 
 
 const drawProjectiles = () => {
     // console.log("projectiles", projectiles);
     if (projectiles) {
-      projectiles.forEach((e) => {
-        if (e.glyphIcon && e.moving) drawProjectile(e);
-      });
+        projectiles.forEach((e) => {
+            if (e.glyphIcon && e.moving) drawProjectile(e);
+        });
     }
-  };
-  
-  const drawProjectile = (projectile) => {
+};
+
+const drawProjectile = (projectile) => {
     let posProjectile = layout.hexToPixel(projectile.goal);
-  
+
     // Moving towards the goal
     projectile.xDirection = projectile.goal.x - projectile.lastPos.x;
     projectile.yDirection = projectile.goal.y - projectile.lastPos.y;
     projectile.movingPos.x += projectile.xDirection / 20;
     projectile.movingPos.y += projectile.yDirection / 20;
-  
+
     // Check if the projectile has gone past the goal
     posProjectile = Anim.stopAtGoal(projectile);
-  
+
     for (var x = -THICKNESS; x <= THICKNESS; x++) {
-      for (var y = -THICKNESS; y <= THICKNESS; y++) {
-        ctx.shadowOffsetX = x;
-        ctx.shadowOffsetY = y;
-        ctx.drawImage(
-          projectile.glyphIcon,
-          posProjectile.x - SIZE_TILE / 2,
-          posProjectile.y - SIZE_TILE / 2,
-          SIZE_TILE,
-          SIZE_TILE,
-        );
-      }
+        for (var y = -THICKNESS; y <= THICKNESS; y++) {
+            ctx.shadowOffsetX = x;
+            ctx.shadowOffsetY = y;
+            ctx.drawImage(
+                projectile.glyphIcon,
+                posProjectile.x - SIZE_TILE / 2,
+                posProjectile.y - SIZE_TILE / 2,
+                SIZE_TILE,
+                SIZE_TILE,
+            );
+        }
     }
-  };
-  
+};
+
 
 function findHexFromEvent(eventX, eventY) {
     return layout.pixelToHex(new Point(eventX - canvasLeft, eventY - canvasTop))
@@ -2288,7 +2291,7 @@ function resolveSpell(cell, spellData, casterEntity, direction, mainCell) {
     if (spellData?.animation) {
         switch (spellData.animation) {
             case c.ANIMATIONS.FALL:
-                Anim.fall(spell, cell);
+                Anim.fall(spellData, cell);
                 break;
             //default: nothing
         }

@@ -5,14 +5,14 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
-
+var isAnimed = false;
 function connect() {
     var socket = new WebSocket("ws://localhost:8081");
 
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
-        console.log("Network.clientSocket",Network.clientSocket)
+        console.log("Network.clientSocket", Network.clientSocket)
     };
 
     socket.onclose = function (event) {
@@ -28,9 +28,9 @@ function connect() {
         const received = Network.decode(event.data);
         // console.log("received")
         // console.log(received)
-        if(received.type == "TEAM"){
+        if (received.type == "TEAM") {
             TEAM = received.data;
-            console.log("we are team ",TEAM)
+            console.log("we are team ", TEAM)
         }
 
         if (received.type == "PLAYERS") {
@@ -61,12 +61,16 @@ function goGame() {
     currentPlayer = PLAYERS[idCurrentPlayer]
 
     entities = [];
+    projectiles = [];
+
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
     logic.listenToMouse()
-    Anim.mainLoop()
-
+    if (!isAnimed) {
+        isAnimed = true;
+        Anim.mainLoop()
+    }
 }
 
 },{"./lib/Entity":2,"./lib/Network":4,"./lib/Playable":5,"./lib/client/Anim":7,"./lib/client/gameLogic":9,"./lib/const":11}],2:[function(require,module,exports){
@@ -149,9 +153,9 @@ class Hex {
     constructor(q, r, s) {
         this.q = q;
         this.r = r;
-        this.s = s;
-        if (Math.round(q + r + s) !== 0)
-            throw "q + r + s must be 0" + q + " " + r + " " + s;
+        if (s) this.s = s; else this.s = -q -r;
+        if (Math.round(this.q + this.r + this.s) !== 0)
+            throw "q + r + s must be 0" + this.q + " " + this.r + " " + this.s;
     }
     add(b) {
         return new Hex(this.q + b.q, this.r + b.r, this.s + b.s);
@@ -522,12 +526,12 @@ class Network {
     }
 
     static sendToClient(client, type, data) {
-        console.log("sending", type, data)
+        // console.log("sending", type, data)
        if (client) client.send(JSON.stringify({ type: type, data: data }))
     }
 
     static broadcast(game, type, data) {
-        console.log("sending", type, data)
+        // console.log("sending", type, data)
         game.clientA.send(JSON.stringify({ type: type, data: data }))
         game.clientB.send(JSON.stringify({ type: type, data: data }))
     }
@@ -542,7 +546,7 @@ class Network {
     }
 
     static clientSendAction(action, cell, spellID, direction) {
-        console.log("clientSocket", Network.clientSocket) 
+        // console.log("clientSocket", Network.clientSocket) 
         console.log("sending", action, cell)
         let copy = cell ? cell.copy() : undefined;
         Network.clientSocket.send(Network.encode("ACTION", { "kind": action, "cell": copy, "spellID":spellID, "direction":direction}))
@@ -750,142 +754,513 @@ module.exports = {
 
 },{"./Hex":3,"./const":11}],7:[function(require,module,exports){
 const drawing = require("./drawing")
-const {Point, Hex, Layout} = require("../Hex");
-const drawings = require("./drawing")
 
 module.exports = class Anim {
 
-static mainLoop() {
-    drawing.drawMap()
-    requestAnimationFrame(Anim.mainLoop);
-}
-
-    static animateMove(entity, toCell, duration) {
-        if (!duration) duration = 5000;
-
-        const fromP = drawings.layout.hexToPixel(entity.pos);
-        const toP = drawings.layout.hexToPixel(toCell)
-        Anim.animateImage(entity, fromP.x, fromP.y, toP.x, toP.y, duration)
+    // main thread
+  
+    static mainLoop() {
+        drawing.drawMap();
+      requestAnimationFrame(Anim.mainLoop);
     }
-    // Parameters:
-    // - image: the image object to animate
-    // - startX: the starting x position of the image
-    // - startY: the starting y position of the image
-    // - targetX: the target x position of the image
-    // - targetY: the target y position of the image
-    // - duration: the duration of the animation in milliseconds
-    // - canvas: the canvas to draw the image on
-    static animateImage(entity, startX, startY, targetX, targetY, duration) {
-        let intervalId;
-        let image = entity.image;
-        let startTime = Date.now();
-        let endTime = startTime + duration;
-        let currentX = startX;
-        let currentY = startY;
-
-        function update() {
-            let time = Date.now();
-            if (time >= endTime) {
-                currentX = targetX;
-                currentY = targetY;
-                entity.hide = false;
-                clearInterval(intervalId);
-            } else {
-                entity.hide = true;
-                let progress = (time - startTime) / duration;
-                currentX = startX + (targetX - startX) * progress;
-                currentY = startY + (targetY - startY) * progress;
-            }
-            drawMap()
-            ctx.drawImage(image, currentX - SIZE_PERSO / 2, currentY - SIZE_PERSO / 2, SIZE_PERSO, SIZE_PERSO);
-        }
-        intervalId = setInterval(update, 16);
+  
+    static move(entity, cell) {
+      entity.lastPos = drawing.layout.hexToPixel(entity.pos);
+      entity.movingPos = drawing.layout.hexToPixel(entity.pos);
+      entity.goal = drawing.layout.hexToPixel(cell);
+      entity.moving = true;
+  
+      setTimeout(() => {
+        entity.moving = false;
+      }, 1000);
     }
-
-    static splash(pos, text) {
-        {
-            // console.log('splash', entity, text)
-            const coords = drawings.layout.hexToPixel(pos); // {x,y}
-            const colors = ['#ffc000', '#ff3b3b', '#ff8400'];
-            const bubbles = 25;
-    
-            const explode = (x, y, text) => {
-                let particles = [];
-                let ratio = window.devicePixelRatio;
-                let c = document.createElement('canvas');
-                let ctx = c.getContext('2d');
-    
-                c.style.position = 'absolute';
-                c.style.left = x - 100 + 'px';
-                c.style.top = y - 100 + 'px';
-                c.style.pointerEvents = 'none';
-                c.style.width = 200 + 'px';
-                c.style.height = 200 + 'px';
-                c.style.zIndex = 100;
-                c.width = 200 * ratio;
-                c.height = 200 * ratio;
-                c.style.zIndex = "9999999"
-                ctx.textY = c.height / 2;
-                document.body.appendChild(c);
-    
-                for (var i = 0; i < bubbles; i++) {
-                    particles.push({
-                        x: c.width / 2,
-                        y: c.height / 2,
-                        radius: r(20, 30),
-                        color: colors[Math.floor(Math.random() * colors.length)],
-                        rotation: r(0, 360, true),
-                        speed: r(8, 12),
-                        friction: 0.9,
-                        opacity: r(0, 0.5, true),
-                        yVel: 0,
-                        gravity: 0.1
-                    });
-    
-                }
-    
-                render(particles, ctx, c.width, c.height, text);
-                setTimeout(() => document.body.removeChild(c), 1000);
-            };
-    
-            const render = (particles, ctx, width, height, text) => {
-                requestAnimationFrame(() => render(particles, ctx, width, height, text));
-                ctx.clearRect(0, 0, width, height);
-                ctx.globalAlpha = 1.0;
-                ctx.font = 'bold 48px serif';
-                ctx.fillStyle = 'black';
-                ctx.fillText(text, width / 4, ctx.textY);
-                ctx.textY += height / 100;
-                particles.forEach((p, i) => {
-                    p.x += p.speed * Math.cos(p.rotation * Math.PI / 180);
-                    p.y += p.speed * Math.sin(p.rotation * Math.PI / 180);
-    
-                    p.opacity -= 0.01;
-                    p.speed *= p.friction;
-                    p.radius *= p.friction;
-                    p.yVel += p.gravity;
-                    p.y += p.yVel;
-    
-                    if (p.opacity < 0 || p.radius < 0) return;
-    
-                    ctx.beginPath();
-                    ctx.globalAlpha = p.opacity;
-                    ctx.fillStyle = p.color;
-                    ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI, false);
-                    ctx.fill();
-                });
-    
-                return ctx;
-            };
-    
-            const r = (a, b, c) => parseFloat((Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(c ? c : 0));
-            explode(coords.x, coords.y, text);
-        }
+  
+    static launched(summoned, casterEntity, cell) {
+      summoned.pos = casterEntity.pos;
+      summoned.lastPos = drawing.layout.hexToPixel(casterEntity.pos);
+      Anim.move(summoned, cell);
+      summoned.pos = cell.copy();
     }
-}
-
-
-},{"../Hex":3,"./drawing":8}],8:[function(require,module,exports){
+    static fall(spell, cell) {
+      //
+      const projectile = {
+        moving: true,
+        glyphIcon: spell.glyphIcon,
+        goal: drawing.layout.hexToPixel(cell),
+        movingPos: { x: drawing.layout.hexToPixel(cell).x, y: 0 },
+        lastPos: { x: drawing.layout.hexToPixel(cell).x, y: 0 },
+      };
+      drawing.projectiles.push(projectile);
+      setTimeout(() => {
+        projectile.moving = false;
+      }, 700);
+    }
+  
+    static stopAtGoal(movingObject) {
+      // Check if the entity or projectile has gone past the goal
+  
+      if (
+        (movingObject.xDirection > 0 &&
+          movingObject.movingPos.x > movingObject.goal.x) ||
+        (movingObject.xDirection < 0 &&
+          movingObject.movingPos.x < movingObject.goal.x)
+      ) {
+        movingObject.movingPos.x = movingObject.goal.x;
+      }
+      if (
+        (movingObject.yDirection > 0 &&
+          movingObject.movingPos.y > movingObject.goal.y) ||
+        (movingObject.yDirection < 0 &&
+          movingObject.movingPos.y < movingObject.goal.y)
+      ) {
+        movingObject.movingPos.y = movingObject.goal.y;
+      }
+      return movingObject.movingPos;
+    }
+  
+    static splash(pos, text = "") {
+      {
+        // console.log('splash', entity, text)
+        const coords = drawing.layout.hexToPixel(pos); // {x,y}
+        const colors = ["#ffc000", "#ff3b3b", "#ff8400"];
+        const bubbles = 25;
+  
+        const explode = (x, y, text) => {
+          let particles = [];
+          let c = document.createElement("canvas");
+          let ctx = c.getContext("2d");
+  
+          c.style.position = "absolute";
+          c.style.left = x - 100 + "px";
+          c.style.top = y - 100 + "px";
+          c.style.pointerEvents = "none";
+          c.style.width = 200 + "px";
+          c.style.height = 200 + "px";
+          c.style.zIndex = 100;
+          c.width = 200;
+          c.height = 200;
+          c.style.zIndex = "9999999";
+          ctx.textY = c.height / 2;
+          document.body.appendChild(c);
+  
+          for (var i = 0; i < bubbles; i++) {
+            particles.push({
+              x: c.width / 2,
+              y: c.height / 2,
+              radius: r(20, 30),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              rotation: r(0, 360, true),
+              speed: r(8, 12),
+              friction: 0.9,
+              opacity: r(0, 0.5, true),
+              yVel: 0,
+              gravity: 0.1,
+            });
+          }
+  
+          render(particles, ctx, c.width, c.height, text);
+          setTimeout(() => document.body.removeChild(c), 1000);
+        };
+  
+        const render = (particles, ctx, width, height, text) => {
+          requestAnimationFrame(() =>
+            render(particles, ctx, width, height, text),
+          );
+          ctx.clearRect(0, 0, width, height);
+          ctx.globalAlpha = 1.0;
+          ctx.font = "bold 48px serif";
+          ctx.fillStyle = "black";
+          ctx.fillText(text, width / 4, ctx.textY);
+          ctx.textY += height / 100;
+          particles.forEach((p, i) => {
+            p.x += p.speed * Math.cos((p.rotation * Math.PI) / 180);
+            p.y += p.speed * Math.sin((p.rotation * Math.PI) / 180);
+  
+            p.opacity -= 0.01;
+            p.speed *= p.friction;
+            p.radius *= p.friction;
+            p.yVel += p.gravity;
+            p.y += p.yVel;
+  
+            if (p.opacity < 0 || p.radius < 0) return;
+  
+            ctx.beginPath();
+            ctx.globalAlpha = p.opacity;
+            ctx.fillStyle = p.color;
+            ctx.arc(p.x, p.y, p.radius, 0, 2 * Math.PI, false);
+            ctx.fill();
+          });
+  
+          return ctx;
+        };
+  
+        const r = (a, b, c) =>
+          parseFloat(
+            (Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(
+              c ? c : 0,
+            ),
+          );
+        explode(coords.x, coords.y, text);
+      }
+    }
+  
+    static splash_invo(pos) {
+      {
+        const coords = drawing.layout.hexToPixel(pos); // {x,y}
+        const colors = ["#394053", "#4E4A59", "#6E6362", "#839073", "#7CAE7A"];
+        const bubbles = 50;
+  
+        const explode = (x, y) => {
+          let particles = [];
+          let c = document.createElement("canvas");
+          let ctx = c.getContext("2d");
+  
+          c.style.position = "absolute";
+          c.style.left = x - 100 + "px";
+          c.style.top = y - 100 + "px";
+          c.style.pointerEvents = "none";
+          c.style.width = 200 + "px";
+          c.style.height = 200 + "px";
+          c.style.zIndex = 100;
+          c.width = 200;
+          c.height = 200;
+          c.style.zIndex = "9999999";
+          let startY = (c.height * 6) / 10;
+          ctx.textY = startY;
+          document.body.appendChild(c);
+  
+          for (var i = 0; i < bubbles; i++) {
+            particles.push({
+              x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+              y: r(startY * 0.9, startY * 1.2),
+              radius: r(20, 40),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              speed: r(2, 3),
+              opacity: r(0.5, 1, true),
+            });
+          }
+  
+          render(particles, ctx, c.width, c.height);
+          setTimeout(() => document.body.removeChild(c), 1000);
+        };
+  
+        const render = (particles, ctx, width, height) => {
+          requestAnimationFrame(() => render(particles, ctx, width, height));
+          ctx.clearRect(0, 0, width, height);
+  
+          particles.forEach((p, i) => {
+            var x = p.x;
+            var y = p.y;
+            var width = p.radius;
+            var height = p.radius;
+  
+            p.y -= p.speed;
+            //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+  
+            p.opacity -= 0.01;
+  
+            if (p.opacity < 0 || p.radius < 0) return;
+  
+            ctx.save();
+            ctx.beginPath();
+            ctx.globalAlpha = p.opacity;
+            var topCurveHeight = height * 0.3;
+            ctx.moveTo(x, y + topCurveHeight);
+  
+            ctx.beginPath();
+            ctx.strokeRect(r(50, 140), r(50, 140), r(1, 20), r(1, 20));
+  
+            ctx.closePath();
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.restore();
+          });
+  
+          return ctx;
+        };
+  
+        const r = (a, b, c) =>
+          parseFloat(
+            (Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(
+              c ? c : 0,
+            ),
+          );
+        explode(coords.x, coords.y);
+      }
+    }
+    static splash_flash(pos) {
+      {
+        const coords = drawing.layout.hexToPixel(pos); // {x,y}
+        const colors = ["#fff"];
+        const bubbles = 20;
+  
+        const explode = (x, y) => {
+          let particles = [];
+          let c = document.createElement("canvas");
+          let ctx = c.getContext("2d");
+  
+          c.style.position = "absolute";
+          c.style.left = x - 100 + "px";
+          c.style.top = y - 100 + "px";
+          c.style.pointerEvents = "none";
+          c.style.width = 200 + "px";
+          c.style.height = 200 + "px";
+          c.style.zIndex = 100;
+          c.width = 200;
+          c.height = 200;
+          c.style.zIndex = "9999999";
+          let startY = (c.height * 6) / 10;
+          ctx.textY = startY;
+          document.body.appendChild(c);
+  
+          for (var i = 0; i < bubbles; i++) {
+            particles.push({
+              x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+              y: r(startY * 0.9, startY * 1.2),
+              radius: r(20, 40),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              speed: r(2, 3),
+              opacity: r(0.5, 1, true),
+            });
+          }
+  
+          render(particles, ctx, c.width, c.height);
+          setTimeout(() => document.body.removeChild(c), 1000);
+        };
+  
+        const render = (particles, ctx, width, height) => {
+          requestAnimationFrame(() => render(particles, ctx, width, height));
+          ctx.clearRect(0, 0, width, height);
+  
+          particles.forEach((p, i) => {
+            var x = p.x;
+            var y = p.y;
+            var width = p.radius;
+            var height = p.radius;
+  
+            p.y -= p.speed;
+            //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+  
+            p.opacity -= 0.01;
+  
+            if (p.opacity < 0 || p.radius < 0) return;
+  
+            ctx.save();
+            ctx.beginPath();
+            ctx.globalAlpha = p.opacity;
+            var topCurveHeight = height * 0.3;
+            ctx.moveTo(x, y + topCurveHeight);
+  
+            ctx.beginPath();
+            ctx.strokeRect(r(60, 140), r(50, 140), r(1, 6), r(1, 6));
+  
+            ctx.closePath();
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.restore();
+          });
+  
+          return ctx;
+        };
+  
+        const r = (a, b, c) =>
+          parseFloat(
+            (Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(
+              c ? c : 0,
+            ),
+          );
+        explode(coords.x, coords.y);
+      }
+    }
+  
+    static splash_debuff(pos, text, debuff) {
+      {
+        const coords = drawing.layout.hexToPixel(pos); // {x,y}
+        const colorsPM = ["#42612B", "#569629", "#59EB2D", "#9FFF6B", "#7DFF81"];
+        const colorsPA = ["#65AFFF", "#335C81", "#274060", "#5899E2", "#1B2845"];
+        const colors = debuff == "PM" ? colorsPM : colorsPA;
+        const bubbles = 10;
+  
+        const explode = (x, y, text) => {
+          let particles = [];
+          let c = document.createElement("canvas");
+          let ctx = c.getContext("2d");
+  
+          c.style.position = "absolute";
+          c.style.left = x - 100 + "px";
+          c.style.top = y - 100 + "px";
+          c.style.pointerEvents = "none";
+          c.style.width = 200 + "px";
+          c.style.height = 200 + "px";
+          c.style.zIndex = 100;
+          c.width = 200;
+          c.height = 200;
+          c.style.zIndex = "9999999";
+          let startY = (c.height * 6) / 10;
+          ctx.textY = startY;
+          document.body.appendChild(c);
+  
+          for (var i = 0; i < bubbles; i++) {
+            particles.push({
+              x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+              y: r(startY * 0.9, startY * 1.2),
+              radius: r(20, 40),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              speed: r(2, 3),
+              opacity: r(0.5, 1, true),
+            });
+          }
+  
+          render(particles, ctx, c.width, c.height, text);
+          setTimeout(() => document.body.removeChild(c), 1000);
+        };
+  
+        const render = (particles, ctx, width, height, text) => {
+          requestAnimationFrame(() =>
+            render(particles, ctx, width, height, text),
+          );
+          ctx.clearRect(0, 0, width, height);
+          ctx.globalAlpha = 1.0;
+          ctx.font = "bold 30px serif";
+          ctx.fillStyle = "#273919";
+          ctx.fillText(text, width / 4, ctx.textY);
+          ctx.textY -= height / 100;
+          particles.forEach((p, i) => {
+            var x = p.x;
+            var y = p.y;
+            var width = p.radius;
+            var height = p.radius;
+  
+            p.y -= p.speed;
+            //p.x += p.speed * Math.sin(p.rotation * Math.PI / 180);
+  
+            p.opacity -= 0.01;
+  
+            if (p.opacity < 0 || p.radius < 0) return;
+  
+            ctx.save();
+            ctx.beginPath();
+            ctx.globalAlpha = p.opacity;
+            var topCurveHeight = height * 0.3;
+            ctx.moveTo(x, y + topCurveHeight);
+  
+            ctx.beginPath();
+  
+            ctx.arc(r(60, 140), r(85, 125), r(3, 10), 0, 2 * Math.PI);
+  
+            ctx.stroke();
+            ctx.closePath();
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.restore();
+          });
+  
+          return ctx;
+        };
+  
+        const r = (a, b, c) =>
+          parseFloat(
+            (Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(
+              c ? c : 0,
+            ),
+          );
+        explode(coords.x, coords.y, text);
+      }
+    }
+    static splash_lava(pos, text = "") {
+      {
+        const coords = drawing.layout.hexToPixel(pos); // {x,y}
+        const colors = ["#FC791C", "#E34000", "#A62002", "#d3a625", "#821E00"];
+        const bubbles = 20;
+  
+        const explode = (x, y, text) => {
+          let particles = [];
+          let c = document.createElement("canvas");
+          let ctx = c.getContext("2d");
+  
+          c.style.position = "absolute";
+          c.style.left = x - 100 + "px";
+          c.style.top = y - 100 + "px";
+          c.style.pointerEvents = "none";
+          c.style.width = 200 + "px";
+          c.style.height = 200 + "px";
+          c.style.zIndex = 100;
+          c.width = 200;
+          c.height = 200;
+          c.style.zIndex = "9999999";
+          let startY = (c.height * 6) / 10;
+          ctx.textY = startY;
+          document.body.appendChild(c);
+  
+          for (var i = 0; i < bubbles; i++) {
+            particles.push({
+              x: r(c.width / 2 - c.width * 0.2, c.width / 2 + c.width * 0.2),
+              y: r(startY * 0.9, startY * 1.2),
+              radius: r(20, 40),
+              color: colors[Math.floor(Math.random() * colors.length)],
+              speed: r(2, 3),
+              opacity: r(0.5, 1, true),
+            });
+          }
+  
+          render(particles, ctx, c.width, c.height, text);
+          setTimeout(() => document.body.removeChild(c), 1000);
+        };
+  
+        const render = (particles, ctx, width, height, text) => {
+          requestAnimationFrame(() =>
+            render(particles, ctx, width, height, text),
+          );
+          ctx.clearRect(0, 0, width, height);
+          ctx.globalAlpha = 1.0;
+          ctx.font = "bold 35px serif";
+          ctx.fillStyle = "black";
+          ctx.fillText(text, width / 4, ctx.textY);
+          ctx.textY -= height / 100;
+          particles.forEach((p, i) => {
+            var x = p.x;
+            var y = p.y;
+            var width = p.radius;
+            var height = p.radius;
+  
+            p.y -= p.speed;
+  
+            p.opacity -= 0.01;
+  
+            if (p.opacity < 0 || p.radius < 0) return;
+  
+            ctx.save();
+            ctx.beginPath();
+            ctx.globalAlpha = p.opacity;
+            var topCurveHeight = height * 0.3;
+            ctx.moveTo(x, y + topCurveHeight);
+  
+            ctx.beginPath();
+  
+            ctx.arc(r(80, 120), r(25, 125), r(3, 10), 0, 2 * Math.PI);
+  
+            ctx.stroke();
+            ctx.closePath();
+            ctx.fillStyle = p.color;
+            ctx.fill();
+            ctx.restore();
+          });
+  
+          return ctx;
+        };
+  
+        const r = (a, b, c) =>
+          parseFloat(
+            (Math.random() * ((a ? a : 1) - (b ? b : 0)) + (b ? b : 0)).toFixed(
+              c ? c : 0,
+            ),
+          );
+        explode(coords.x, coords.y, text);
+      }
+    }
+  }
+  
+},{"./drawing":8}],8:[function(require,module,exports){
 const { Point, Hex, Layout } = require("../Hex")
 const { displayCharacterHUD } = require("./hud")
 
@@ -948,29 +1323,6 @@ ARRAY_ICONS = {
     "flowerIcon": flowerIcon
 }
 
-function drawEntities() {
-    entities.forEach(e => { if (e.image) drawPerso(e) })
-}
-function drawPerso(entity) {
-    // console.log(entity)
-    if (!entity.hide) {
-        pPerso = layout.hexToPixel(entity.pos);
-
-        // outline
-        ctx.shadowColor = entity.team;
-        ctx.shadowBlur = 0;
-        for (var x = -THICKNESS; x <= THICKNESS; x++) {
-            for (var y = -THICKNESS; y <= THICKNESS; y++) {
-                ctx.shadowOffsetX = x;
-                ctx.shadowOffsetY = y;
-                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO * 3 / 4, SIZE_PERSO, SIZE_PERSO);
-            }
-        }
-    }
-    ctx.shadowColor = "transparent";
-    ctx.shadowBlur = 0;
-}
-
 const ORANGE = "rgb(255, 65, 0, 0.7)";
 const EARTH = "rgb(220, 150, 30)";
 
@@ -979,7 +1331,7 @@ const MOVE_RANGE = "rgb(30, 205, 0, 0.5)";
 const SPELL_HOVER = "rgb(255, 0, 0, 0.5)";
 const SPELL_RANGE = "rgb(255, 100, 100, 0.4)";
 const SPELL_HIT = "rgb(255, 50, 50, 0.5)";
-const ARRAY_GLYPH_COLOR= {
+const ARRAY_GLYPH_COLOR = {
     "GLYPH_BLUE": "rgb(50, 150, 255, 0.2)",
     "GLYPH_BROWN": "rgb(50, 50, 30, 0.3)",
     "GLYPH_ORANGE": "rgb(255, 65, 0, 0.5)",
@@ -988,6 +1340,47 @@ const ARRAY_GLYPH_COLOR= {
     "GLYPH_GAZ": "rgb(100, 255, 150, 0.3)",
     "GLYPH_PREVIEW": "rgb(255, 65, 0, 0.2)",
 };
+
+function drawEntities() {
+    entities.forEach(e => { if (e.image) drawPerso(e) })
+}
+
+function drawPerso(entity) {
+    //   console.log(entity);
+    let pPerso;
+    if (!entity.hide) {
+        pPerso = layout.hexToPixel(entity.pos);
+
+        if (entity.moving) {
+            // Moving towards the goal
+            entity.xDirection = entity.goal.x - entity.lastPos.x;
+            entity.yDirection = entity.goal.y - entity.lastPos.y;
+            entity.movingPos.x += entity.xDirection / 20;
+            entity.movingPos.y += entity.yDirection / 20;
+            pPerso = Anim.stopAtGoal(entity);
+        }
+
+        // outline
+        ctx.shadowColor = entity.team;
+        ctx.shadowBlur = 0;
+        for (var x = -THICKNESS; x <= THICKNESS; x++) {
+            for (var y = -THICKNESS; y <= THICKNESS; y++) {
+                ctx.shadowOffsetX = x;
+                ctx.shadowOffsetY = y;
+                ctx.drawImage(
+                    entity.image,
+                    pPerso.x - SIZE_PERSO / 2,
+                    pPerso.y - (SIZE_PERSO * 3) / 4,
+                    SIZE_PERSO,
+                    SIZE_PERSO,
+                );
+            }
+        }
+    }
+    ctx.shadowColor = "transparent";
+    ctx.shadowBlur = 0;
+}
+
 
 let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;
@@ -1026,7 +1419,7 @@ function drawMap() {
 
             if (h.aoe.length) {
                 h.aoe.forEach(spell => {
-                    paintCell(h,  ARRAY_GLYPH_COLOR[spell.color], ARRAY_ICONS[spell.glyphIcon])
+                    paintCell(h, ARRAY_GLYPH_COLOR[spell.color], ARRAY_ICONS[spell.glyphIcon])
                 })
             }
 
@@ -1035,6 +1428,7 @@ function drawMap() {
 
         })
         drawEntities();
+        drawProjectiles();
         displayCharacterHUD(currentPlayer)
     }
 }
@@ -1042,20 +1436,69 @@ function drawMap() {
 function drawFloor(h) {
     pPerso = layout.hexToPixel(h);
     // tileImage[Math.floor(Math.random() * 4)] //kek
-    ctx.drawImage(tileImage[h.rand4], pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);
-}
-
-function paintCell(mapCell, color, glyphIcon) {
-
-    ctx.fillStyle = color
+    ctx.drawImage(
+      tileImage[h.rand4],
+      pPerso.x - SIZE_TILE / 2,
+      pPerso.y - SIZE_TILE / 2,
+      SIZE_TILE,
+      SIZE_TILE,
+    );
+  }
+  
+  function paintCell(mapCell, color, glyphIcon) {
+    ctx.fillStyle = color;
     ctx.fill();
     if (glyphIcon) {
-        let pGlyph = layout.hexToPixel(mapCell);
-        ctx.globalAlpha = 0.7;
-        ctx.drawImage(glyphIcon, pGlyph.x - SIZE_GLYPH / 2, pGlyph.y - SIZE_GLYPH / 2, SIZE_GLYPH, SIZE_GLYPH);
-        ctx.globalAlpha = 1;
+      let pGlyph = layout.hexToPixel(mapCell);
+      ctx.globalAlpha = 0.7;
+      ctx.drawImage(
+        glyphIcon,
+        pGlyph.x - SIZE_GLYPH / 2,
+        pGlyph.y - SIZE_GLYPH / 2,
+        SIZE_GLYPH,
+        SIZE_GLYPH,
+      );
+      ctx.globalAlpha = 1;
     }
-}
+  }
+
+
+const drawProjectiles = () => {
+    // console.log("projectiles", projectiles);
+    if (projectiles) {
+      projectiles.forEach((e) => {
+        if (e.glyphIcon && e.moving) drawProjectile(e);
+      });
+    }
+  };
+  
+  const drawProjectile = (projectile) => {
+    let posProjectile = layout.hexToPixel(projectile.goal);
+  
+    // Moving towards the goal
+    projectile.xDirection = projectile.goal.x - projectile.lastPos.x;
+    projectile.yDirection = projectile.goal.y - projectile.lastPos.y;
+    projectile.movingPos.x += projectile.xDirection / 20;
+    projectile.movingPos.y += projectile.yDirection / 20;
+  
+    // Check if the projectile has gone past the goal
+    posProjectile = Anim.stopAtGoal(projectile);
+  
+    for (var x = -THICKNESS; x <= THICKNESS; x++) {
+      for (var y = -THICKNESS; y <= THICKNESS; y++) {
+        ctx.shadowOffsetX = x;
+        ctx.shadowOffsetY = y;
+        ctx.drawImage(
+          projectile.glyphIcon,
+          posProjectile.x - SIZE_TILE / 2,
+          posProjectile.y - SIZE_TILE / 2,
+          SIZE_TILE,
+          SIZE_TILE,
+        );
+      }
+    }
+  };
+  
 
 function findHexFromEvent(eventX, eventY) {
     return layout.pixelToHex(new Point(eventX - canvasLeft, eventY - canvasTop))
@@ -1072,6 +1515,7 @@ const c = require("../const")
 const aoes = require("../aoe")
 const s = require("../spells")
 const Network = require("../Network")
+const Anim = require("./Anim")
 
 let modeClic = ""
 let spellID = 0;
@@ -1182,7 +1626,7 @@ function listenToMouse() {
 }
 
 function moveEntity(entity, cell) {
-    // Anim.animateMove (entity, cell)
+    Anim.move(entity, cell);
     //sprlls onmove a remettre pour le gazeur
     // var onMoveSpells = PLAYERS.find(p => p.entity == entity)?.spells.filter(s => s.onMove)
     // if (onMoveSpells.length) onMoveSpells.forEach(s => castSpell(entity, s, cell));
@@ -1406,7 +1850,7 @@ function beginTurn(player) {
     tickDownBuffs(player)
     killExpiredSummons(player);
     refreshAuras() //to remove expired auras
-    modeClic = "MOVE"
+    modeClic = (TEAM == currentPlayer.entity.team) ? "MOVE" : "";
 }
 function endTurn(player) {
     console.log("endturn, refill points for " + player.name)
@@ -1501,7 +1945,7 @@ function playAction(action) {
 module.exports = {
     initMap, listenToMouse, playAction
 };
-},{"../Hex":3,"../Network":4,"../aoe":6,"../const":11,"../gameUtils":12,"../spells":13,"./drawing":8}],10:[function(require,module,exports){
+},{"../Hex":3,"../Network":4,"../aoe":6,"../const":11,"../gameUtils":12,"../spells":13,"./Anim":7,"./drawing":8}],10:[function(require,module,exports){
 
 function displayCharacterHUD(player) {
     document.getElementById("team").textContent = (TEAM == player.entity.team) ? "Your turn" : "Enemy's turn";
@@ -1573,6 +2017,10 @@ const CONSTANTS = Object.freeze({
 
 })
 
+const ANIMATIONS = {
+    FALL: "FALL",
+}
+
 const TYPES = Object.freeze({
     //cell types
     ANY: "ANY",
@@ -1582,6 +2030,7 @@ const TYPES = Object.freeze({
     ENTITY: "ENTITY",
     PLAYABLE: "PLAYABLE",
     // summons types
+    LAUNCHED : "LAUNCHED", //generic for animation
     SHADOW: "SHADOW",
     BOMB: "BOMB",
     INFERNAL: "INFERNAL",
@@ -1594,13 +2043,13 @@ TABLE_SUMMONS: {
     "shadow": {
         name: "shadow",
             ttl: -1,
-                summonTypes: [TYPES.SHADOW],
+                summonTypes: [TYPES.SHADOW, TYPES.LAUNCHED],
                     isUnique: true,
             },
     "wall": {
         name: "wall",
             ttl: 1,
-                summonTypes: [],
+                summonTypes: [TYPES.LAUNCHED],
             },
     "tentacle": {
         name: "tentacle",
@@ -1629,7 +2078,7 @@ TABLE_SUMMONS: {
     "barrel": {
         name: "barrel",
             ttl: -1,
-                summonTypes: [TYPES.BARREL],
+                summonTypes: [TYPES.BARREL, TYPES.LAUNCHED],
                     maxHP: 1,
                         onDeath: "rasta_barrel_explode",
                             auras: [
@@ -1640,7 +2089,7 @@ TABLE_SUMMONS: {
     "time_machine": {
         name: "time_machine",
             ttl: 1,
-                summonTypes: [],
+                summonTypes: [TYPES.LAUNCHED],
                     maxHP: 1,
                         auras: [
                             { name: "Time Machine", dealSpell: "blink", aoe: "single", isAura: true, glyph: 1, color: "GLYPH_PREVIEW", },
@@ -1674,7 +2123,7 @@ CHARACTERS: [
         spells: [
             { name: "Inferno Strike", dealSpell: "damage", range: 4, rangeMin: 2, cooldown: 1, aoe: "straight_line_inferno", glyph: 1, color: "GLYPH_BROWN", glyphIcon: "damageIcon", canTarget: [TYPES.ANY], description: "Deals damage in a straight line." },
             { name: "Freezing Curse", dealSpell: "root", range: 2, rangeMin: 2, cooldown: 3, aoe: "square", canTarget: [TYPES.ANY], description: "Instantly roots targets in a square area." },
-            { name: "Force Wave", dealSpell: "push", range: 0, cooldown: 2, aoe: "ring_1", canTarget: [TYPES.PLAYABLE], description: "Pushes out anyone around the caster in a ring area." },
+            { name: "Force Wave", dealSpell: "push", range: 0, cooldown: 2, aoe: "ring_1", canTarget: [TYPES.PLAYABLE], animation: ANIMATIONS.FALL, description: "Pushes out anyone around the caster in a ring area." },
             // { name: "Blink", dealSpell: "blink", range: 3, cooldown: 3, aoe: "single", glyph: 0, canTarget: [TYPES.EMPTY] },
         ]
     },
@@ -1690,7 +2139,7 @@ CHARACTERS: [
     {
         name: "Golem",
         spells: [
-            { name: "Boulder Smash", dealSpell: "golem_boulder", range: 4, cooldown: 1, aoe: "single", glyph: 1, color: "GLYPH_ORANGE", onMiss: "lava", glyphIcon: "boulderIcon", canTarget: [TYPES.ANY], description: "Deals damage, but if the cell was empty, rise lava." },
+            { name: "Boulder Smash", dealSpell: "golem_boulder", range: 4, cooldown: 1, aoe: "single", glyph: 1, color: "GLYPH_ORANGE", onMiss: "lava", glyphIcon: "boulderIcon", canTarget: [TYPES.ANY], animation: ANIMATIONS.FALL, description: "Deals damage, but if the cell was empty, rise lava." },
             { name: "Magma Wall", dealSpell: "summon", summon: "wall", range: 3, cooldown: 3, aoe: "curly", ttl: 1, canTarget: [TYPES.ANY], description: "Summons a wall in a curly area around a targeted cell." },
             { name: "Explosion", dealSpell: "damage", range: 0, cooldown: 2, aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", canTarget: [TYPES.PLAYABLE], description: "Deals damage around the caster." },
         ]
@@ -1714,7 +2163,7 @@ CHARACTERS: [
     {
         name: "Rasta",
         spells: [
-            { name: "Gatling Shot", dealSpell: "damage", range: 9, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [TYPES.ANY], color: "GLYPH_BROWN", glyphIcon: "damageIcon", description: "Deals damage in a straight line." },
+            { name: "Gatling Shot", dealSpell: "damage", range: 9, cooldown: 1, aoe: "line", aoeSize: 5, glyph: 1, canTarget: [TYPES.ANY], color: "GLYPH_BROWN", glyphIcon: "damageIcon", animation: ANIMATIONS.FALL, description: "Deals damage in a straight line." },
             { name: "Rolling Barrel", dealSpell: "summon", summon: "barrel", range: 2, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [TYPES.EMPTY], description: "Places explosive barrel." },
             { name: "Jamming Retreat", dealSpell: "buffPM", value: 2, range: 0, cooldown: 3, aoe: "single", canTarget: [TYPES.ENTITY], description: "Grants 2 more movement points to the caster." },
         ]
@@ -1749,7 +2198,7 @@ CHARACTERS: [
     })
 
 module.exports = {
-    CONSTANTS, TYPES, GAMEDATA
+    CONSTANTS, TYPES, GAMEDATA, ANIMATIONS
 }
 },{}],12:[function(require,module,exports){
 //HELPERS
@@ -1834,6 +2283,16 @@ function resolveSpell(cell, spellData, casterEntity, direction, mainCell) {
     targetCell = utils.findMapCell(cell)
     let targetEntity = utils.findEntityOnCell(targetCell);
     let realSpell = LIB_SPELLS[spellData.dealSpell]
+    console.log("spellData?.animation")
+    console.log(spellData)
+    if (spellData?.animation) {
+        switch (spellData.animation) {
+            case c.ANIMATIONS.FALL:
+                Anim.fall(spell, cell);
+                break;
+            //default: nothing
+        }
+    }
     let result = realSpell(targetCell, spellData, casterEntity, targetEntity, direction, mainCell)
     checkAnyoneInLava()
 
@@ -1858,15 +2317,22 @@ function nothing(cell, spell, casterEntity, targetEntity) {
 }
 function damage(cell, spell, casterEntity, targetEntity) {
     if (targetEntity && !targetEntity.isInvulnerable) {
-        if (typeof window != 'undefined' && window.document) Anim.splash(targetCell, "-1")
+        //todo check if we are client or not => will help when server will check actions
+        // if (typeof window != 'undefined' && window.document) 
+        Anim.splash(targetCell, "-1")
         targetEntity.damage();
     }
 }
 
 function pull(cell, spell, casterEntity, targetEntity) {
+    const destination = cell
+        .subtract(casterEntity.pos)
+        .scale(1 / cell.distance(casterEntity.pos))
+        .add(casterEntity.pos);
     if (targetEntity) {
-        targetEntity.pos = (cell.subtract(casterEntity.pos)).scale(1 / cell.distance(casterEntity.pos)).add(casterEntity.pos);
-        return true
+        Anim.move(targetEntity, destination);
+        targetEntity.pos = destination;
+        return true;
     }
     return false;
 }
@@ -1877,17 +2343,28 @@ function push(cell, spell, casterEntity, targetEntity) {
         let direction = (destination.subtract(casterEntity.pos));
         for (let n = 0; n < value; n++) {
             destination = destination.add(direction) //loop for pushing
-            if (utils.isFree(destination)) targetEntity.pos = destination;
+            if (utils.isFree(destination)) {
+                Anim.move(targetEntity, destination);
+                targetEntity.pos = destination;
+            }
         }
     }
 }
 function salto(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
-        targetEntity.pos = targetEntity.pos.subtract(casterEntity.pos).halfTurn().add(casterEntity.pos)
+        const destination = targetEntity.pos
+            .subtract(casterEntity.pos)
+            .halfTurn()
+            .add(casterEntity.pos);
+        if (utils.isFree(destination)) {
+            Anim.move(targetEntity, destination);
+            targetEntity.pos = destination;
+        }
     }
 }
 function switcheroo(cell, spell, casterEntity, targetEntity) {
     if (targetEntity) {
+        Anim.splash_flash(cell);
         const save = cell.copy()
         targetEntity.pos = casterEntity.pos
         casterEntity.pos = save;
@@ -1897,20 +2374,29 @@ function switcheroo(cell, spell, casterEntity, targetEntity) {
 function root(cell, spell, casterEntity, targetEntity) {
     let targetplayer = utils.findPlayerFromEntity(targetEntity)
     if (targetplayer) {
+        Anim.splash_debuff(
+            cell,
+            `-${targetplayer.movePoint > 0 ? targetplayer.movePoint : ""}`,
+            "PM",
+        );
         targetplayer.loseMovePoint(99);
     }
 }
 
 function silence(cell, spell, casterEntity, targetEntity) {
-    if (targetEntity) targetEntity.auras.push(
-        { name: "silence", ttl: 2 }
-    );
+    if (targetEntity) {
+    Anim.splash_debuff(cell, ``, "PA");
+        targetEntity.auras.push(
+            { name: "silence", ttl: 2 }
+        );
+    }
 }
 
 function buffPM(cell, spell, casterEntity, targetEntity) {
     let targetplayer = utils.findPlayerFromEntity(targetEntity)
     if (targetplayer) {
         targetplayer.buffPM(spell.value || 1);
+    Anim.splash_debuff(cell, `+${spell.value || 1}`, "PM");
     }
 }
 function buffPO(cell, spell, casterEntity, targetEntity) {
@@ -1921,6 +2407,7 @@ function buffPO(cell, spell, casterEntity, targetEntity) {
 }
 
 function riseLava(cell, spell, casterEntity, targetEntity) {
+  Anim.splash_lava(cell);
     if (targetEntity) {
         // kill entities on the cell
         targetEntity.die();
@@ -1934,6 +2421,8 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
 function blink(cell, spell, casterEntity, targetEntity) {
     // if (!targetEntity) //empty cell
     casterEntity.pos = cell;
+  Anim.splash_flash(cell);
+    
 }
 
 function summon(cell, spell, casterEntity, targetEntity) {
@@ -1967,6 +2456,9 @@ function summon(cell, spell, casterEntity, targetEntity) {
             summonedP.isSummoned = true;
             PLAYERS.splice((idCurrentPlayer + 1) % (PLAYERS.length + 1), 0, summonedP);
         }
+        if (summoned.types.includes(c.TYPES.LAUNCHED)) {
+            Anim.launched(summoned, casterEntity, cell);
+          } else Anim.splash_invo(cell);
     }
     console.log("SUMMONED ", summoned)
     return summoned;
@@ -2016,7 +2508,7 @@ function time_backwards_hit(cell, spell, casterEntity, targetEntity) {
 function zombie_attack(cell, spell, casterEntity, targetEntity) {
     damage(cell, spell, casterEntity, targetEntity)
     // bugfix : if the zombie is not dead yet after attacking ! (damn barrel)
-    if(utils.isEntityAlive) casterEntity.die();
+    if (utils.isEntityAlive) casterEntity.die();
 }
 function shaman_flower(cell, spell, casterEntity, targetEntity) {
     if (targetEntity == casterEntity) {

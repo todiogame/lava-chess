@@ -4,14 +4,14 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
-
+var isAnimed = false;
 function connect() {
     var socket = new WebSocket("ws://localhost:8081");
 
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
-        console.log("Network.clientSocket",Network.clientSocket)
+        console.log("Network.clientSocket", Network.clientSocket)
     };
 
     socket.onclose = function (event) {
@@ -27,9 +27,9 @@ function connect() {
         const received = Network.decode(event.data);
         // console.log("received")
         // console.log(received)
-        if(received.type == "TEAM"){
+        if (received.type == "TEAM") {
             TEAM = received.data;
-            console.log("we are team ",TEAM)
+            console.log("we are team ", TEAM)
         }
 
         if (received.type == "PLAYERS") {
@@ -60,10 +60,14 @@ function goGame() {
     currentPlayer = PLAYERS[idCurrentPlayer]
 
     entities = [];
+    projectiles = [];
+
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
     logic.listenToMouse()
-    Anim.mainLoop()
-
+    if (!isAnimed) {
+        isAnimed = true;
+        Anim.mainLoop()
+    }
 }

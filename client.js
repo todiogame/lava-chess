@@ -2,8 +2,7 @@ const Entity = require("./lib/Entity");
 const Playable = require("./lib/Playable");
 const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
-const ordo = require("./lib/ordo");
-const logic = require("./lib/gameLogic")
+const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
 
 function connect() {
@@ -55,7 +54,7 @@ function recreatePlayers(data) {
 function goGame() {
     // console.log("recieved all, go game")
     CLIENT_SIDE = true;
-    map = ordo.initMap(c.CONSTANTS.MAP_RADIUS);
+    map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
 
     idCurrentPlayer = 0; //start with player1
     currentPlayer = PLAYERS[idCurrentPlayer]

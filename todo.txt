@@ -1,12 +1,11 @@
 todo:
 mu;tiplayer bugs :
 - aoes are not cleaned from the map after trigger => cant reproduce ?
-- missing timeline
-- separate teams in each client
+
+Ajouter les anims en multi !
 
 Ultis
 - hover : infobulle
-fix bug inferno double damage
 rework gazeur ?
 - cac can target shadow ?? => make type invulnerable or something
 anim laggg :(

@@ -518,6 +518,14 @@ const characters = [
       },
     ],
   },
+  //     {
+  //     name: "Pangolino",
+  //     spells: [
+  //         { name: "Spiky Ball", dealSpell: damage, range: 0, cooldown: 2, aoe: "ring_1", isAura: true, glyph: 1, color: GLYPH_BROWN, canTarget: [PLAYABLE], description: "Deals damage around the caster." },
+  //         { name: "Defensive stance",dealSpell: nothing, range: 1, cooldown: 3, aoe: "single", glyph: 1, color: GLYPH_BLUE, },
+  //         { name:  "Booby Trap",dealSpell: root, range: 4, cooldown: 2, aoe: "single", glyph: 1, color: GLYPH_GAZ, glyphIcon: rootIcon, canTarget: [ANY], description: "Drops a 2-cells net that roots targets who start their turn inside." },
+  //     ]
+  // },
   // {
   //     name: "Gazeur",
   //     spells: [

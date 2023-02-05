@@ -246,15 +246,18 @@ function zombie_attack(cell, spell, casterEntity, targetEntity) {
   casterEntity.die();
 }
 function shaman_flower(cell, spell, casterEntity, targetEntity) {
-  if (targetEntity == casterEntity) {
-    spell.permanent = false;
-    //heal
-    targetEntity.heal();
-    //buff PO
-    buffPO(cell, spell, casterEntity, targetEntity);
-  }
+    if (targetEntity == casterEntity) {
+        spell.permanent = false;
+        //heal
+        targetEntity.heal()
+        //buff PO
+        buffPO(cell, spell, casterEntity, targetEntity)
+
+    }
 }
-function debuffCD(cell, spell, casterEntity, targetEntity) {}
+// function pango_spiky_ball(cell, spell, casterEntity, targetEntity) {
+//     buffPM(null, null, casterEntity, targetEntity)
+// }
 
 //on death spells
 function rasta_barrel_explode(casterEntity) {

@@ -3,71 +3,102 @@ const SIZE_TILE = 95;
 const THICKNESS = 1;
 
 tile0Image = new Image();
-tile0Image.src = "pics/tile0.png"
+tile0Image.src = "pics/tile0.png";
 tile1Image = new Image();
-tile1Image.src = "pics/tile1.png"
+tile1Image.src = "pics/tile1.png";
 tile2Image = new Image();
-tile2Image.src = "pics/tile2.png"
+tile2Image.src = "pics/tile2.png";
 tile3Image = new Image();
-tile3Image.src = "pics/tile3.png"
-tileImage = [tile0Image, tile1Image, tile2Image, tile3Image]
+tile3Image.src = "pics/tile3.png";
+tileImage = [tile0Image, tile1Image, tile2Image, tile3Image];
 
 //glyphs
 damageIcon = new Image();
 damageIcon.src = "pics/fire_icon.png";
 
 rootIcon = new Image();
-rootIcon.src = "pics/net.png"
+rootIcon.src = "pics/net.png";
 
 silenceIcon = new Image();
-silenceIcon.src = "pics/silence.png"
+silenceIcon.src = "pics/silence.png";
 
 lavaIcon = new Image();
-lavaIcon.src = "pics/rising.png"
+lavaIcon.src = "pics/rising.png";
 
 gasIcon = new Image();
-gasIcon.src = "pics/gas.png"
+gasIcon.src = "pics/gas.png";
 
 boulderIcon = new Image();
-boulderIcon.src = "pics/boulder.png"
+boulderIcon.src = "pics/boulder.png";
 
 flowerIcon = new Image();
-flowerIcon.src = "pics/flower.png"
+flowerIcon.src = "pics/flower.png";
 
 function drawEntities() {
-    entities.forEach(e => {if (e.image) drawPerso(e)})
+  entities.forEach((e) => {
+    if (e.image) drawPerso(e);
+  });
 }
 function drawPerso(entity) {
-    // console.log(entity)
-    if (!entity.hide) {
-        pPerso = layout.hexToPixel(entity.pos);
+  //   console.log(entity);
+  let pPerso;
+  if (!entity.hide) {
+    pPerso = layout.hexToPixel(entity.pos);
 
-        // outline
-        ctx.shadowColor = entity.team;
-        ctx.shadowBlur = 0;
-        for (var x = -THICKNESS; x <= THICKNESS; x++) {
-            for (var y = -THICKNESS; y <= THICKNESS; y++) {
-                ctx.shadowOffsetX = x;
-                ctx.shadowOffsetY = y;
-                ctx.drawImage(entity.image, pPerso.x - SIZE_PERSO / 2, pPerso.y - SIZE_PERSO * 3 / 4, SIZE_PERSO, SIZE_PERSO);
-            }
-        }
+    if (entity.moving) {
+      entity.xDirection = entity.goal.x - entity.lastPos.x;
+      entity.yDirection = entity.goal.y - entity.lastPos.y;
+      entity.movingPos.x += entity.xDirection / 20;
+      entity.movingPos.y += entity.yDirection / 20;
+
+      // Check if the entity has gone past the goal
+      if (
+        (entity.xDirection > 0 && entity.movingPos.x > entity.goal.x) ||
+        (entity.xDirection < 0 && entity.movingPos.x < entity.goal.x)
+      ) {
+        entity.movingPos.x = entity.goal.x;
+      }
+      if (
+        (entity.yDirection > 0 && entity.movingPos.y > entity.goal.y) ||
+        (entity.yDirection < 0 && entity.movingPos.y < entity.goal.y)
+      ) {
+        entity.movingPos.y = entity.goal.y;
+      }
+      pPerso = entity.movingPos;
     }
-    ctx.shadowColor = "transparent";
+
+    // outline
+    ctx.shadowColor = entity.team;
     ctx.shadowBlur = 0;
+    for (var x = -THICKNESS; x <= THICKNESS; x++) {
+      for (var y = -THICKNESS; y <= THICKNESS; y++) {
+        ctx.shadowOffsetX = x;
+        ctx.shadowOffsetY = y;
+        ctx.drawImage(
+          entity.image,
+          pPerso.x - SIZE_PERSO / 2,
+          pPerso.y - (SIZE_PERSO * 3) / 4,
+          SIZE_PERSO,
+          SIZE_PERSO,
+        );
+      }
+    }
+  }
+  ctx.shadowColor = "transparent";
+  ctx.shadowBlur = 0;
 }
 
 const SCALE = 40;
 const SIZE_GLYPH = 64;
 
-let origin = new Point(350, 300)
+let origin = new Point(350, 300);
 const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
 // Create the grid container
-const canvas = document.getElementById('canvas');
+const canvas = document.getElementById("canvas");
 canvas.width = 700;
 canvas.height = 600;
 
-const ctx = canvas.getContext('2d');
+const ctx = canvas.getContext("2d");
 
 const ORANGE = "rgb(255, 65, 0, 0.7)";
 const EARTH = "rgb(220, 150, 30)";
@@ -81,7 +112,7 @@ const SPELL_HIT = "rgb(255, 50, 50, 0.5)";
 const GLYPH_BLUE = "rgb(50, 150, 255, 0.2)";
 const GLYPH_BROWN = "rgb(50, 50, 30, 0.3)";
 const GLYPH_ORANGE = "rgb(255, 65, 0, 0.5)";
-const GLYPH_PURPLE = "rgb(255,0,255, 0.3)"
+const GLYPH_PURPLE = "rgb(255,0,255, 0.3)";
 const GLYPH_FLOWER = "rgb(30, 205, 50, 0.3)";
 
 const GLYPH_GAZ = "rgb(100, 255, 150, 0.3)";
@@ -91,60 +122,69 @@ let canvasLeft = canvas.offsetLeft + canvas.clientLeft;
 let canvasTop = canvas.offsetTop + canvas.clientTop;
 
 function drawMap() {
-    if (map) {
-        // console.log(map)
-        let colorHover = SPELL_HOVER;
-        let colorRange = SPELL_RANGE;
-        if (modeClic == "MOVE") {
-            colorHover = MOVE_HOVER;
-            colorRange = MOVE_RANGE;
-        }
-        ctx.fillStyle = ORANGE
-        // ctx.clearRect(0, 0, canvas.width, canvas.height);
-        // ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.drawImage(lava, 0, 0, 700, 600);
-
-
-        map.forEach(h => {
-            // draw Hexagon
-            ctx.beginPath();
-            let pts = layout.polygonCorners(h)
-            pts.forEach(p => ctx.lineTo(p.x, p.y));
-            ctx.closePath();
-            ctx.stroke();
-            // if (h.floor) paintCell(h, EARTH)
-            if (h.floor) drawFloor(h)
-            if (h.range) paintCell(h, colorRange)
-            if (h.hit) paintCell(h, SPELL_HIT)
-
-            if (h.aoe.length) {
-                h.aoe.forEach(spell => {
-                    paintCell(h, spell.color, spell.glyphIcon)
-                })
-            }
-
-            if (h.hover) paintCell(h, colorHover)
-
-        })
-        drawEntities();
-        displayCharacterHUD(currentPlayer)
+  if (map) {
+    // console.log(map)
+    let colorHover = SPELL_HOVER;
+    let colorRange = SPELL_RANGE;
+    if (modeClic == "MOVE") {
+      colorHover = MOVE_HOVER;
+      colorRange = MOVE_RANGE;
     }
+    ctx.fillStyle = ORANGE;
+    // ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.drawImage(lava, 0, 0, 700, 600);
+
+    map.forEach((h) => {
+      // draw Hexagon
+      ctx.beginPath();
+      let pts = layout.polygonCorners(h);
+      pts.forEach((p) => ctx.lineTo(p.x, p.y));
+      ctx.closePath();
+      ctx.stroke();
+      // if (h.floor) paintCell(h, EARTH)
+      if (h.floor) drawFloor(h);
+      if (h.range) paintCell(h, colorRange);
+      if (h.hit) paintCell(h, SPELL_HIT);
+
+      if (h.aoe.length) {
+        h.aoe.forEach((spell) => {
+          paintCell(h, spell.color, spell.glyphIcon);
+        });
+      }
+
+      if (h.hover) paintCell(h, colorHover);
+    });
+    drawEntities();
+    displayCharacterHUD(currentPlayer);
+  }
 }
 
 function drawFloor(h) {
-    pPerso = layout.hexToPixel(h);
-    // tileImage[Math.floor(Math.random() * 4)] //kek
-    ctx.drawImage(tileImage[h.rand4], pPerso.x - SIZE_TILE / 2, pPerso.y - SIZE_TILE / 2, SIZE_TILE, SIZE_TILE);
+  pPerso = layout.hexToPixel(h);
+  // tileImage[Math.floor(Math.random() * 4)] //kek
+  ctx.drawImage(
+    tileImage[h.rand4],
+    pPerso.x - SIZE_TILE / 2,
+    pPerso.y - SIZE_TILE / 2,
+    SIZE_TILE,
+    SIZE_TILE,
+  );
 }
 
 function paintCell(mapCell, color, glyphIcon) {
-
-    ctx.fillStyle = color
-    ctx.fill();
-    if (glyphIcon) {
-        let pGlyph = layout.hexToPixel(mapCell);
-        ctx.globalAlpha = 0.7;
-        ctx.drawImage(glyphIcon, pGlyph.x - SIZE_GLYPH / 2, pGlyph.y - SIZE_GLYPH / 2, SIZE_GLYPH, SIZE_GLYPH);
-        ctx.globalAlpha = 1;
-    }
+  ctx.fillStyle = color;
+  ctx.fill();
+  if (glyphIcon) {
+    let pGlyph = layout.hexToPixel(mapCell);
+    ctx.globalAlpha = 0.7;
+    ctx.drawImage(
+      glyphIcon,
+      pGlyph.x - SIZE_GLYPH / 2,
+      pGlyph.y - SIZE_GLYPH / 2,
+      SIZE_GLYPH,
+      SIZE_GLYPH,
+    );
+    ctx.globalAlpha = 1;
+  }
 }

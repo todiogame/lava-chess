@@ -4,7 +4,7 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const ordo = require("./lib/ordo");
 const logic = require("./lib/gameLogic")
-
+const comm = require("./lib/comm")
 var socket;
 
 function connect() {
@@ -23,13 +23,18 @@ function connect() {
     };
 
     socket.onmessage = function (event) {
-        const { type, data } = JSON.parse(event.data);
+        console.log(event)
+        const received = comm.decode(event.data);
+        console.log("received")
+        console.log(received)
 
-        if (type == "PLAYERS") {
-            PLAYERS = recreatePlayers(data)
+        if (received.type == "PLAYERS") {
+            PLAYERS = recreatePlayers(received.data)
             goGame();
         }
-
+        if (received.type == "ACTION") {
+            logic.playAction(received.data)
+        }
     };
 }
 connect();
@@ -54,7 +59,7 @@ function goGame() {
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
-    logic.listenToMouse()
+    logic.listenToMouse(socket)
     Anim.mainLoop()
 
 }

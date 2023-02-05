@@ -5,7 +5,7 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const ordo = require("./lib/ordo");
 const logic = require("./lib/gameLogic")
-
+const comm = require("./lib/comm")
 var socket;
 
 function connect() {
@@ -24,13 +24,18 @@ function connect() {
     };
 
     socket.onmessage = function (event) {
-        const { type, data } = JSON.parse(event.data);
+        console.log(event)
+        const received = comm.decode(event.data);
+        console.log("received")
+        console.log(received)
 
-        if (type == "PLAYERS") {
-            PLAYERS = recreatePlayers(data)
+        if (received.type == "PLAYERS") {
+            PLAYERS = recreatePlayers(received.data)
             goGame();
         }
-
+        if (received.type == "ACTION") {
+            logic.playAction(received.data)
+        }
     };
 }
 connect();
@@ -55,13 +60,15 @@ function goGame() {
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
-    logic.listenToMouse()
+    logic.listenToMouse(socket)
     Anim.mainLoop()
 
 }
-},{"./lib/Entity":2,"./lib/Playable":4,"./lib/client/Anim":6,"./lib/const":9,"./lib/gameLogic":10,"./lib/ordo":12}],2:[function(require,module,exports){
+
+},{"./lib/Entity":2,"./lib/Playable":4,"./lib/client/Anim":6,"./lib/comm":9,"./lib/const":10,"./lib/gameLogic":11,"./lib/ordo":13}],2:[function(require,module,exports){
 const c = require('./const.js');
 const { Hex } = require('./Hex.js');
+const utils = require("./gameUtils")
 
 module.exports = class Entity {
     constructor(name, team, auras, types, pos, maxHP,
@@ -75,7 +82,6 @@ module.exports = class Entity {
             (name.toLowerCase() == "zombie" ? Math.floor(Math.random() * 2) : "")
             + ".png";
         if ( (typeof window != 'undefined' && window.document) && this.src) {
-            console.log("whyyyy")
             this.image = new Image();
             this.image.src = this.src;
         }
@@ -127,7 +133,7 @@ module.exports = class Entity {
         if (otherEntity) return this.team != otherEntity.team;
     }
 }
-},{"./Hex.js":3,"./const.js":9}],3:[function(require,module,exports){
+},{"./Hex.js":3,"./const.js":10,"./gameUtils":12}],3:[function(require,module,exports){
 // Generated code -- CC0 -- No Rights Reserved -- http://www.redblobgames.com/grids/hexagons/
 class Point {
     constructor(x, y) {
@@ -493,6 +499,7 @@ module.exports = {Point, Hex, Layout};
 
 },{}],4:[function(require,module,exports){
 const c =  require('./const.js');
+const utils = require("./gameUtils")
 
 module.exports = class Playable {
     constructor(entity, spells) {
@@ -543,7 +550,7 @@ module.exports = class Playable {
             }
         })
         this.dead = true;
-        checkWinCondition();
+        utils.checkWinCondition();
         // if we are here, nobody won yet
         if (currentPlayer == this) {
             console.log("as it is " + this.name + " turns but hes dead, he passes")
@@ -551,8 +558,9 @@ module.exports = class Playable {
         }
     }
 }
-},{"./const.js":9}],5:[function(require,module,exports){
+},{"./const.js":10,"./gameUtils":12}],5:[function(require,module,exports){
 const { Point, Hex, Layout } = require("./Hex")
+const c = require ("./const")
 
 function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
     aoeSize = aoeSize || 1;
@@ -618,7 +626,7 @@ function makeAOEFromCell(cell, aoe, persoPos, direction, aoeSize) {
             AOE["ring_1"].forEach(a => {
                 res.push(cell.add(a))
             })
-            const shadow = entities.find(e => e.types.includes(SHADOW))
+            const shadow = entities.find(e => e.types.includes(c.SHADOW))
             if (shadow) {
                 AOE["ring_1"].forEach(a => {
                     if (!persoPos.equals(shadow.pos.add(a))) //remove ninja pos so he doesnt get damage
@@ -686,7 +694,7 @@ module.exports = {
     makeAOEFromCell
 };
 
-},{"./Hex":3}],6:[function(require,module,exports){
+},{"./Hex":3,"./const":10}],6:[function(require,module,exports){
 const drawing = require("./drawing")
 const {Point, Hex, Layout} = require("../Hex");
 const drawings = require("./drawing")
@@ -1079,6 +1087,56 @@ module.exports = {
   displayCharacterHUD
 };
 },{}],9:[function(require,module,exports){
+
+function getUniqueID() {
+    function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+    }
+    return s4() + s4() + '-' + s4();
+};
+
+function encode(type, data) {
+    // console.log("sending type:",type)
+    return JSON.stringify({ type: type, data: data })
+}
+function decode(message) {
+    // console.log("recieved type:",type)
+    return { type, data } = JSON.parse(message)
+}
+
+function broadcast(game, type, data) {
+    // console.log("sending type:",type)
+    game.clientA.send(JSON.stringify({ type: type, data: data }))
+    game.clientB.send(JSON.stringify({ type: type, data: data }))
+}
+
+function handleMessageFromClient(ws, message) {
+    const received = decode(message);
+
+    if (received.type == "ACTION") {
+        //check legal : his turn, can cast, cooldowns
+        // play on server
+        //send to other client
+        ws.other.send(encode(received.type, received.data))
+
+
+        // {"type":"ACTION","data":{"kind":"MOVE", "cell":{"q":0,"r":0,"s":0}}}
+    }
+}
+
+function clientSendAction(socket, action, cell, spellID, direction) {
+    console.log("sending",action,cell)
+    let copy = cell ? cell.copy() : undefined;
+    socket.send(encode("ACTION", { "kind": action, "cell": copy, "spellID":spellID, "direction":direction}))
+}
+
+
+
+
+module.exports = {
+    getUniqueID, encode, decode, broadcast, handleMessageFromClient, clientSendAction
+};
+},{}],10:[function(require,module,exports){
 const CONSTANTS = Object.freeze({
     MAP_RADIUS: 5,
     NB_PAWNS: 4,
@@ -1263,18 +1321,19 @@ CHARACTERS: [
 module.exports = {
     CONSTANTS, TYPES, GAMEDATA
 }
-},{}],10:[function(require,module,exports){
+},{}],11:[function(require,module,exports){
 const { Point, Hex, Layout } = require("./Hex")
 const drawing = require("./client/drawing")
 const utils = require("./gameUtils")
 const c = require("./const")
 const aoes = require("./aoe")
 const s = require("./spells")
+const comm = require("./comm")
 
 
 let modeClic = "MOVE"
 let spellID = 0;
-function listenToMouse() {
+function listenToMouse(socket) {
 
     console.log(map)
     console.log(PLAYERS)
@@ -1318,7 +1377,7 @@ function listenToMouse() {
                 if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
                     var arrayHighlight = aoes.makeAOEFromCell(found, currentPlayer.spells[spellID].aoe,
                         currentPlayer.entity.pos, findClicDirection(found, hPtHover), currentPlayer.spells[spellID].aoeSize)
-                        map.map(h => {
+                    map.map(h => {
                         arrayHighlight.forEach(element => {
                             if (h.distance(element) == 0) h.hoverSpell = true;
                         });
@@ -1339,17 +1398,21 @@ function listenToMouse() {
 
         let hPtClick = drawing.findHexFromEvent(event.pageX, event.pageY)
         let hPtClickRound = (hPtClick.round());
-
+        
+        
         let found = map.find(b => hPtClickRound.distance(b) == 0);
         if (found) {
+            let direction = findClicDirection(found, hPtClick);
             //if mode move, move
             if (modeClic == "MOVE" && canMove(currentPlayer.entity, found, currentPlayer.movePoint)) {
                 currentPlayer.loseMovePoint(); //use PM
+                comm.clientSendAction(socket, "MOVE", found)
                 moveEntity(currentPlayer.entity, found)
             }
             if (modeClic == "SPELL") {
                 if (canCast(currentPlayer.entity, currentPlayer.spells[spellID], found)) {
-                    castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, hPtClick);
+                    comm.clientSendAction(socket, "SPELL", found, spellID, direction)
+                    castSpell(currentPlayer.entity, currentPlayer.spells[spellID], found, direction);
                 } else {
                     //cancel spellcast
                     modeClic = "MOVE"
@@ -1357,6 +1420,7 @@ function listenToMouse() {
                 }
             }
             if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
+                comm.clientSendAction(socket, "LAVA", found, spellID)
                 castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
                 passTurn();
             }
@@ -1388,7 +1452,7 @@ function findClicDirection(cell, exactPtH) {
         return Hex.directions[arrayDistances.indexOf(Math.min(...arrayDistances))]
     }
 }
-function castSpell(caster, spell, cell, exactPtH) {
+function castSpell(caster, spell, cell, direction) {
     if (spell.selfCast) cell = caster.pos;
     console.log("CASTING SPELL " + spell.name + " in pos ", cell.q, cell.r, cell.s)
 
@@ -1398,7 +1462,6 @@ function castSpell(caster, spell, cell, exactPtH) {
         spellEffect.source = currentPlayer;
         caster.auras.push(spellEffect)
     } else {
-        let direction = findClicDirection(cell, exactPtH);
         var arrayAOE = aoes.makeAOEFromCell(cell, spell.aoe, caster.pos, direction, spell.aoeSize)
         // console.log(arrayAOE)
         let alreadyAffected = false
@@ -1492,7 +1555,7 @@ function canCast(caster, spell, targetCell) {
 function outOfRange(caster, spell, targetCell) {
     // let casterPlayer = utils.findPlayerFromEntity(caster)
     // let rangeSpell = casterPlayer.bonusPO ? casterPlayer.bonusPO + spell.range : spell.range;
-   let rangeSpell = spell.range;
+    let rangeSpell = spell.range;
     return (caster.pos.distance(targetCell) > rangeSpell)
         || (spell.rangeMin && caster.pos.distance(targetCell) < spell.rangeMin)
         || ((spell.aoe && spell.aoe.includes("straight_line")) && !(targetCell.isSameLine(caster.pos)));
@@ -1550,38 +1613,39 @@ function clickSpell(id) {
     spellID = id
     showCastRange();
     // drawMap();
-  }
-  
-  function clickSpell0() { clickSpell(0) }
-  function clickSpell1() { clickSpell(1) }
-  function clickSpell2() { clickSpell(2) }
-  
-  
-  function clickMove() {
+}
+
+function clickSpell0() { clickSpell(0) }
+function clickSpell1() { clickSpell(1) }
+function clickSpell2() { clickSpell(2) }
+
+
+function clickMove() {
     if (currentPlayer.movePoint) modeClic = "MOVE"
     showCastRange();
     // drawMap();
-  }
-  
-  
-  function clickRiseLava() {
+}
+
+
+function clickRiseLava() {
     modeClic = "RISE_LAVA"
     showCastRange();
     // drawMap();
-  }
-  
-  function clickPassTurn() {
+}
+
+function clickPassTurn() {
+    comm.clientSendAction(socket, "PASS",)
     passTurn();
-  }
-  
-  document.getElementById("move").addEventListener('click',clickMove)
-  document.getElementById("rise-lava").addEventListener('click',clickRiseLava)
-  document.getElementById("pass-turn").addEventListener('click',clickPassTurn)
-  document.getElementById("spell-0").addEventListener('click',clickSpell0)
-  document.getElementById("spell-1").addEventListener('click',clickSpell1)
-  document.getElementById("spell-2").addEventListener('click',clickSpell2)
-  
-  function playTurn() {
+}
+
+document.getElementById("move").addEventListener('click', clickMove)
+document.getElementById("rise-lava").addEventListener('click', clickRiseLava)
+document.getElementById("pass-turn").addEventListener('click', clickPassTurn)
+document.getElementById("spell-0").addEventListener('click', clickSpell0)
+document.getElementById("spell-1").addEventListener('click', clickSpell1)
+document.getElementById("spell-2").addEventListener('click', clickSpell2)
+
+function playTurn() {
     if (currentPlayer.dead) {
         triggerAOE(currentPlayer);
         passTurn()
@@ -1666,6 +1730,57 @@ function passTurn() {
     }
 }
 
+
+function playAction(action) {
+    console.log("play action ", action.kind)
+    let found = map.find(b => b.equals(action.cell));
+    if (found) {
+        //action is MOVE, SPELL, or LAVA
+        if (action.kind == "MOVE") {
+            currentPlayer.loseMovePoint(); //use PM
+            moveEntity(currentPlayer.entity, found)
+        }
+        else if (action.kind == "SPELL") {
+            castSpell(currentPlayer.entity, currentPlayer.spells[action.spellID], found, action.direction);
+
+        }
+        else if (action.kind == "LAVA") {
+            castSpell(currentPlayer.entity, c.GAMEDATA.LAVA_SPELL, found,)
+            passTurn();
+        }
+    }
+}
+
+module.exports = {
+    listenToMouse, playAction
+};
+},{"./Hex":3,"./aoe":5,"./client/drawing":7,"./comm":9,"./const":10,"./gameUtils":12,"./spells":14}],12:[function(require,module,exports){
+//HELPERS
+function findMapCell(cell) {
+    return map.find(h => h.distance(cell) == 0)
+}
+
+function findEntityOnCell(cell) {
+    if (cell) return entities.find(e => (e.pos && cell.equals(e.pos)))
+}
+function findPlayerFromEntity(entity) {
+    if (entity) return PLAYERS.find(p => p.entity == entity)
+}
+
+function isFree(cellToCheck) { //cell contains no entity
+    // find cell in map
+    let cell = map.find(h => h.distance(cellToCheck) == 0)
+    if (!cell) return true
+    var res = true;
+    entities.forEach(e => {
+        if (e.pos.distance(cell) == 0) {
+            res = false;
+        }
+    })
+    return res;
+}
+
+
 function checkWinCondition() { //appelee a la mort d'un joueur
     let listAlive = PLAYERS.filter(p => !p.dead);
 
@@ -1694,44 +1809,16 @@ function checkSameTeam(listAlive) {
     return true;
 }
 
-
-module.exports = {
-    listenToMouse,
-};
-},{"./Hex":3,"./aoe":5,"./client/drawing":7,"./const":9,"./gameUtils":11,"./spells":13}],11:[function(require,module,exports){
-//HELPERS
-function findMapCell(cell) {
-    return map.find(h => h.distance(cell) == 0)
-}
-
-function findEntityOnCell(cell) {
-    if (cell) return entities.find(e => (e.pos && cell.equals(e.pos)))
-}
-function findPlayerFromEntity(entity) {
-    if (entity) return PLAYERS.find(p => p.entity == entity)
-}
-
-function isFree(cellToCheck) { //cell contains no entity
-    // find cell in map
-    let cell = map.find(h => h.distance(cellToCheck) == 0)
-    if (!cell) return true
-    var res = true;
-    entities.forEach(e => {
-        if (e.pos.distance(cell) == 0) {
-            res = false;
-        }
-    })
-    return res;
-}
-
 module.exports = {
     findMapCell,
     findEntityOnCell,
     findPlayerFromEntity,
     isFree,
+    checkWinCondition,
+    checkSameTeam,
 };
 
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 const {Point, Hex, Layout} = require('./Hex.js');
 const c =  require('./const.js');
 const Playable = require('./Playable');
@@ -1802,7 +1889,7 @@ function initPlayers(nbPions) {
 module.exports = {
     initMap, initPlayers,
 };
-},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":9}],13:[function(require,module,exports){
+},{"./Entity":2,"./Hex.js":3,"./Playable":4,"./const.js":10}],14:[function(require,module,exports){
 const utils = require("./gameUtils")
 const aoes = require("./aoe")
 const Entity = require("./Entity")
@@ -2074,4 +2161,4 @@ module.exports = {
 
 };
 
-},{"./Entity":2,"./Playable":4,"./aoe":5,"./client/Anim":6,"./const":9,"./gameUtils":11}]},{},[1]);
+},{"./Entity":2,"./Playable":4,"./aoe":5,"./client/Anim":6,"./const":10,"./gameUtils":12}]},{},[1]);

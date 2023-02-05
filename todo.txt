@@ -1,4 +1,11 @@
 todo:
+mu;tiplayer bugs :
+- dead players are not removed from game order
+- aoes are not cleaned from the map after trigger => cant reproduce ?
+- missing timeline
+- spinning slash aoe bug
+- cac can target shadow ??
+
 Ultis
 - hover : infobulle
 fix bug inferno double damage

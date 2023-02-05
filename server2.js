@@ -55,9 +55,7 @@ wss.on('connection', function connection(ws, req) {
   }
 
   ws.on("message", (message) => {
-    console.log(`Received message: ${message}`);
-    const data = JSON.parse(message);
-    comm.handleMessage(ws, data);
+    comm.handleMessageFromClient(ws, message);
   });
 
 });

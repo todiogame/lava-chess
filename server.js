@@ -8,7 +8,7 @@ const Network = require('./lib/Network');
 // Start the web server
 app.use(express.static('public'));
 
-app.listen(config.PORT, config.IP_ADDRESS, () => {
+app.listen(config.PORT, config.INTERNAL_IP_ADDRESS, () => {
   console.log(`Server running at http://${config.INTERNAL_IP_ADDRESS}:${config.PORT}`);
 });
 

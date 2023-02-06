@@ -1,5 +1,6 @@
 todo:
 mu;tiplayer bugs :
+Probleme de passtontournoob apres l'infernal (mort?)
 debut du tour on a pas le moveclic actif
 order les entities par r croissant avant de display
 

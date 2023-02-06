@@ -30,7 +30,7 @@ jobs:
         ssh $USER@$SERVER_IP << EOF
         cd lava-chess
         sudo git pull origin main
-        mv config-prod.sj config.js
+        sudo mv config-prod.sj config.js
         sudo browserify client.js -o public/main.js
         sudo pm2 restart 0
         EOF

@@ -10,7 +10,7 @@ app.use(express.static('public'));
 
 // Start the server
 app.listen(config.PORT, config.IP_ADDRESS, () => {
-  console.log(`Server running at http://${config.IP_ADDRESS}:${config.PORT}`);
+  console.log(`Server running at http://${config.INTERNAL_IP_ADDRESS}:${config.PORT}`);
 });
 
 app.get('/', function (req, res) {
@@ -18,7 +18,7 @@ app.get('/', function (req, res) {
 });
 
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ port: config.WEBSOCKET_PORT });
+const wss = new WebSocket.Server({ host: config.INTERNAL_IP_ADDRESS, port: config.WEBSOCKET_PORT });
 
 const clients = [];
 const games = [];

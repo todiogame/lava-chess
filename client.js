@@ -9,7 +9,7 @@ const config = require('./config.js');
 var isAnimed = false;
 
 function connect() {
-    var socket = new WebSocket(`ws://${config.IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
+    var socket = new WebSocket(`ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;

@@ -31,6 +31,7 @@ jobs:
         cd lava-chess
         sudo git reset --hard
         sudo git pull origin main
+        sudo npm install
         sudo mv config_prod.js config.js
         sudo browserify client.js -o public/main.js
         sudo pm2 restart 0

@@ -9,6 +9,7 @@
   "dependencies": {
     "config": "^3.3.9",
     "express": "^4.18.2",
+    "madge": "^6.0.0",
     "ws": "^8.12.0",
     "wscat": "^5.2.0"
   },

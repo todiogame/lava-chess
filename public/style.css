@@ -1,10 +1,10 @@
-body .landing-page{
+.landing-page{
   background-color: rgb(39, 15, 6);
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100vh;
+  /* height: 100vh; */
   font-family: 'Russo One', sans-serif;
 }
 
@@ -19,9 +19,9 @@ body .landing-page{
   padding: 20px;
   border-radius: 10px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
+  /* display: flex; */
+  /* flex-direction: column;
+  align-items: center; */
 }
 
 .landing-page label,
@@ -61,27 +61,11 @@ body .landing-page{
   margin-top: 20px;
 }
 
-.landing-page #nickname-field {
-  background-color: white;
-  color: black;
-  padding: 12px 20px;
-  border-radius: 10px;
-  margin-right: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+.buttons .disabled{
+  background-color: gray;
+  pointer-events: none;
 }
-
-.landing-page #game-id-field {
-  background-color: white;
-  color: black;
-  padding: 12px 20px;
-  border-radius: 10px;
-  margin-left: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-}
-
-.landing-page #create-game-btn,
-.landing-page #join-game-btn,
-.landing-page #quick-match-btn {
+.landing-page button {
   background-color: #ffc107;
   color: #5b3a1c;
   padding: 12px 20px;
@@ -89,7 +73,6 @@ body .landing-page{
   cursor: pointer;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
-
 .landing-page #create-game-btn:hover,
 .landing-page #join-game-btn:hover,
 .landing-page #quick-match-btn:hover {
@@ -101,7 +84,7 @@ body {
 }
 
 
-.grid-container {
+.game-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
@@ -184,7 +167,7 @@ h1 {
 .move .disabled,
 .rise-lava .disabled {
   background-color: gray;
-  pointer-events: none;
+  /* pointer-events: none; */
 }
 
 #rise-lava-name,

@@ -6,11 +6,13 @@ const Anim = require("./lib/client/Anim");
 const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
 const config = require('./config.js');
+const hud = require("./lib/client/hud")
 
 var isAnimed = false;
-
+var socket;
 function connect() {
-    var socket = new WebSocket(`ws://${config.IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
+    if(socket) socket.close();
+    socket = new WebSocket(`ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
@@ -37,6 +39,10 @@ function connect() {
 
         if (received.type == "PLAYERS") {
             PLAYERS = recreatePlayers(received.data)
+            // goGame();
+        }
+        if (received.type == "idCurrentPlayer") {
+            idCurrentPlayer = received.data;
             goGame();
         }
         if (received.type == "ACTION") {
@@ -44,7 +50,6 @@ function connect() {
         }
     };
 }
-connect();
 
 function recreatePlayers(data) {
     return data.map(p => {
@@ -55,19 +60,19 @@ function recreatePlayers(data) {
 
 
 function goGame() {
-    // console.log("recieved all, go game")
-    CLIENT_SIDE = true;
-    map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
-
-    idCurrentPlayer = 0; //start with player1
-    currentPlayer = PLAYERS[idCurrentPlayer]
-
+    console.log("START GAME")
     entities = [];
     projectiles = [];
+    map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
+    currentPlayer = PLAYERS[idCurrentPlayer]
+
 
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
+
+    hud.switchToGameMode();
+
     logic.listenToMouse()
     if (!isAnimed) {
         isAnimed = true;
@@ -75,9 +80,28 @@ function goGame() {
     }
 }
 
-},{"./config.js":2,"./lib/Entity":3,"./lib/Network":5,"./lib/Playable":6,"./lib/client/Anim":8,"./lib/client/gameLogic":10,"./lib/const":12}],2:[function(require,module,exports){
+document.getElementById("quick-match").addEventListener('click', quickMatch)
+function quickMatch() {
+    document.getElementById("quick-match").classList.add("disabled");
+    document.getElementById("quick-match").setAttribute("disabled", true);
+    document.getElementById("looking").style.display = "block";
+    document.getElementById("cancel-match").style.display = "block";
+    connect()
+}
+
+document.getElementById("cancel-match").addEventListener('click', cancelMatch)
+function cancelMatch() {
+    if(socket) socket.close();
+    document.getElementById("quick-match").classList.remove("disabled");
+    document.getElementById("quick-match").removeAttribute("disabled");
+    document.getElementById("looking").style.display = "none";
+    document.getElementById("cancel-match").style.display = "none";
+
+}
+},{"./config.js":2,"./lib/Entity":3,"./lib/Network":5,"./lib/Playable":6,"./lib/client/Anim":8,"./lib/client/gameLogic":10,"./lib/client/hud":11,"./lib/const":12}],2:[function(require,module,exports){
 module.exports = {
-  IP_ADDRESS: 'localhost',
+  EXTERNAL_IP_ADDRESS: 'localhost',
+  INTERNAL_IP_ADDRESS: 'localhost',
   PORT: 80,
   WEBSOCKET_PORT: 3333
 };
@@ -1969,8 +1993,8 @@ module.exports = {
 },{"../Hex":4,"../Network":5,"../aoe":7,"../const":12,"../gameUtils":13,"../spells":14,"./Anim":8,"./drawing":9}],11:[function(require,module,exports){
 
 function displayCharacterHUD(player) {
-    document.getElementById("team").textContent = (TEAM == player.entity.team) ? "Your turn" : "Enemy's turn";
-    document.getElementById("team").style.color = player.entity.team;
+  document.getElementById("team").textContent = (TEAM == player.entity.team) ? "Your turn" : "Enemy's turn";
+  document.getElementById("team").style.color = player.entity.team;
   if (player) {
     document.getElementById("name").textContent = player.name;
     document.getElementById("current-hp-text").textContent = `HP: ${player.entity.currentHP}/${player.entity.maxHP}`;
@@ -1981,8 +2005,8 @@ function displayCharacterHUD(player) {
       let spell = player.spells[i];
       if (spell) {
         let button = document.getElementById(`spell-${i}`);
-        button.getElementsByClassName( 'content' )[0].textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
-        button.getElementsByClassName( 'tooltip' )[0].textContent = `${spell.description}`;
+        button.getElementsByClassName('content')[0].textContent = `${spell.name} ${spell.currentCD > 0 ? spell.currentCD : ''} ${"(" + spell.cooldown + ")"}`;
+        button.getElementsByClassName('tooltip')[0].textContent = `${spell.description}`;
         button.setAttribute("data-spell", spell.name);
         if (spell.currentCD > 0 || spell.passive || (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence"))) {
           button.classList.add("disabled");
@@ -2003,11 +2027,11 @@ function displayCharacterHUD(player) {
     }
 
     if (player.isSummoned) {
-      document.getElementById("rise-lava").style.display = "none";
+    document.getElementById("rise-lava").style.display = "none";
       document.getElementById("pass-turn").style.display = "block";
     } else {
       document.getElementById("rise-lava").style.display = "block";
-    document.getElementById("pass-turn").style.display = "none"; //comment this line to debug pass
+      document.getElementById("pass-turn").style.display = "none"; //comment this line to debug pass
     }
   }
   displayTimeline(player);
@@ -2028,8 +2052,13 @@ const displayTimeline = (currentP) => {
   playerHud.innerHTML = playerList;
 };
 
+function switchToGameMode() {
+  document.getElementById("landing-page").style.display = "none";
+  document.getElementById("game-container").style.display = "grid";
+}
+
 module.exports = {
-  displayCharacterHUD
+  displayCharacterHUD, switchToGameMode
 };
 },{}],12:[function(require,module,exports){
 const CONSTANTS = Object.freeze({

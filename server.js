@@ -5,10 +5,9 @@ const config = require('./config');
 const Game = require('./lib/Game');
 const Network = require('./lib/Network');
 
-// Serve the public directory
+// Start the web server
 app.use(express.static('public'));
 
-// Start the server
 app.listen(config.PORT, config.IP_ADDRESS, () => {
   console.log(`Server running at http://${config.INTERNAL_IP_ADDRESS}:${config.PORT}`);
 });
@@ -16,7 +15,11 @@ app.listen(config.PORT, config.IP_ADDRESS, () => {
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
+app.get('/game', function (req, res) {
+  res.sendFile(__dirname + '/game.html');
+});
 
+// Start the game server
 const WebSocket = require('ws');
 const wss = new WebSocket.Server({ host: config.INTERNAL_IP_ADDRESS, port: config.WEBSOCKET_PORT });
 

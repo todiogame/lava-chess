@@ -18,7 +18,7 @@ jobs:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         USER: ${{ secrets.USER }}
       run: |
-        ssh "$USER"@"$SERVER_IP" -o StrictHostKeyChecking=no << EOF
+        ssh $USER@$SERVER_IP -o StrictHostKeyChecking=no << EOF
         cd lava-chess
         sudo git pull origin main
         mv config-prod.sj config.js

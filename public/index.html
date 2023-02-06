@@ -1,54 +1,25 @@
 <!DOCTYPE html>
 <html>
-
 <head>
+    <title>Lava Chess</title>
     <link rel="icon" href="favicon.ico" type="image/x-icon">
     <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
     <link rel="stylesheet" type="text/css" href="style.css">
 </head>
-
 <body>
-    <div class="grid-container">
-        <canvas id="canvas"></canvas>
-        <div id="character-hud-container">
-
-            <div class="character-hud" id="character-hud-template">
-                <h1 id="team"></h1>
-                <h1 id="name"></h1>
-                <div class="current-hp" id="current-hp">
-                    <div class="bar">
-                        <div id="hp-value" class="hp-value" style="width: 70%"></div>
-                    </div>
-                    <span class="current-hp-text" id="current-hp-text"></span>
-                </div>
-
-                <div class="move">
-                    <button class="cast-spell" id="move">
-                        <span id="move-name">Move </span><span id="move-cooldown"></span>
-                    </button>
-                </div>
-                <div class="spells">
-                    <button class="cast-spell" id="spell-0">
-                        <span class="content"></span><span class="tooltip"></span></button>
-                    <button class="cast-spell" id="spell-1">
-                        <span class="content"></span><span class="tooltip"></span></button>
-                    <button class="cast-spell" id="spell-2">
-                        <span class="content"></span><span class="tooltip"></span></button>
-                </div>
-                <div class="rise-lava">
-                    <button class="cast-spell" id="rise-lava">
-                        <span id="rise-lava-name">Rise lava and pass</span>
-                    </button>
-                    <button class="cast-spell" id="pass-turn">
-                        <span id="passTurn-name">Pass</span>
-                    </button>
-                </div>
+    <h1>Lava Chess</h1>
+    <div class="landing-page">
+        <label for="nickname">Enter your nickname:</label>
+        <input type="text" id="nickname" name="nickname">
+        <div class="buttons">
+            <button id="create-game">Create Game</button>
+            <div>
+                <label for="game-id">Join Game (ID):</label>
+                <input type="text" id="game-id" name="game-id">
+                <button id="join-game">Join Game</button>
             </div>
-            <div id="timeline"></div>
+            <button id="quick-match">Quick Match</button>
         </div>
     </div>
-    <script src="./main.js"></script>
-
 </body>
-
 </html>

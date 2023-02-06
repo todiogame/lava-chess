@@ -1,6 +1,105 @@
+body .landing-page{
+  background-color: rgb(39, 15, 6);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+  font-family: 'Russo One', sans-serif;
+}
+
+.landing-page h1 {
+  color: #ff6600;
+  text-shadow: 2px 2px 2px #222;
+  margin-bottom: 30px;
+}
+
+.landing-page {
+  background-color: #5b3a1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.landing-page label,
+.landing-page input[type="text"],
+.landing-page button {
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffc107;
+}
+
+.landing-page input[type="text"] {
+  padding: 12px 20px;
+  border-radius: 10px;
+  background-color: #ffc107;
+  color: #5b3a1c;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.landing-page button {
+  background-color: #ffc107;
+  color: #5b3a1c;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.landing-page button:hover {
+  background-color: #e2b807;
+}
+
+.landing-page .buttons {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.landing-page #nickname-field {
+  background-color: white;
+  color: black;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-right: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.landing-page #game-id-field {
+  background-color: white;
+  color: black;
+  padding: 12px 20px;
+  border-radius: 10px;
+  margin-left: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.landing-page #create-game-btn,
+.landing-page #join-game-btn,
+.landing-page #quick-match-btn {
+  background-color: #ffc107;
+  color: #5b3a1c;
+  padding: 12px 20px;
+  border-radius: 10px;
+  cursor: pointer;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.landing-page #create-game-btn:hover,
+.landing-page #join-game-btn:hover,
+.landing-page #quick-match-btn:hover {
+  background-color: #e2b807;
+}
+
 body {
   background-color: rgb(39, 15, 6);
 }
+
 
 .grid-container {
   display: grid;
@@ -76,6 +175,7 @@ h1 {
   left: 70%;
   /* transform: translateX(-00%); */
 }
+
 .spells button:hover .tooltip {
   visibility: visible;
 }

@@ -5,10 +5,12 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
-var isAnimed = false;
-function connect() {
-    var socket = new WebSocket("ws://localhost:8081");
+const config = require('./config.js');
 
+var isAnimed = false;
+
+function connect() {
+    var socket = new WebSocket(`ws://${config.IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
@@ -73,7 +75,14 @@ function goGame() {
     }
 }
 
-},{"./lib/Entity":2,"./lib/Network":4,"./lib/Playable":5,"./lib/client/Anim":7,"./lib/client/gameLogic":9,"./lib/const":11}],2:[function(require,module,exports){
+},{"./config.js":2,"./lib/Entity":3,"./lib/Network":5,"./lib/Playable":6,"./lib/client/Anim":8,"./lib/client/gameLogic":10,"./lib/const":12}],2:[function(require,module,exports){
+module.exports = {
+  IP_ADDRESS: 'localhost',
+  PORT: 80,
+  WEBSOCKET_PORT: 3333
+};
+
+},{}],3:[function(require,module,exports){
 const c = require('./const.js');
 const { Hex } = require('./Hex.js');
 const utils = require("./gameUtils")
@@ -89,7 +98,7 @@ module.exports = class Entity {
         this.src = "pics/" + name.toLowerCase() +
             (name.toLowerCase() == "zombie" ? Math.floor(Math.random() * 2) : "")
             + ".png";
-        if ( (typeof window != 'undefined' && window.document) && this.src) {
+        if ((typeof window != 'undefined' && window.document) && this.src) {
             this.image = new Image();
             this.image.src = this.src;
         }
@@ -111,16 +120,27 @@ module.exports = class Entity {
 
 
     damage() { //all spells deal 1 damage in this game
-        this.currentHP--;
-        console.log(this.name + " suffers damage !! HP:" + this.currentHP + "/" + this.maxHP)
-        //traiter la mort
-        if (this.currentHP <= 0) this.die();
+        if (!this.armor) {
+            this.currentHP--;
+            console.log(this.name + " suffers damage !! HP:" + this.currentHP + "/" + this.maxHP)
+            //traiter la mort
+            if (this.currentHP <= 0) this.die();
+        } else {
+            this.armor--;
+        }
     }
 
     heal() { //all spells deal 1 damage in this game
         if (this.currentHP < this.maxHP) this.currentHP++;
         console.log(this.name + " heals !! HP:" + this.currentHP + "/" + this.maxHP)
     }
+
+    shield(value) { //all spells deal 1 damage in this game
+        if (!value) value = 1;
+        if (this.armor) this.armor += value; else this.armor = value;
+        console.log(this.name + " gains " + value + " armor !")
+    }
+
 
     die() {
         console.log("entity " + this.name + " is dead...")
@@ -141,7 +161,7 @@ module.exports = class Entity {
         if (otherEntity) return this.team != otherEntity.team;
     }
 }
-},{"./Hex.js":3,"./const.js":11,"./gameUtils":12}],3:[function(require,module,exports){
+},{"./Hex.js":4,"./const.js":12,"./gameUtils":13}],4:[function(require,module,exports){
 // Generated code -- CC0 -- No Rights Reserved -- http://www.redblobgames.com/grids/hexagons/
 class Point {
     constructor(x, y) {
@@ -505,7 +525,7 @@ function complain(name) { console.log("FAIL", name); }
 module.exports = {Point, Hex, Layout};
 
 
-},{}],4:[function(require,module,exports){
+},{}],5:[function(require,module,exports){
 class Network {
     static clientSocket;
 
@@ -555,7 +575,7 @@ class Network {
 
 module.exports = Network;
 
-},{}],5:[function(require,module,exports){
+},{}],6:[function(require,module,exports){
 const c =  require('./const.js');
 const utils = require("./gameUtils")
 
@@ -616,7 +636,7 @@ module.exports = class Playable {
         }
     }
 }
-},{"./const.js":11,"./gameUtils":12}],6:[function(require,module,exports){
+},{"./const.js":12,"./gameUtils":13}],7:[function(require,module,exports){
 const { Point, Hex, Layout } = require("./Hex")
 const c = require ("./const")
 
@@ -751,7 +771,7 @@ module.exports = {
     makeAOEFromCell
 };
 
-},{"./Hex":3,"./const":11}],7:[function(require,module,exports){
+},{"./Hex":4,"./const":12}],8:[function(require,module,exports){
 const drawing = require("./drawing")
 
 module.exports = class Anim {
@@ -771,7 +791,7 @@ module.exports = class Anim {
   
       setTimeout(() => {
         entity.moving = false;
-      }, 500);
+      }, 1000);
     }
   
     static launched(summoned, casterEntity, cell) {
@@ -1259,7 +1279,7 @@ module.exports = class Anim {
     }
   }
   
-},{"./drawing":8}],8:[function(require,module,exports){
+},{"./drawing":9}],9:[function(require,module,exports){
 const { Point, Hex, Layout } = require("../Hex")
 const { displayCharacterHUD } = require("./hud")
 
@@ -1510,7 +1530,7 @@ function findHexFromEvent(eventX, eventY) {
 module.exports = {
     drawMap, findHexFromEvent, origin, layout, canvas, ctx
 };
-},{"../Hex":3,"./hud":10}],9:[function(require,module,exports){
+},{"../Hex":4,"./hud":11}],10:[function(require,module,exports){
 const { Point, Hex, Layout } = require("../Hex")
 const drawing = require("./drawing")
 const utils = require("../gameUtils")
@@ -1610,7 +1630,6 @@ function listenToMouse() {
                     } else {
                         //cancel spellcast
                         modeClic = "MOVE"
-                        cleanRangeAndHover()
                     }
                 }
                 if (modeClic == "RISE_LAVA" && canRiseLava(found)) {
@@ -1621,9 +1640,8 @@ function listenToMouse() {
             }
         } else {
             //not your turn !
-            modeClic = ""
-            cleanRangeAndHover()
         }
+        cleanRangeAndHover()
     }, false);
 
 }
@@ -1869,8 +1887,8 @@ function triggerAOE(player) {
                     console.log("triggerAOE from " + player.name)
                     spellEffect.glyph -= 1;
                     if (spellEffect.glyph <= 0) { //ils expirent
-                        s.resolveSpell(h, spellEffect, spellEffect.source.entity);
-                        if (!(spellEffect.permanent)) {
+                        let hit = s.resolveSpell(h, spellEffect, spellEffect.source.entity);
+                        if (!(spellEffect.permanent) || (spellEffect.onlyFirst && hit)) {
                             return false;
                         }
                     }
@@ -1948,7 +1966,7 @@ function playAction(action) {
 module.exports = {
     initMap, listenToMouse, playAction
 };
-},{"../Hex":3,"../Network":4,"../aoe":6,"../const":11,"../gameUtils":12,"../spells":13,"./Anim":7,"./drawing":8}],10:[function(require,module,exports){
+},{"../Hex":4,"../Network":5,"../aoe":7,"../const":12,"../gameUtils":13,"../spells":14,"./Anim":8,"./drawing":9}],11:[function(require,module,exports){
 
 function displayCharacterHUD(player) {
     document.getElementById("team").textContent = (TEAM == player.entity.team) ? "Your turn" : "Enemy's turn";
@@ -2013,7 +2031,7 @@ const displayTimeline = (currentP) => {
 module.exports = {
   displayCharacterHUD
 };
-},{}],11:[function(require,module,exports){
+},{}],12:[function(require,module,exports){
 const CONSTANTS = Object.freeze({
     MAP_RADIUS: 5,
     NB_PAWNS: 4,
@@ -2197,13 +2215,21 @@ CHARACTERS: [
             { name: "Voodoo Curse", dealSpell: "silence", range: 1, rangeMin: 1, cooldown: 2, aoe: "single", canTarget: [TYPES.PLAYABLE], description: "Instantly silences a single target." },
         ]
     },
+//           {
+//       name: "Pangolino",
+//       spells: [
+//           { name: "Spiky Ball", dealSpell: "pango_spiky_ball", range: 0, cooldown: 1, aoe: "single", canTarget: [TYPES.PLAYABLE], description: "Instantly gains 1 movement point and will deal damage around the caster." },
+//           { name: "Defensive stance",dealSpell: "shield", range: 0, cooldown: 3, aoe: "single", canTarget: [TYPES.PLAYABLE], color: "GLYPH_ORANGE", },
+//           { name:  "Booby Trap",dealSpell: "root", range: 2, cooldown: 2, aoe: "single", permanent :true, onlyFirst: true, glyph: 1, color: "GLYPH_GAZ", glyphIcon: "rootIcon", canTarget: [TYPES.ANY], description: "Drops a lasting trap that roots targets who start their turn inside." },
+//       ]
+//   },
 ]
     })
 
 module.exports = {
     CONSTANTS, TYPES, GAMEDATA, ANIMATIONS
 }
-},{}],12:[function(require,module,exports){
+},{}],13:[function(require,module,exports){
 //HELPERS
 function findMapCell(cell) {
     return map.find(h => h.distance(cell) == 0)
@@ -2271,7 +2297,7 @@ module.exports = {
     checkSameTeam,
 };
 
-},{}],13:[function(require,module,exports){
+},{}],14:[function(require,module,exports){
 const utils = require("./gameUtils")
 const aoes = require("./aoe")
 const Entity = require("./Entity")
@@ -2291,7 +2317,7 @@ function resolveSpell(cell, spellData, casterEntity, direction, mainCell) {
     if (spellData?.animation) {
         switch (spellData.animation) {
             case c.ANIMATIONS.FALL:
-                Anim.fall(spellData, cell);
+                // Anim.fall(spellData, cell);
                 break;
             //default: nothing
         }
@@ -2324,6 +2350,7 @@ function damage(cell, spell, casterEntity, targetEntity) {
         // if (typeof window != 'undefined' && window.document) 
         Anim.splash(targetCell, "-1")
         targetEntity.damage();
+        return true;
     }
 }
 
@@ -2383,6 +2410,7 @@ function root(cell, spell, casterEntity, targetEntity) {
             "PM",
         );
         targetplayer.loseMovePoint(99);
+        return true;
     }
 }
 
@@ -2419,6 +2447,13 @@ function riseLava(cell, spell, casterEntity, targetEntity) {
     cellM.aoe = []; //remove any aoe. We will rework if we ad a character that can survive lava
     cellM.floor = false;
 
+}
+
+function shield(cell, spell, casterEntity, targetEntity) {
+    if (targetEntity) {
+        // kill entities on the cell
+        targetEntity.shield(spell.value || 1);
+    }
 }
 
 function blink(cell, spell, casterEntity, targetEntity) {
@@ -2523,8 +2558,11 @@ function shaman_flower(cell, spell, casterEntity, targetEntity) {
 
     }
 }
-function debuffCD(cell, spell, casterEntity, targetEntity) {
-
+function pango_spiky_ball(cell, spell, casterEntity, targetEntity) {
+    buffPM(cell, spell, casterEntity, targetEntity)
+    casterEntity.auras.push(
+        {name : spell.name, dealSpell: "damage",  aoe: "ring_1", isAura: true, glyph: 1, color: "GLYPH_BROWN", canTarget: [c.TYPES.PLAYABLE], description: "Deals damage around the caster." }
+    );
 }
 
 //on death spells
@@ -2546,6 +2584,7 @@ const LIB_SPELLS = {
     "silence": silence,
     "buffPM": buffPM,
     "buffPO": buffPO,
+    "shield": shield,
     "riseLava": riseLava,
     "blink": blink,
     "summon": summon,
@@ -2556,7 +2595,7 @@ const LIB_SPELLS = {
     "time_backwards_hit": time_backwards_hit,
     "zombie_attack": zombie_attack,
     "shaman_flower": shaman_flower,
-    "debuffCD": debuffCD,
+    "pango_spiky_ball": pango_spiky_ball,
     "rasta_barrel_explode": rasta_barrel_explode,
 }
 
@@ -2582,9 +2621,8 @@ module.exports = {
     time_backwards_hit,
     zombie_attack,
     shaman_flower,
-    debuffCD,
     rasta_barrel_explode,
 
 };
 
-},{"./Entity":2,"./Playable":5,"./aoe":6,"./client/Anim":7,"./const":11,"./gameUtils":12}]},{},[1]);
+},{"./Entity":3,"./Playable":6,"./aoe":7,"./client/Anim":8,"./const":12,"./gameUtils":13}]},{},[1]);

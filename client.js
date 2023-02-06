@@ -4,10 +4,12 @@ const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
 const logic = require("./lib/client/gameLogic")
 const Network = require("./lib/Network")
-var isAnimed = false;
-function connect() {
-    var socket = new WebSocket("ws://localhost:8081");
+const config = require('./config.js');
 
+var isAnimed = false;
+
+function connect() {
+    var socket = new WebSocket(`ws://${config.IP_ADDRESS}:${config.WEBSOCKET_PORT}`);
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;

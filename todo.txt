@@ -1,6 +1,9 @@
 todo:
 mu;tiplayer bugs :
 - aoes are not cleaned from the map after trigger => cant reproduce
+BUG reset mode to move after casting : currently can spam buffs !!
+
+passTurn is not defined in Playable
 
 Ajouter les anims en multi ! => manque fall
 

@@ -1,35 +1,32 @@
 const express = require('express');
 const app = express();
+const config = require('./config');
 
-const Game = require('./lib/Game')
-const Network = require('./lib/Network')
+const Game = require('./lib/Game');
+const Network = require('./lib/Network');
 
 // Serve the public directory
-// app.use(express.static(path.join(__dirname, 'public')));
-app.use(express.static('public'))
+app.use(express.static('public'));
+
 // Start the server
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+app.listen(config.PORT, config.IP_ADDRESS, () => {
+  console.log(`Server running at http://${config.IP_ADDRESS}:${config.PORT}`);
 });
 
 app.get('/', function (req, res) {
   res.sendFile(__dirname + '/index.html');
 });
 
+const WebSocket = require('ws');
+const wss = new WebSocket.Server({ port: config.WEBSOCKET_PORT });
 
-
-const WebSocket = require('ws')
-const wss = new WebSocket.Server({ port: 8081 })
-
-const clients = []
-const games = []
+const clients = [];
+const games = [];
 
 wss.on('connection', function connection(ws, req) {
   ws.id = Network.getUniqueID();
   clients.push(ws);
 
-//show all clients
   wss.clients.forEach(function each(client) {
     console.log('Client.ID: ' + client.id);
   });
@@ -40,10 +37,6 @@ wss.on('connection', function connection(ws, req) {
     const clientB = clients[clients.length - 1];
     games.push(new Game(clientA, clientB));
   }
-
-
-
-
 
   ws.on("close", () => {
     console.log("Client disconnected");
@@ -57,7 +50,4 @@ wss.on('connection', function connection(ws, req) {
   ws.on("message", (message) => {
     Network.handleMessageFromClient(ws, message);
   });
-
 });
-
-

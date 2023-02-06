@@ -2,7 +2,7 @@ const express = require('express');
 const app = express();
 const config = require('./config');
 
-const Game = require('./lib/Game');
+const Game = require('./lib/server/Game');
 const Network = require('./lib/Network');
 
 // Start the web server

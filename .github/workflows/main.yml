@@ -18,9 +18,9 @@ jobs:
         SERVER_IP: ${{ secrets.SERVER_IP }}
         USER: ${{ secrets.USER }}
       run: |
-        ssh "$USER"@"$SERVER_IP" << EOF
+        ssh "$USER"@"$SERVER_IP"
         cd lava-chess
-        git pull origin main
-        browserify client.js -o public/main.js
-        pm2 restart 0
-        EOF
+        sudo git pull origin main
+        mv config-prod.sj config.js
+        sudo browserify client.js -o public/main.js
+        sudo pm2 restart 0

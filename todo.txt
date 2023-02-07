@@ -2,10 +2,11 @@ todo:
 mu;tiplayer bugs :
 Probleme de passtontournoob apres l'infernal (mort?)
 debut du tour on a pas le moveclic actif
-order les entities par r croissant avant de display
-retirer les shields apres 1 tour
+on l'a sur le tour des ennemis..
+todo debuf armure a chaque tour
 
-Ajouter les anims en multi ! => manque fall
+order les entities par r croissant avant de display
+
 
 Ultis
 - hover : infobulle
@@ -15,7 +16,18 @@ anim laggg => a investiguer
 add timer
 add abandon
 add database
-selection des persos + placement
+
+selection des persos + placement:
+- on hover : (surbriller legerement le perso) et afficher hud
+- onclick : perso selectionne, surbriller perso, toujours afficher hud,
+            surbriller toute la zone de spawn du joueur
+
+-  onclick spawn : entity.pos = click
+- ecrire dans le HUD : 
+    le nom du perso et la description des spells
+
+REPARER hover en game qui est casse... (remettre onmousemove ?)
+
 Circle aoe preview when hover before cast spell for time machine and or barrel ?
 
 gerer la fin de partie quand on ne peux plus enlever de cases
@@ -25,8 +37,8 @@ Loading screen
 
 
 Rework shaman into mass zombie summoner
-Change flower spell for something else
-Zombie cd1 ou cd2 possible ? A balancer...
+supprimer le glyphe d'invoc a la mort ?
+
 
 ______________________
 Mode multi :

@@ -1,53 +1,29 @@
 todo:
-mu;tiplayer bugs :
-Probleme de passtontournoob apres l'infernal (mort?)
-debut du tour on a pas le moveclic actif
-on l'a sur le tour des ennemis..
-todo debuf armure a chaque tour
+multibugs:
+mur dur a placer ?
+cleave bugge
+______________________
 
 order les entities par r croissant avant de display
+indiquer le ragequit ennemi
 
-
-Ultis
 - hover : infobulle
-rework gazeur ?
-- cac can target shadow ?? => make type invulnerable or something
+
 anim laggg => a investiguer
 add timer
 add abandon
-add database
 
-selection des persos + placement:
-- on hover : (surbriller legerement le perso) et afficher hud
-- onclick : perso selectionne, surbriller perso, toujours afficher hud,
-            surbriller toute la zone de spawn du joueur
-
--  onclick spawn : entity.pos = click
-- ecrire dans le HUD : 
-    le nom du perso et la description des spells
-
-REPARER hover en game qui est casse... (remettre onmousemove ?)
-
-Circle aoe preview when hover before cast spell for time machine and or barrel ?
+add backend : login UI, database, ... 
 
 gerer la fin de partie quand on ne peux plus enlever de cases
+
 pathfinding
 
 Loading screen
-
-
-Rework shaman into mass zombie summoner
-supprimer le glyphe d'invoc a la mort ?
-
+gerer la deconnexion du serveur
 
 ______________________
 Mode multi :
-commande pour compiler le client et lancer le serv : 
-browserify client.js -o public/main.js; node server2.js
 
-envoyer "a ton tour" a un client et l'ecouter
-quand ya une instruction => envoyer a l'autre
+envoyer "a ton tour" a un client et refuser les messages de l'autre
 fin du tour => donner la main a l'autre
-
-Client : envoyer instruction move / spell / lava / PASS
-

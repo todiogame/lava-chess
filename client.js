@@ -91,7 +91,7 @@ function goPickBan(startingTeam) {
 function goGame() {
     console.log("START GAME")
     isPickPhase = false;
-    
+
     entities = [];
     PLAYERS.forEach(p => {
         entities.push(p.entity)
@@ -99,7 +99,7 @@ function goGame() {
     // map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
     idCurrentPlayer = 0;
     currentPlayer = PLAYERS[idCurrentPlayer]
-    
+
     turnOrder.beginTurn(currentPlayer)
     // hud.switchToGameMode();
 
@@ -141,10 +141,10 @@ function listenToMouse() {
     // modeClic = (TEAM == currentPlayer.entity.team) ? "MOVE" : ""; //todo regler modeclic
 
     // canvas.onmousemove = function (e) {
-    canvas.addEventListener('mouseover', function (event) {
-        // console.log("hover")
-        if (!isPickPhase) logic.onMouseHoverGame(event)
-    }, false)
+    canvas.onmousemove = function (event) {
+        if (isPickPhase) pickPhase.onMouseHoverDraft(event)
+        else logic.onMouseHoverGame(event)
+    }
 
     canvas.addEventListener('click', function (event) {
         console.log("click, current isPickPhase " + isPickPhase)

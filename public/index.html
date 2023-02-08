@@ -27,7 +27,23 @@
     <div id="game-container" class="game-container" style="display:none;">
         <canvas id="canvas"></canvas>
         <div id="pick-hud-container" style="display:none;">
+
+            <div class="character-hud" id="character-hud-template">
+                <h1 id="picking-team"></h1>
+                <h1 id="picking-name"></h1>
+
+                <div class="spells" id="display-spells"  style="display:none;">
+                    <div class="display-spell" id="spell-display-0">
+                        <span class="content"></span><div class="description"></div></div>
+                    <div class="display-spell" id="spell-display-1">
+                        <span class="content"></span><div class="description"></div></div>
+                    <div class="display-spell" id="spell-display-2">
+                        <span class="content"></span><div class="description"></div></div>
+                </div>
+            </div>
         </div>
+
+
         <div id="character-hud-container" style="display:none;">
 
             <div class="character-hud" id="character-hud-template">

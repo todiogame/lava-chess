@@ -1,4 +1,4 @@
-.landing-page{
+.landing-page {
   background-color: rgb(39, 15, 6);
   display: flex;
   flex-direction: column;
@@ -61,10 +61,11 @@
   margin-top: 20px;
 }
 
-.buttons .disabled{
+.buttons .disabled {
   background-color: gray;
   pointer-events: none;
 }
+
 .landing-page button {
   background-color: #ffc107;
   color: #5b3a1c;
@@ -73,6 +74,7 @@
   cursor: pointer;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
+
 .landing-page #create-game-btn:hover,
 .landing-page #join-game-btn:hover,
 .landing-page #quick-match-btn:hover {
@@ -96,6 +98,33 @@ body {
   background-color: orange;
   border-radius: 10px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  cursor: pointer;
+}
+
+.display-spell {
+  background-color: #ffc107;
+  color: #5b3a1c;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  margin: 10px;
+}
+
+.display-spell .content {
+  margin-right: 10px;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+#spell-display-0,
+#spell-display-1,
+#spell-display-2 {
+  background-color: #ffc107;
+  color: #5b3a1c;
+  padding: 12px 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+  margin: 10px;
 }
 
 #character-hud-container {

@@ -70,11 +70,12 @@ function recreatePlayers(data) {
 function goPickBan(startingTeam) {
     currentPlayer = 0;
 
-    map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
+    map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
 
     isPickPhase = true;
     currentTeam = startingTeam;
+    pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
     hud.switchToGameMode();
 
@@ -96,7 +97,8 @@ function goGame() {
     PLAYERS.forEach(p => {
         entities.push(p.entity)
     })
-    // map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
+    //reinit map
+    map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
     idCurrentPlayer = 0;
     currentPlayer = PLAYERS[idCurrentPlayer]
 

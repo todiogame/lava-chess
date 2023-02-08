@@ -24,19 +24,10 @@ pathfinding
 
 Loading screen
 
-
-Rework shaman into mass zombie summoner
-supprimer le glyphe d'invoc a la mort ?
-
+bans
 
 ______________________
 Mode multi :
-commande pour compiler le client et lancer le serv : 
-browserify client.js -o public/main.js; node server2.js
 
-envoyer "a ton tour" a un client et l'ecouter
-quand ya une instruction => envoyer a l'autre
+envoyer "a ton tour" a un client et refuser les messages de l'autre
 fin du tour => donner la main a l'autre
-
-Client : envoyer instruction move / spell / lava / PASS
-

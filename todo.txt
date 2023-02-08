@@ -1,14 +1,8 @@
 todo:
-mu;tiplayer bugs :
-Probleme de passtontournoob apres l'infernal (mort?)
-debut du tour on a pas le moveclic actif
-on l'a sur le tour des ennemis..
-todo debuf armure a chaque tour
 
 order les entities par r croissant avant de display
 
 
-Ultis
 - hover : infobulle
 rework gazeur ?
 - cac can target shadow ?? => make type invulnerable or something
@@ -23,7 +17,7 @@ gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding
 
 Loading screen
-
+gerer la deconnexion du serveur
 
 ______________________
 Mode multi :

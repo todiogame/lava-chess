@@ -8,6 +8,7 @@ const config = require('./config.js');
 const hud = require("./lib/client/hud")
 const pickPhase = require("./lib/client/pickPhase")
 const turnOrder = require("./lib/turnOrder")
+const utils = require("./lib/gameUtils")
 
 var isAnimed = false;
 var socket;
@@ -56,6 +57,9 @@ function connect() {
         }
         if (received.type == "ACTION") {
             logic.playAction(received.data)
+        }
+        if (received.type == "RAGEQUIT") {
+            utils.win(TEAM, "OPPONENT RAGEQUIT")
         }
     };
 }

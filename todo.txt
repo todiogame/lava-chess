@@ -1,9 +1,22 @@
 todo:
 multibugs:
-mur dur a placer ?
-cleave bugge
-______________________
+mur dur a placer sur un shiled?
 
+bug bastien deco de la prod / explosion du barrel sur l'infernal
+pangolino aura marche ou pas ?
+piege non castable sur case boulder+gas ?
+
+
+bug mutliclient
+______________________
+UI:
+souris sur le gazeur :
+- barre de vie
+- highlight ses glyphes
+- ca dit quand il joue ?
+- quand on clic sur le mec : voir ses CD
+
+______________________
 order les entities par r croissant avant de display
 indiquer le ragequit ennemi
 

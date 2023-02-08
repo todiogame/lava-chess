@@ -24,7 +24,6 @@ pathfinding
 
 Loading screen
 
-bans
 
 ______________________
 Mode multi :

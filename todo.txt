@@ -17,17 +17,6 @@ add timer
 add abandon
 add database
 
-selection des persos + placement:
-- on hover : (surbriller legerement le perso) et afficher hud
-- onclick : perso selectionne, surbriller perso, toujours afficher hud,
-            surbriller toute la zone de spawn du joueur
-
--  onclick spawn : entity.pos = click
-- ecrire dans le HUD : 
-    le nom du perso et la description des spells
-
-REPARER hover en game qui est casse... (remettre onmousemove ?)
-
 Circle aoe preview when hover before cast spell for time machine and or barrel ?
 
 gerer la fin de partie quand on ne peux plus enlever de cases

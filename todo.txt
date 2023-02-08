@@ -1,19 +1,22 @@
 todo:
+multibugs:
+mur dur a placer ?
+cleave bugge
+______________________
 
 order les entities par r croissant avant de display
-
+indiquer le ragequit ennemi
 
 - hover : infobulle
-rework gazeur ?
-- cac can target shadow ?? => make type invulnerable or something
+
 anim laggg => a investiguer
 add timer
 add abandon
-add database
 
-Circle aoe preview when hover before cast spell for time machine and or barrel ?
+add backend : login UI, database, ... 
 
 gerer la fin de partie quand on ne peux plus enlever de cases
+
 pathfinding
 
 Loading screen

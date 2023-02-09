@@ -14,10 +14,11 @@ const drawing = require("./lib/client/drawing");
 var isAnimed = false;
 var me = {}
 var enemy = {}
+hoverInfo = {}
+var socket;
 addEventListeners();
 
 function connect() {
-    var socket;
 
     initGlobals();
 
@@ -26,11 +27,12 @@ function connect() {
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
-        if(me.nickname) Network.clientSendInfo({ "nickname": me.nickname })
+        if (me.nickname) Network.clientSendInfo({ "nickname": me.nickname })
     };
 
     socket.onclose = function (event) {
         console.log("Disconnected from server");
+        alert("Disconnected from server");
         cancelMatch()
     };
 
@@ -45,10 +47,10 @@ function connect() {
         // console.log("received")
         // console.log(received)
         if (received.type == "INFO") {
-            if(received.data.nickname) enemy.nickname = received.data.nickname;
+            if (received.data.nickname) enemy.nickname = received.data.nickname;
             hud.displayProfiles(me, enemy);
         }
-        
+
         if (received.type == "TEAM") {
             TEAM = received.data;
             console.log("we are team ", TEAM)
@@ -120,23 +122,8 @@ function goGame() {
 }
 function addEventListeners() {
     document.getElementById("quick-match").addEventListener('click', quickMatch)
-    function quickMatch() {
-        document.getElementById("quick-match").classList.add("disabled");
-        document.getElementById("quick-match").setAttribute("disabled", true);
-        document.getElementById("looking").style.display = "block";
-        document.getElementById("cancel-match").style.display = "block";
-        me.nickname = document.getElementById("nickname").value;
-        connect()
-    }
-
     document.getElementById("cancel-match").addEventListener('click', cancelMatch)
-    function cancelMatch() {
-        if (socket) socket.close();
-        document.getElementById("quick-match").classList.remove("disabled");
-        document.getElementById("quick-match").removeAttribute("disabled");
-        document.getElementById("looking").style.display = "none";
-        document.getElementById("cancel-match").style.display = "none";
-    }
+    window.addEventListener("resize", drawing.resizeCanvas);
 }
 
 function initGlobals() {
@@ -147,31 +134,57 @@ function initGlobals() {
 }
 
 
-
 function listenToMouse() {
-   
-
     canvas.onmousemove = function (event) {
-        if (isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
-        else logic.onMouseHoverGame(mouseEventToHexCoord(event))
+        generateTooltipInfo(mouseEventToHexCoord(event))
+        pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
+        if (!isPickPhase) logic.onMouseHoverGame(mouseEventToHexCoord(event))
     }
-
     canvas.addEventListener('click', function (event) {
         if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event))
         else logic.onMouseClicGame(mouseEventToHexCoord(event))
     }, false);
-
 }
 
-function mouseEventToHexCoord(e){
+function mouseEventToHexCoord(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / 700;
     const scaleY = canvas.height / 600;
     const x = (e.clientX - rect.left) / scaleX;
     const y = (e.clientY - rect.top) / scaleY;
+    return drawing.findHexFromEvent(x, y)
 
-    // console.log("from "+e.pageX+" "+e.pageY+" to "+x+" "+y)
+}
 
-    return drawing.findHexFromEvent(x,y)
-    
+function generateTooltipInfo(hexagon) {
+    let hPtClick = hexagon;
+    let hPtClickRound = (hPtClick.round());
+    hoverInfo.cell = hPtClickRound;
+    let found = map.find(b => hPtClickRound.distance(b) == 0);
+    if (found) {
+        hoverInfo.aoe = found.aoe
+        let ent = utils.findEntityOnCell(found);
+        if (ent) {
+            hoverInfo.entity = ent
+        } else hoverInfo.entity = null
+    } else {
+        hoverInfo.aoe = null
+        hoverInfo.entity = null
+    }
+}
+
+function quickMatch() {
+    document.getElementById("quick-match").classList.add("disabled");
+    document.getElementById("quick-match").setAttribute("disabled", true);
+    document.getElementById("looking").style.display = "block";
+    document.getElementById("cancel-match").style.display = "block";
+    me.nickname = document.getElementById("nickname").value;
+    connect()
+}
+function cancelMatch() {
+    if (socket) socket.close();
+    document.getElementById("quick-match").classList.remove("disabled");
+    document.getElementById("quick-match").removeAttribute("disabled");
+    document.getElementById("looking").style.display = "none";
+    document.getElementById("cancel-match").style.display = "none";
 }

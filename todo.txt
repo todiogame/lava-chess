@@ -1,22 +1,14 @@
 todo:
 multibugs:
 mur dur a placer sur un shiled?.
-bug de popup win bug alert cyan team win alors que tout le monde est vivant
 
-description des persos avec etoiles difficulte etc
 ______________________
 UI:
 souris sur le gazeur :
-- barre de vie
-- highlight ses glyphes
 - ca dit quand il joue ?
 - quand on clic sur le mec : voir ses CD
 
 ______________________
-order les entities par r croissant avant de display
-indiquer le ragequit ennemi
-
-- hover : infobulle
 
 anim laggg => a investiguer
 add timer
@@ -28,13 +20,14 @@ add backend : login UI, database, ...
 
 gerer la fin de partie quand on ne peux plus enlever de cases
 
-pathfinding
+pathfinding?
 
 Loading screen
 gerer la deconnexion du serveur
 
 ______________________
 Mode multi :
-
+Securiser un minimum :
 envoyer "a ton tour" a un client et refuser les messages de l'autre
+checker castSpell
 fin du tour => donner la main a l'autre

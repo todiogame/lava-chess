@@ -14,10 +14,11 @@ const drawing = require("./lib/client/drawing");
 var isAnimed = false;
 var me = {}
 var enemy = {}
+hoverInfo = {}
+var socket;
 addEventListeners();
 
 function connect() {
-    var socket;
 
     initGlobals();
 
@@ -31,6 +32,7 @@ function connect() {
 
     socket.onclose = function (event) {
         console.log("Disconnected from server");
+        alert("Disconnected from server");
         cancelMatch()
     };
 
@@ -120,26 +122,8 @@ function goGame() {
 }
 function addEventListeners() {
     document.getElementById("quick-match").addEventListener('click', quickMatch)
-    function quickMatch() {
-        document.getElementById("quick-match").classList.add("disabled");
-        document.getElementById("quick-match").setAttribute("disabled", true);
-        document.getElementById("looking").style.display = "block";
-        document.getElementById("cancel-match").style.display = "block";
-        me.nickname = document.getElementById("nickname").value;
-        connect()
-    }
-
     document.getElementById("cancel-match").addEventListener('click', cancelMatch)
-    function cancelMatch() {
-        if (socket) socket.close();
-        document.getElementById("quick-match").classList.remove("disabled");
-        document.getElementById("quick-match").removeAttribute("disabled");
-        document.getElementById("looking").style.display = "none";
-        document.getElementById("cancel-match").style.display = "none";
-    }
-
     window.addEventListener("resize", drawing.resizeCanvas);
-
 }
 
 function initGlobals() {
@@ -151,19 +135,14 @@ function initGlobals() {
 
 function listenToMouse() {
     canvas.onmousemove = function (event) {
-
         generateTooltipInfo(mouseEventToHexCoord(event))
-
-        if (isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
-        else logic.onMouseHoverGame(mouseEventToHexCoord(event))
+        pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
+        if (!isPickPhase) logic.onMouseHoverGame(mouseEventToHexCoord(event))
     }
-
     canvas.addEventListener('click', function (event) {
         if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event))
         else logic.onMouseClicGame(mouseEventToHexCoord(event))
     }, false);
-
-
 }
 
 function mouseEventToHexCoord(e) {
@@ -172,14 +151,9 @@ function mouseEventToHexCoord(e) {
     const scaleY = canvas.height / 600;
     const x = (e.clientX - rect.left) / scaleX;
     const y = (e.clientY - rect.top) / scaleY;
-
-    // console.log("from "+e.pageX+" "+e.pageY+" to "+x+" "+y)
-
     return drawing.findHexFromEvent(x, y)
 
 }
-
-hoverInfo = {}
 
 function generateTooltipInfo(hexagon) {
     let hPtClick = hexagon;
@@ -191,9 +165,25 @@ function generateTooltipInfo(hexagon) {
         let ent = utils.findEntityOnCell(found);
         if (ent) {
             hoverInfo.entity = ent
-        }else  hoverInfo.entity = null
-    }else {
+        } else hoverInfo.entity = null
+    } else {
         hoverInfo.aoe = null
         hoverInfo.entity = null
     }
+}
+
+function quickMatch() {
+    document.getElementById("quick-match").classList.add("disabled");
+    document.getElementById("quick-match").setAttribute("disabled", true);
+    document.getElementById("looking").style.display = "block";
+    document.getElementById("cancel-match").style.display = "block";
+    me.nickname = document.getElementById("nickname").value;
+    connect()
+}
+function cancelMatch() {
+    if (socket) socket.close();
+    document.getElementById("quick-match").classList.remove("disabled");
+    document.getElementById("quick-match").removeAttribute("disabled");
+    document.getElementById("looking").style.display = "none";
+    document.getElementById("cancel-match").style.display = "none";
 }

@@ -4,7 +4,7 @@ mur dur a placer sur un shiled?.
 
 ______________________
 UI:
-souris sur le gazeur :
+souris sur un perso :
 - ca dit quand il joue ?
 - quand on clic sur le mec : voir ses CD
 
@@ -23,7 +23,6 @@ gerer la fin de partie quand on ne peux plus enlever de cases
 pathfinding?
 
 Loading screen
-gerer la deconnexion du serveur
 
 ______________________
 Mode multi :

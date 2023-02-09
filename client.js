@@ -26,7 +26,7 @@ function connect() {
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
-        if(me.nickname) Network.clientSendInfo({ "nickname": me.nickname })
+        if (me.nickname) Network.clientSendInfo({ "nickname": me.nickname })
     };
 
     socket.onclose = function (event) {
@@ -45,10 +45,10 @@ function connect() {
         // console.log("received")
         // console.log(received)
         if (received.type == "INFO") {
-            if(received.data.nickname) enemy.nickname = received.data.nickname;
+            if (received.data.nickname) enemy.nickname = received.data.nickname;
             hud.displayProfiles(me, enemy);
         }
-        
+
         if (received.type == "TEAM") {
             TEAM = received.data;
             console.log("we are team ", TEAM)
@@ -149,11 +149,11 @@ function initGlobals() {
 }
 
 
-
 function listenToMouse() {
-   
-
     canvas.onmousemove = function (event) {
+
+        generateTooltipInfo(mouseEventToHexCoord(event))
+
         if (isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
         else logic.onMouseHoverGame(mouseEventToHexCoord(event))
     }
@@ -163,9 +163,10 @@ function listenToMouse() {
         else logic.onMouseClicGame(mouseEventToHexCoord(event))
     }, false);
 
+
 }
 
-function mouseEventToHexCoord(e){
+function mouseEventToHexCoord(e) {
     const rect = canvas.getBoundingClientRect();
     const scaleX = canvas.width / 700;
     const scaleY = canvas.height / 600;
@@ -174,6 +175,25 @@ function mouseEventToHexCoord(e){
 
     // console.log("from "+e.pageX+" "+e.pageY+" to "+x+" "+y)
 
-    return drawing.findHexFromEvent(x,y)
-    
+    return drawing.findHexFromEvent(x, y)
+
+}
+
+hoverInfo = {}
+
+function generateTooltipInfo(hexagon) {
+    let hPtClick = hexagon;
+    let hPtClickRound = (hPtClick.round());
+    hoverInfo.cell = hPtClickRound;
+    let found = map.find(b => hPtClickRound.distance(b) == 0);
+    if (found) {
+        hoverInfo.aoe = found.aoe
+        let ent = utils.findEntityOnCell(found);
+        if (ent) {
+            hoverInfo.entity = ent
+        }else  hoverInfo.entity = null
+    }else {
+        hoverInfo.aoe = null
+        hoverInfo.entity = null
+    }
 }

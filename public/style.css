@@ -91,6 +91,25 @@ body {
   grid-template-columns: 1fr 1fr;
 }
 
+#hud-container {
+  grid-column: 2 / 3;
+  overflow-y: scroll;
+  background-color: #5b3a1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.profiles{
+  background-color: #663300;
+  color: #ff6600;
+  text-shadow: 2px 2px 2px #222;
+  font-family: 'Russo One', sans-serif;
+  padding: 10px;
+  margin-bottom: 5px;
+  border-radius: 5px;
+}
+
 #canvas {
   grid-column: 1 / 2;
   width: 700px;
@@ -125,18 +144,6 @@ body {
   border-radius: 10px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
   margin: 10px;
-}
-
-#character-hud-container {
-  grid-column: 2 / 3;
-  overflow-y: scroll;
-}
-
-.character-hud {
-  background-color: #5b3a1c;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
 }
 
 h1 {

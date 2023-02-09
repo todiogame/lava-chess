@@ -2,12 +2,10 @@ todo:
 multibugs:
 mur dur a placer sur un shiled?
 
-bug bastien deco de la prod / explosion du barrel sur l'infernal
-pangolino aura marche ou pas ?
+bug bastien deco de la prod / explosion du barrel sur l'infernal ?
 piege non castable sur case boulder+gas ?
 
 
-bug mutliclient
 ______________________
 UI:
 souris sur le gazeur :
@@ -25,6 +23,8 @@ indiquer le ragequit ennemi
 anim laggg => a investiguer
 add timer
 add abandon
+
+ecran game over : victory / defeat + play again + inscription  
 
 add backend : login UI, database, ... 
 

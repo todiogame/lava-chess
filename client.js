@@ -11,9 +11,12 @@ const turnOrder = require("./lib/turnOrder")
 const utils = require("./lib/gameUtils")
 
 var isAnimed = false;
-var socket;
+var me = {}
+var enemy = {}
+addEventListeners();
 
 function connect() {
+    var socket;
 
     initGlobals();
 
@@ -22,7 +25,7 @@ function connect() {
     socket.onopen = function (event) {
         console.log("Connected to server");
         Network.clientSocket = socket;
-        console.log("Network.clientSocket", Network.clientSocket)
+        if(me.nickname) Network.clientSendInfo({ "nickname": me.nickname })
     };
 
     socket.onclose = function (event) {
@@ -40,6 +43,11 @@ function connect() {
         const received = Network.decode(event.data);
         // console.log("received")
         // console.log(received)
+        if (received.type == "INFO") {
+            if(received.data.nickname) enemy.nickname = received.data.nickname;
+            hud.displayProfiles(me, enemy);
+        }
+        
         if (received.type == "TEAM") {
             TEAM = received.data;
             console.log("we are team ", TEAM)
@@ -81,6 +89,7 @@ function goPickBan(startingTeam) {
     currentTeam = startingTeam;
     pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
+    hud.displayProfiles(me, enemy);
     hud.switchToGameMode();
 
 
@@ -107,32 +116,27 @@ function goGame() {
     currentPlayer = PLAYERS[idCurrentPlayer]
 
     turnOrder.beginTurn(currentPlayer)
-    // hud.switchToGameMode();
-
-    //stop listenToMouse from pickphase
-    // logic.listenToMouse()
-
 }
+function addEventListeners() {
+    document.getElementById("quick-match").addEventListener('click', quickMatch)
+    function quickMatch() {
+        document.getElementById("quick-match").classList.add("disabled");
+        document.getElementById("quick-match").setAttribute("disabled", true);
+        document.getElementById("looking").style.display = "block";
+        document.getElementById("cancel-match").style.display = "block";
+        me.nickname = document.getElementById("nickname").value;
+        connect()
+    }
 
-document.getElementById("quick-match").addEventListener('click', quickMatch)
-function quickMatch() {
-    document.getElementById("quick-match").classList.add("disabled");
-    document.getElementById("quick-match").setAttribute("disabled", true);
-    document.getElementById("looking").style.display = "block";
-    document.getElementById("cancel-match").style.display = "block";
-    connect()
+    document.getElementById("cancel-match").addEventListener('click', cancelMatch)
+    function cancelMatch() {
+        if (socket) socket.close();
+        document.getElementById("quick-match").classList.remove("disabled");
+        document.getElementById("quick-match").removeAttribute("disabled");
+        document.getElementById("looking").style.display = "none";
+        document.getElementById("cancel-match").style.display = "none";
+    }
 }
-
-document.getElementById("cancel-match").addEventListener('click', cancelMatch)
-function cancelMatch() {
-    if (socket) socket.close();
-    document.getElementById("quick-match").classList.remove("disabled");
-    document.getElementById("quick-match").removeAttribute("disabled");
-    document.getElementById("looking").style.display = "none";
-    document.getElementById("cancel-match").style.display = "none";
-
-}
-
 
 function initGlobals() {
     currentPlayer = 0;
@@ -143,18 +147,13 @@ function initGlobals() {
 
 
 function listenToMouse() {
-    console.log("listenToMouse logic")
-    // modeClic = (TEAM == currentPlayer.entity.team) ? "MOVE" : ""; //todo regler modeclic
 
-    // canvas.onmousemove = function (e) {
     canvas.onmousemove = function (event) {
         if (isPickPhase) pickPhase.onMouseHoverDraft(event)
         else logic.onMouseHoverGame(event)
     }
 
     canvas.addEventListener('click', function (event) {
-        console.log("click, current isPickPhase " + isPickPhase)
-
         if (isPickPhase) pickPhase.onMouseClicDraft(event)
         else logic.onMouseClicGame(event)
     }, false);

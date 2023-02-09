@@ -137,6 +137,9 @@ function addEventListeners() {
         document.getElementById("looking").style.display = "none";
         document.getElementById("cancel-match").style.display = "none";
     }
+
+    window.addEventListener("resize", drawing.resizeCanvas);
+
 }
 
 function initGlobals() {

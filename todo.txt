@@ -1,11 +1,9 @@
 todo:
 multibugs:
-mur dur a placer sur un shiled?
+mur dur a placer sur un shiled?.
+bug de popup win bug alert cyan team win alors que tout le monde est vivant
 
-bug bastien deco de la prod / explosion du barrel sur l'infernal ?
-piege non castable sur case boulder+gas ?
-
-
+description des persos avec etoiles difficulte etc
 ______________________
 UI:
 souris sur le gazeur :

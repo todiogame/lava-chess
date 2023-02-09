@@ -8,7 +8,8 @@ const config = require('./config.js');
 const hud = require("./lib/client/hud")
 const pickPhase = require("./lib/client/pickPhase")
 const turnOrder = require("./lib/turnOrder")
-const utils = require("./lib/gameUtils")
+const utils = require("./lib/gameUtils");
+const drawing = require("./lib/client/drawing");
 
 var isAnimed = false;
 var me = {}
@@ -147,15 +148,29 @@ function initGlobals() {
 
 
 function listenToMouse() {
+   
 
     canvas.onmousemove = function (event) {
-        if (isPickPhase) pickPhase.onMouseHoverDraft(event)
-        else logic.onMouseHoverGame(event)
+        if (isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event))
+        else logic.onMouseHoverGame(mouseEventToHexCoord(event))
     }
 
     canvas.addEventListener('click', function (event) {
-        if (isPickPhase) pickPhase.onMouseClicDraft(event)
-        else logic.onMouseClicGame(event)
+        if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event))
+        else logic.onMouseClicGame(mouseEventToHexCoord(event))
     }, false);
 
+}
+
+function mouseEventToHexCoord(e){
+    const rect = canvas.getBoundingClientRect();
+    const scaleX = canvas.width / 700;
+    const scaleY = canvas.height / 600;
+    const x = (e.clientX - rect.left) / scaleX;
+    const y = (e.clientY - rect.top) / scaleY;
+
+    // console.log("from "+e.pageX+" "+e.pageY+" to "+x+" "+y)
+
+    return drawing.findHexFromEvent(x,y)
+    
 }

@@ -112,8 +112,8 @@ body {
 
 #canvas {
   grid-column: 1 / 2;
-  width: 700px;
-  height: 600px;
+  /* width: 700px;
+  height: 600px; */
   background-color: orange;
   border-radius: 10px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);

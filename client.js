@@ -143,6 +143,7 @@ function initGlobals() {
     currentPlayer = 0;
     projectiles = [];
     entities = [];
+    particles= [];
 }
 
 

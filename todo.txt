@@ -10,6 +10,7 @@ UI:
 souris sur un perso :
 - ca dit quand il joue ?
 - quand on clic sur le mec : voir ses CD
+- quand les infos hover depassent de l'ecran => les afficher ailleurs
 
 TIMER:
 - gerer cote serveur

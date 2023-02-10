@@ -11,17 +11,22 @@ souris sur un perso :
 - ca dit quand il joue ?
 - quand on clic sur le mec : voir ses CD
 
+TIMER:
+- gerer cote serveur
+- gerer la phase de pick/ban
 ______________________
 
 anim laggg => a investiguer
-add timer
-add abandon
+
+add abandon button ?
+
+add sounds
 
 ecran game over : victory / defeat + play again + inscription  
 
 add backend : login UI, database, ... 
 
-gerer la fin de partie quand on ne peux plus enlever de cases
+gerer la fin de partie quand on ne peux plus enlever de cases : egalite ?
 
 pathfinding?
 

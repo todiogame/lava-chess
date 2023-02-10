@@ -1,6 +1,9 @@
 todo:
 multibugs:
 mur dur a placer sur un shiled?.
+probleme fin de game : ex golem qui s'isole sur un caillou
+
+mieux notifier quand cest a toi de jouer  
 
 ______________________
 UI:

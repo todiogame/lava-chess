@@ -1,23 +1,20 @@
 const express = require('express');
 const app = express();
 const config = require('./config');
-
+const router = require('./lib/server/routes')
+const bodyParser = require("body-parser");
 const Game = require('./lib/server/Game');
 const Network = require('./lib/Network');
 
 // Start the web server
 app.use(express.static('public'));
+app.use(express.json());
+app.use('/', router);
 
 app.listen(config.PORT, config.INTERNAL_IP_ADDRESS, () => {
   console.log(`Server running at http://${config.INTERNAL_IP_ADDRESS}:${config.PORT}`);
 });
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-app.get('/game', function (req, res) {
-  res.sendFile(__dirname + '/game.html');
-});
 
 // Start the game server
 const WebSocket = require('ws');

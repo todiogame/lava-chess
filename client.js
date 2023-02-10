@@ -131,6 +131,7 @@ function initGlobals() {
     projectiles = [];
     entities = [];
     particles= [];
+    turnTimer = {};
 }
 
 

@@ -2,6 +2,8 @@ todo:
 multibugs:
 mur dur a placer sur un shiled?.
 probleme fin de game : ex golem qui s'isole sur un caillou
+bug : on peut passer les tours des invocs
+
 
 mieux notifier quand cest a toi de jouer  
 

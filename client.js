@@ -49,7 +49,7 @@ function connect() {
     // console.log(received)
     if (received.type == "INFO") {
       if (received.data.nickname) enemy.nickname = received.data.nickname;
-      hud.displayProfiles(me, enemy);
+      // hud.displayProfiles(me, enemy);
     }
 
     if (received.type == "TEAM") {
@@ -100,7 +100,7 @@ function goPickBan(startingTeam) {
   currentTeam = startingTeam;
   pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
-  hud.displayProfiles(me, enemy);
+  // hud.displayProfiles(me, enemy);
   hud.switchToGameMode();
 
   pickPhase.initPickPhase();
@@ -173,8 +173,8 @@ function mouseEventToHexCoord(e) {
 
 function mouseEventToXY(e) {
   const rect = canvas.getBoundingClientRect();
-  const scaleX = canvas.width / 700;
-  const scaleY = canvas.height / 600;
+  const scaleX = canvas.width / c.CANVAS.WIDTH;
+  const scaleY = canvas.height / c.CANVAS.HEIGHT;
   const x = (e.clientX - rect.left) / scaleX;
   const y = (e.clientY - rect.top) / scaleY;
   return { x, y };
@@ -214,8 +214,10 @@ function cancelMatch() {
 }
 // Define the buttonSpell properties
 buttonSpell = {
-  width: 50,
-  height: 50,
+  width: 100,
+  height: 100,
+  w_offset: c.CANVAS.WIDTH / 10,
+  h_offset: c.CANVAS.HEIGHT - 30,
   borderColor: "yellow",
-  borderWidth: 2
+  borderWidth: 5
 };

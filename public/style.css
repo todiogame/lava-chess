@@ -87,194 +87,23 @@ body {
 }
 
 
-.game-container {
+/* .game-container {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
-
-#hud-container {
-  grid-column: 2 / 3;
-  overflow-y: scroll;
-  background-color: #5b3a1c;
-  padding: 20px;
-  border-radius: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-}
-
-.profiles {
-  background-color: #663300;
-  color: #ff6600;
-  text-shadow: 2px 2px 2px #222;
-  font-family: 'Russo One', sans-serif;
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-}
+ */
 
 #canvas {
-  grid-column: 1 / 2;
+  padding-left: 0;
+  padding-right: 0;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  /* grid-column: 1 / 2; */
   /* width: 700px;
   height: 600px; */
   background-color: orange;
   border-radius: 10px;
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
   cursor: pointer;
-}
-
-.display-spell {
-  background-color: #ffc107;
-  color: #5b3a1c;
-  padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-  margin: 10px;
-}
-
-.display-spell .content {
-  margin-right: 10px;
-  font-size: 18px;
-  font-weight: bold;
-}
-
-#spell-display-0,
-#spell-display-1,
-#spell-display-2 {
-  background-color: #ffc107;
-  color: #5b3a1c;
-  padding: 12px 20px;
-  border-radius: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-  margin: 10px;
-}
-
-h1 {
-  color: #ff6600;
-  text-shadow: 2px 2px 2px #222;
-  font-family: 'Russo One', sans-serif;
-}
-
-h2 {
-  color: #ff6600;
-  text-shadow: 1px 1px 1px #222;
-  font-family: 'Russo One', sans-serif;
-}
-
-h3 {
-  color: #ff6600;
-  text-shadow: 0.5px 0.5px 0.5px #222;
-  font-family: 'Russo One', sans-serif;
-}
-
-p {
-  background-color: #5b3a1c;
-  color: #ffc107;
-  text-align: center;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-  font-size: 18px;
-}
-
-.current-hp {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  color: #ffc107;
-}
-
-.spells button,
-.move button,
-.rise-lava button {
-  background-color: #ffc107;
-  color: #5b3a1c;
-  padding: 12px 20px;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-bottom: 10px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-}
-
-.spells button:hover,
-.move button:hover,
-.rise-lava button:hover {
-  background-color: #e2b807;
-}
-
-.spells button .tooltip {
-  visibility: hidden;
-  width: 220px;
-  background-color: #5b3a1c;
-  color: #ffc107;
-  text-align: center;
-  border-radius: 10px;
-  padding: 20px;
-  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
-  font-size: 18px;
-  /* font-weight: bold; */
-  position: absolute;
-  z-index: 1;
-  top: 10%;
-  left: 70%;
-  /* transform: translateX(-00%); */
-}
-
-.spells button:hover .tooltip {
-  visibility: visible;
-}
-
-.spells .disabled,
-.move .disabled,
-.rise-lava .disabled {
-  background-color: gray;
-  /* pointer-events: none; */
-}
-
-#rise-lava-name,
-#passTurn-name {
-  font-weight: bold;
-}
-
-.current-hp {
-  font-size: 18px;
-  font-weight: bold;
-  margin-bottom: 10px;
-  display: flex;
-  align-items: center;
-}
-
-.current-hp .bar {
-  width: 100px;
-  height: 10px;
-  background-color: #af5e4c;
-  border-radius: 5px;
-  margin-right: 10px;
-}
-
-.current-hp .hp-value {
-  width: 20px;
-  height: 10px;
-  background-color: #4CAF50;
-  border-radius: 5px;
-}
-
-#timeline {
-  list-style-type: none;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-}
-
-#timeline p {
-  background-color: #663300;
-  color: #ff6600;
-  text-shadow: 2px 2px 2px #222;
-  font-family: 'Russo One', sans-serif;
-  padding: 10px;
-  margin-bottom: 5px;
-  border-radius: 5px;
-}
-
-#timeline p.highlight {
-  background-color: #ff4500;
-  color: #ffffff;
 }

@@ -104,7 +104,7 @@ function goPickBan(startingTeam) {
   hud.switchToGameMode();
 
   pickPhase.initPickPhase();
-  listenToMouse();
+  listenToInputs();
 
   if (!isAnimed) {
     isAnimed = true;
@@ -133,7 +133,7 @@ function addEventListeners() {
   document
     .getElementById("cancel-match")
     .addEventListener("click", cancelMatch);
-  window.addEventListener("resize", drawing.resizeCanvas);
+  // window.addEventListener("resize", drawing.resizeCanvas);
 }
 
 function initGlobals() {
@@ -145,7 +145,7 @@ function initGlobals() {
   // modeClic = "MOVE"
 }
 
-function listenToMouse() {
+function listenToInputs() {
   canvas.onmousemove = function (event) {
     generateTooltipInfo(mouseEventToHexCoord(event));
     pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
@@ -164,6 +164,20 @@ function listenToMouse() {
     },
     false,
   );
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "1") {
+      logic.clickSpell(0);
+    } else if (event.key === "2") {
+      logic.clickSpell(1);
+    } else if (event.key === "3") {
+      logic.clickSpell(2);
+    }else if (event.key === "4") {
+      logic.clickPassTurnOrRiseLava();
+    }else if (event.key === "`") {
+      logic.clickMove();
+    }
+  });
 }
 
 function mouseEventToHexCoord(e) {

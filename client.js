@@ -120,6 +120,7 @@ function goGame() {
   PLAYERS.forEach((p) => {
     entities.push(p.entity);
   });
+  imagesSpells = drawing.loadImages(entities)
   //reinit map
   map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
   idCurrentPlayer = 0;
@@ -141,6 +142,7 @@ function initGlobals() {
   entities = [];
   particles = [];
   turnTimer = {};
+  // modeClic = "MOVE"
 }
 
 function listenToMouse() {
@@ -153,19 +155,29 @@ function listenToMouse() {
     "click",
     function (event) {
       if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
-      else logic.onMouseClicGame(mouseEventToHexCoord(event));
+      else {
+        const { x, y } = mouseEventToXY(event);
+        let hitHUD = logic.onMouseClicHUD(x, y);
+        console.log("hit hud!", hitHUD)
+        if (!hitHUD) logic.onMouseClicGame(mouseEventToHexCoord(event));
+      }
     },
     false,
   );
 }
 
 function mouseEventToHexCoord(e) {
+  const { x, y } = mouseEventToXY(e);
+  return drawing.findHexFromEvent(x, y);
+}
+
+function mouseEventToXY(e) {
   const rect = canvas.getBoundingClientRect();
   const scaleX = canvas.width / 700;
   const scaleY = canvas.height / 600;
   const x = (e.clientX - rect.left) / scaleX;
   const y = (e.clientY - rect.top) / scaleY;
-  return drawing.findHexFromEvent(x, y);
+  return { x, y };
 }
 
 function generateTooltipInfo(hexagon) {
@@ -200,3 +212,10 @@ function cancelMatch() {
   document.getElementById("looking").style.display = "none";
   document.getElementById("cancel-match").style.display = "none";
 }
+// Define the buttonSpell properties
+buttonSpell = {
+  width: 50,
+  height: 50,
+  borderColor: "yellow",
+  borderWidth: 2
+};

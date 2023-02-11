@@ -120,7 +120,7 @@ function goGame() {
   PLAYERS.forEach((p) => {
     entities.push(p.entity);
   });
-  imagesSpells = drawing.loadImages(entities)
+  PLAYERS = drawing.loadImages(PLAYERS)
   //reinit map
   map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
   idCurrentPlayer = 0;

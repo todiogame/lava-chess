@@ -1,36 +1,43 @@
 <!DOCTYPE html>
 <html>
+  <head>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="style.css" />
+  </head>
 
-<head>
-    <link rel="icon" href="favicon.ico" type="image/x-icon">
-    <link rel="shortcut icon" href="favicon.ico" type="image/x-icon">
-    <link rel="stylesheet" type="text/css" href="style.css">
-</head>
-
-<body>
+  <body>
     <div id="landing-page" class="landing-page">
-        <h1>Lava Chess</h1>
-        <label for="nickname">Enter your nickname:</label>
-        <input type="text" id="nickname" name="nickname">
-        <div id="buttons" class="buttons">
-            <button id="create-game" class="disabled">Create Game</button>
-            <div>
-                <label for="game-id">Join Game (ID):</label>
-                <input type="text" id="game-id" name="game-id" class="disabled">
-                <button id="join-game" class="disabled">Join Game</button>
-            </div>
-            <button id="quick-match">Quick Match</button>
-            <button id="cancel-match" style="display:none;">Cancel</button>
+      <h1>Lava Chess</h1>
+      <label for="nickname">Enter your nickname:</label>
+      <input type="text" id="nickname" name="nickname" />
+      <div id="buttons" class="buttons">
+        <button id="create-game" class="disabled">Create Game</button>
+        <div>
+          <label for="game-id">Join Game (ID):</label>
+          <input type="text" id="game-id" name="game-id" class="disabled" />
+          <button id="join-game" class="disabled">Join Game</button>
         </div>
-        <h1 id="looking" style="display:none;">Looking for a game...</h1>
+        <button id="quick-match">Quick Match</button>
+        <button id="cancel-match" style="display: none">Cancel</button>
+      </div>
+      <h1 id="looking" style="display: none">Looking for a game...</h1>
     </div>
-    <div id="game-container" class="game-container" style="display:none;">
-        <canvas id="canvas"></canvas>
-
-
+    <div id="game-container" class="game-container" style="display: none">
+      <canvas id="canvas"></canvas>
+    </div>
+    <div id="ending-page" class="landing-page" style="display: none">
+      <h1>GG</h1>
+      <div id="ragequit" style="display: none">
+        <span id="disconnected">Opponent disconnected</span>
+        <button id="play-again-same">Play again with the same opponent!</button>
+      </div>
+      <div id="buttons" class="buttons">
+        <button id="play-again">Play again!</button>
+        <button id="cancel-match" style="display: none">Cancel</button>
+      </div>
+      <h1 id="looking" style="display: none">Looking for a game...</h1>
     </div>
     <script src="./main.js"></script>
-
-</body>
-
+  </body>
 </html>

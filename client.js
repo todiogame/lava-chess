@@ -71,7 +71,7 @@ function connect() {
       logic.playAction(received.data);
     }
     if (received.type == "RAGEQUIT") {
-      utils.win(TEAM, "OPPONENT RAGEQUIT");
+      utils.win(TEAM, "RAGEQUIT");
     }
   };
 }
@@ -120,7 +120,7 @@ function goGame() {
   PLAYERS.forEach((p) => {
     entities.push(p.entity);
   });
-  PLAYERS = drawing.loadImages(PLAYERS)
+  PLAYERS = drawing.loadImages(PLAYERS);
   //reinit map
   map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
   idCurrentPlayer = 0;
@@ -157,7 +157,7 @@ function listenToInputs() {
       else {
         const { x, y } = mouseEventToXY(event);
         let hitHUD = logic.onMouseClicHUD(x, y);
-        console.log("hit hud!", hitHUD)
+        console.log("hit hud!", hitHUD);
         if (!hitHUD) logic.onMouseClicGame(mouseEventToHexCoord(event));
       }
     },
@@ -194,44 +194,57 @@ function mouseEventToXY(e) {
 }
 
 function generateTooltipInfo(event) {
-  let hPtClick = mouseEventToHexCoord(event)
+  let hPtClick = mouseEventToHexCoord(event);
   let hPtClickRound = hPtClick.round();
   hoverInfo.cell = hPtClickRound;
   let found = map.find((b) => hPtClickRound.distance(b) == 0);
   if (found) {
-    console.log("hover map")
+    console.log("hover map");
     hoverInfo.aoe = found.aoe;
     let ent = utils.findEntityOnCell(found);
     if (ent) {
       hoverInfo.entity = ent;
     } else hoverInfo.entity = null;
   } else {
-    console.log("hover not map ")
+    console.log("hover not map ");
     hoverInfo.aoe = null;
     hoverInfo.entity = null;
   }
   hoverInfo.element = undefined;
   if (currentPlayer) {
     const { x, y } = mouseEventToXY(event);
-    let btnX = buttonSpell.w_offset - (buttonSpell.width) - 10;
+    let btnX = buttonSpell.w_offset - buttonSpell.width - 10;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)
     // console.log("Y: " + y, btnY, btnY + buttonSpell.height)
-    if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
-      hoverInfo.element = c.GAMEDATA.MOVE_SPELL
+    if (
+      x > btnX &&
+      x < btnX + buttonSpell.width &&
+      y > btnY &&
+      y < btnY + buttonSpell.height
+    ) {
+      hoverInfo.element = c.GAMEDATA.MOVE_SPELL;
     }
     for (let i = 0; i < currentPlayer.spells.length; i++) {
       btnX = buttonSpell.w_offset + i * (buttonSpell.width + 10);
-      if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
-        hoverInfo.element = currentPlayer.spells[i]
+      if (
+        x > btnX &&
+        x < btnX + buttonSpell.width &&
+        y > btnY &&
+        y < btnY + buttonSpell.height
+      ) {
+        hoverInfo.element = currentPlayer.spells[i];
       }
     }
-    btnX = c.CANVAS.WIDTH * 7 / 10
-    if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
-      if (currentPlayer.isSummoned)
-        hoverInfo.element = c.GAMEDATA.PASS_SPELL
-      else
-        hoverInfo.element = c.GAMEDATA.LAVA_SPELL
+    btnX = (c.CANVAS.WIDTH * 7) / 10;
+    if (
+      x > btnX &&
+      x < btnX + buttonSpell.width &&
+      y > btnY &&
+      y < btnY + buttonSpell.height
+    ) {
+      if (currentPlayer.isSummoned) hoverInfo.element = c.GAMEDATA.PASS_SPELL;
+      else hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
     }
   }
 }
@@ -258,5 +271,5 @@ buttonSpell = {
   w_offset: c.CANVAS.WIDTH / 10,
   h_offset: c.CANVAS.HEIGHT - 30,
   borderColor: "yellow",
-  borderWidth: 5
+  borderWidth: 5,
 };

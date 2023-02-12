@@ -142,12 +142,11 @@ function initGlobals() {
   entities = [];
   particles = [];
   turnTimer = {};
-  // modeClic = "MOVE"
 }
 
 function listenToInputs() {
   canvas.onmousemove = function (event) {
-    generateTooltipInfo(mouseEventToHexCoord(event));
+    generateTooltipInfo(event);
     pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
     if (!isPickPhase) logic.onMouseHoverGame(mouseEventToHexCoord(event));
   };
@@ -172,9 +171,9 @@ function listenToInputs() {
       logic.clickSpell(1);
     } else if (event.key === "3") {
       logic.clickSpell(2);
-    }else if (event.key === "4") {
+    } else if (event.key === "4") {
       logic.clickPassTurnOrRiseLava();
-    }else if (event.key === "`") {
+    } else if (event.key === "`") {
       logic.clickMove();
     }
   });
@@ -194,20 +193,46 @@ function mouseEventToXY(e) {
   return { x, y };
 }
 
-function generateTooltipInfo(hexagon) {
-  let hPtClick = hexagon;
+function generateTooltipInfo(event) {
+  let hPtClick = mouseEventToHexCoord(event)
   let hPtClickRound = hPtClick.round();
   hoverInfo.cell = hPtClickRound;
   let found = map.find((b) => hPtClickRound.distance(b) == 0);
   if (found) {
+    console.log("hover map")
     hoverInfo.aoe = found.aoe;
     let ent = utils.findEntityOnCell(found);
     if (ent) {
       hoverInfo.entity = ent;
     } else hoverInfo.entity = null;
   } else {
+    console.log("hover not map ")
     hoverInfo.aoe = null;
     hoverInfo.entity = null;
+  }
+  hoverInfo.element = undefined;
+  if (currentPlayer) {
+    const { x, y } = mouseEventToXY(event);
+    let btnX = buttonSpell.w_offset - (buttonSpell.width) - 10;
+    let btnY = buttonSpell.h_offset - buttonSpell.height;
+    // console.log("X: " + x, btnX, btnX + buttonSpell.width)
+    // console.log("Y: " + y, btnY, btnY + buttonSpell.height)
+    if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
+      hoverInfo.element = c.GAMEDATA.MOVE_SPELL
+    }
+    for (let i = 0; i < currentPlayer.spells.length; i++) {
+      btnX = buttonSpell.w_offset + i * (buttonSpell.width + 10);
+      if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
+        hoverInfo.element = currentPlayer.spells[i]
+      }
+    }
+    btnX = c.CANVAS.WIDTH * 7 / 10
+    if (x > btnX && x < btnX + buttonSpell.width && y > btnY && y < btnY + buttonSpell.height) {
+      if (currentPlayer.isSummoned)
+        hoverInfo.element = c.GAMEDATA.PASS_SPELL
+      else
+        hoverInfo.element = c.GAMEDATA.LAVA_SPELL
+    }
   }
 }
 

@@ -35,7 +35,7 @@ function connect() {
 
   socket.onclose = function (event) {
     console.log("Disconnected from server");
-    alert("Disconnected from server");
+    //alert("Disconnected from server");
     cancelMatch();
   };
 
@@ -79,7 +79,8 @@ function connect() {
       logic.playAction(received.data);
     }
     if (received.type == "RAGEQUIT") {
-      utils.win(TEAM, "RAGEQUIT");
+      utils.endGame(true, "RAGEQUIT");
+      if (socket) socket.close();
     }
   };
 }

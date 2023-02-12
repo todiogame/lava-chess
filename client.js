@@ -12,9 +12,11 @@ const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
 
 var isAnimed = false;
+var isListening = false;
 var me = {};
 var enemy = {};
 hoverInfo = {};
+displayAllHP = false;
 var socket;
 addEventListeners();
 
@@ -62,7 +64,13 @@ function connect() {
       goGame();
     }
     if (received.type == "starting_team") {
-      goPickBan(received.data);
+      currentTeam = received.data;
+    }
+
+    if (received.type == "GAME_MODE") {
+      if (received.data == c.GAME_MODE.DRAFT) goPickBan();
+      // else if (received.data == c.GAME_MODE.QUICK)
+      // goGame();
     }
     if (received.type == "PICKBAN") {
       pickPhase.playAction(received.data);
@@ -91,21 +99,19 @@ function recreatePlayers(data) {
   });
 }
 
-function goPickBan(startingTeam) {
+function goPickBan() {
   currentPlayer = 0;
 
   map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
   isPickPhase = true;
-  currentTeam = startingTeam;
   pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
   // hud.displayProfiles(me, enemy);
-  hud.switchToGameMode();
-
   pickPhase.initPickPhase();
-  listenToInputs();
 
+  hud.switchToGameMode();
+  if (!isListening) listenToInputs();
   if (!isAnimed) {
     isAnimed = true;
     Anim.mainLoop();
@@ -115,6 +121,12 @@ function goPickBan(startingTeam) {
 function goGame() {
   console.log("START GAME");
   isPickPhase = false;
+  hud.switchToGameMode();
+  if (!isListening) listenToInputs();
+  if (!isAnimed) {
+    isAnimed = true;
+    Anim.mainLoop();
+  }
 
   entities = [];
   PLAYERS.forEach((p) => {
@@ -133,10 +145,10 @@ function addEventListeners() {
   document
     .getElementById("cancel-match")
     .addEventListener("click", cancelMatch);
-  // window.addEventListener("resize", drawing.resizeCanvas);
 }
 
 function initGlobals() {
+  map = [];
   currentPlayer = 0;
   projectiles = [];
   entities = [];
@@ -145,6 +157,7 @@ function initGlobals() {
 }
 
 function listenToInputs() {
+  isListening = true;
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event);
     pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
@@ -165,15 +178,15 @@ function listenToInputs() {
   );
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "1") {
+    if (event.key === "1" || event.key === "Q") {
       logic.clickSpell(0);
-    } else if (event.key === "2") {
+    } else if (event.key === "2" || event.key === "W") {
       logic.clickSpell(1);
-    } else if (event.key === "3") {
+    } else if (event.key === "3" || event.key === "E") {
       logic.clickSpell(2);
-    } else if (event.key === "4") {
+    } else if (event.key === "4" || event.key === "R") {
       logic.clickPassTurnOrRiseLava();
-    } else if (event.key === "`") {
+    } else if (event.key === "`" || event.key === "M") {
       logic.clickMove();
     }
   });
@@ -194,25 +207,24 @@ function mouseEventToXY(e) {
 }
 
 function generateTooltipInfo(event) {
+  const { x, y } = mouseEventToXY(event);
   let hPtClick = mouseEventToHexCoord(event);
   let hPtClickRound = hPtClick.round();
   hoverInfo.cell = hPtClickRound;
   let found = map.find((b) => hPtClickRound.distance(b) == 0);
   if (found) {
-    console.log("hover map");
     hoverInfo.aoe = found.aoe;
     let ent = utils.findEntityOnCell(found);
     if (ent) {
       hoverInfo.entity = ent;
     } else hoverInfo.entity = null;
   } else {
-    console.log("hover not map ");
     hoverInfo.aoe = null;
     hoverInfo.entity = null;
   }
+
   hoverInfo.element = undefined;
   if (currentPlayer) {
-    const { x, y } = mouseEventToXY(event);
     let btnX = buttonSpell.w_offset - buttonSpell.width - 10;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)
@@ -246,6 +258,20 @@ function generateTooltipInfo(event) {
       if (currentPlayer.isSummoned) hoverInfo.element = c.GAMEDATA.PASS_SPELL;
       else hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
     }
+  }
+  // c.CANVAS.WIDTH - 330, 10, 150, 150
+  if (
+    Math.pow(x - (c.CANVAS.WIDTH - 330 + 75), 2) + Math.pow(y - (10 + 75), 2) <
+    Math.pow(75, 2)
+  ) {
+    hoverInfo.help = true;
+    PLAYERS.forEach(
+      (p, i) =>
+        (p.entity.currentOrder =
+          (i - idCurrentPlayer + PLAYERS.length) % PLAYERS.length),
+    );
+  } else {
+    hoverInfo.help = false;
   }
 }
 

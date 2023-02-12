@@ -179,15 +179,15 @@ function listenToInputs() {
   );
 
   document.addEventListener("keydown", (event) => {
-    if (event.key === "1") {
+    if (event.key === "1" || event.key === "Q") {
       logic.clickSpell(0);
-    } else if (event.key === "2") {
+    } else if (event.key === "2" || event.key === "W") {
       logic.clickSpell(1);
-    } else if (event.key === "3") {
+    } else if (event.key === "3" || event.key === "E") {
       logic.clickSpell(2);
-    } else if (event.key === "4") {
+    } else if (event.key === "4" || event.key === "R") {
       logic.clickPassTurnOrRiseLava();
-    } else if (event.key === "`") {
+    } else if (event.key === "`" || event.key === "M") {
       logic.clickMove();
     }
   });
@@ -208,25 +208,25 @@ function mouseEventToXY(e) {
 }
 
 function generateTooltipInfo(event) {
+  const { x, y } = mouseEventToXY(event);
   let hPtClick = mouseEventToHexCoord(event)
   let hPtClickRound = hPtClick.round();
   hoverInfo.cell = hPtClickRound;
   let found = map.find((b) => hPtClickRound.distance(b) == 0);
   if (found) {
-    console.log("hover map")
     hoverInfo.aoe = found.aoe;
     let ent = utils.findEntityOnCell(found);
     if (ent) {
       hoverInfo.entity = ent;
     } else hoverInfo.entity = null;
+
   } else {
-    console.log("hover not map ")
     hoverInfo.aoe = null;
     hoverInfo.entity = null;
   }
+  
   hoverInfo.element = undefined;
   if (currentPlayer) {
-    const { x, y } = mouseEventToXY(event);
     let btnX = buttonSpell.w_offset - (buttonSpell.width) - 10;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)
@@ -247,6 +247,13 @@ function generateTooltipInfo(event) {
       else
         hoverInfo.element = c.GAMEDATA.LAVA_SPELL
     }
+  }
+  // c.CANVAS.WIDTH - 330, 10, 150, 150
+  if (Math.pow(x - (c.CANVAS.WIDTH - 330 + 75), 2) + Math.pow(y - (10 + 75), 2) < Math.pow(75, 2)) {
+    hoverInfo.help = true;
+    PLAYERS.forEach((p,i) => p.entity.currentOrder = (i - idCurrentPlayer + PLAYERS.length) % PLAYERS.length);
+  } else {
+    hoverInfo.help = false;
   }
 }
 

@@ -2,7 +2,7 @@ const Entity = require("./lib/Entity");
 const Playable = require("./lib/Playable");
 const c = require("./lib/const");
 const Anim = require("./lib/client/Anim");
-const logic = require("./lib/client/gameLogic");
+const logic = require("./lib/gameLogic");
 const Network = require("./lib/Network");
 const config = require("./config.js");
 const hud = require("./lib/client/hud");
@@ -10,6 +10,8 @@ const pickPhase = require("./lib/client/pickPhase");
 const turnOrder = require("./lib/turnOrder");
 const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
+const interface =  require("./lib/client/interface");
+const globals =  require("./lib/client/globals");
 
 var isAnimed = false;
 var isListening = false;
@@ -141,7 +143,7 @@ function goGame() {
   idCurrentPlayer = 0;
   currentPlayer = PLAYERS[idCurrentPlayer];
 
-  turnOrder.beginTurn(currentPlayer);
+  turnOrder.beginTurn(currentPlayer, globals.turnTimer);
 }
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
@@ -170,7 +172,6 @@ function initGlobals() {
   projectiles = [];
   entities = [];
   particles = [];
-  turnTimer = {};
 }
 
 function listenToInputs() {
@@ -178,7 +179,7 @@ function listenToInputs() {
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event);
     pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
-    if (!isPickPhase) logic.onMouseHoverGame(mouseEventToHexCoord(event));
+    if (!isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event));
   };
   canvas.addEventListener(
     "click",
@@ -186,9 +187,9 @@ function listenToInputs() {
       if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
       else {
         const { x, y } = mouseEventToXY(event);
-        let hitHUD = logic.onMouseClicHUD(x, y);
+        let hitHUD = interface.onMouseClicHUD(x, y);
         console.log("hit hud!", hitHUD);
-        if (!hitHUD) logic.onMouseClicGame(mouseEventToHexCoord(event));
+        if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event));
       }
     },
     false,
@@ -196,15 +197,15 @@ function listenToInputs() {
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "1" || event.key === "Q") {
-      logic.clickSpell(0);
+      interface.clickSpell(0);
     } else if (event.key === "2" || event.key === "W") {
-      logic.clickSpell(1);
+      interface.clickSpell(1);
     } else if (event.key === "3" || event.key === "E") {
-      logic.clickSpell(2);
+      interface.clickSpell(2);
     } else if (event.key === "4" || event.key === "R") {
-      logic.clickPassTurnOrRiseLava();
+      interface.clickPassTurnOrRiseLava();
     } else if (event.key === "`" || event.key === "M") {
-      logic.clickMove();
+      interface.clickMove();
     }
   });
 }

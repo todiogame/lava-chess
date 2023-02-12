@@ -15,6 +15,7 @@ var isAnimed = false;
 var me = {};
 var enemy = {};
 hoverInfo = {};
+displayAllHP = false;
 var socket;
 addEventListeners();
 
@@ -133,7 +134,6 @@ function addEventListeners() {
   document
     .getElementById("cancel-match")
     .addEventListener("click", cancelMatch);
-  // window.addEventListener("resize", drawing.resizeCanvas);
 }
 
 function initGlobals() {

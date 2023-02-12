@@ -42,7 +42,7 @@ wss.on('connection', function connection(ws, req) {
   ws.on("close", () => {
     console.log("Client disconnected");
     if (clientsLookingForGame.includes(ws)) clientsLookingForGame.splice(clientsLookingForGame.indexOf(ws), 1);
-    else if (ws.game) Network.handleClientRagequit(ws)
+    else if (ws.game && !ws.game.finished) Network.handleClientRagequit(ws)
   });
 
   ws.onerror = function () {

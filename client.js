@@ -36,12 +36,14 @@ function connect() {
   socket.onclose = function (event) {
     console.log("Disconnected from server");
     //alert("Disconnected from server");
-    cancelMatch();
+    if (socket) {socket.close();
+    cancelMatch();}
   };
 
   socket.onerror = function (error) {
     console.log("Error: " + error);
-    cancelMatch();
+    if (socket) {socket.close();
+      cancelMatch();}
   };
 
   socket.onmessage = function (event) {
@@ -296,6 +298,7 @@ function quickMatch() {
   document.getElementById("looking").style.display = "block";
   document.getElementById("cancel-match").style.display = "block";
   me.nickname = document.getElementById("nickname").value;
+  //if (socket) socket.close();
   connect();
 }
 function cancelMatch() {

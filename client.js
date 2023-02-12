@@ -142,6 +142,21 @@ function goGame() {
   turnOrder.beginTurn(currentPlayer);
 }
 function addEventListeners() {
+
+  const nameInput = document.getElementById("nickname")
+  // Get the stored name from localStorage
+  const storedName = localStorage.getItem('name');
+  // Set the stored name as the value of the name input field
+  if (storedName) {
+    nameInput.value = storedName;
+    document.getElementById("name").value = storedName;
+  }
+  // When the name input changes
+  nameInput.addEventListener('input', function () {
+    // Store the name in localStorage
+    localStorage.setItem('name', nameInput.value);
+  });
+
   document.getElementById("quick-match").addEventListener("click", quickMatch);
   document
     .getElementById("cancel-match")
@@ -224,7 +239,7 @@ function generateTooltipInfo(event) {
     hoverInfo.aoe = null;
     hoverInfo.entity = null;
   }
-  
+
   hoverInfo.element = undefined;
   if (currentPlayer) {
     let btnX = buttonSpell.w_offset - (buttonSpell.width) - 10;
@@ -251,7 +266,7 @@ function generateTooltipInfo(event) {
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (Math.pow(x - (c.CANVAS.WIDTH - 330 + 75), 2) + Math.pow(y - (10 + 75), 2) < Math.pow(75, 2)) {
     hoverInfo.help = true;
-    PLAYERS.forEach((p,i) => p.entity.currentOrder = (i - idCurrentPlayer + PLAYERS.length) % PLAYERS.length);
+    PLAYERS.forEach((p, i) => p.entity.currentOrder = (i - idCurrentPlayer + PLAYERS.length) % PLAYERS.length);
   } else {
     hoverInfo.help = false;
   }

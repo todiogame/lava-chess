@@ -26,8 +26,42 @@
     </div>
     <div id="game-container" class="game-container" style="display:none;">
         <canvas id="canvas"></canvas>
-
-
+    </div>
+    <div id="create-account" style="display:none;">
+        <div>
+            <h2>Create an account</h2>
+            <form action="/create-account" method="post">
+              <div>
+                <label for="name">Name:</label>
+                <input type="text" id="name" name="name">
+              </div>
+              <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+              </div>
+              <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+              </div>
+              <button type="submit">Create Account</button>
+            </form>
+          </div>
+          
+          <div>
+            <h2>Log in</h2>
+            <form action="/login" method="post">
+              <div>
+                <label for="email">Email:</label>
+                <input type="email" id="email" name="email">
+              </div>
+              <div>
+                <label for="password">Password:</label>
+                <input type="password" id="password" name="password">
+              </div>
+              <button type="submit">Log In</button>
+            </form>
+          </div>
+          
     </div>
     <script src="./main.js"></script>
 

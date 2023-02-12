@@ -12,6 +12,7 @@ const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
 
 var isAnimed = false;
+var isListening = false;
 var me = {};
 var enemy = {};
 hoverInfo = {};
@@ -63,7 +64,14 @@ function connect() {
       goGame();
     }
     if (received.type == "starting_team") {
-      goPickBan(received.data);
+      currentTeam = received.data;
+    }
+
+    if (received.type == "GAME_MODE") {
+      if (received.data == c.GAME_MODE.DRAFT)
+        goPickBan();
+      // else if (received.data == c.GAME_MODE.QUICK)
+      // goGame();
     }
     if (received.type == "PICKBAN") {
       pickPhase.playAction(received.data);
@@ -92,21 +100,19 @@ function recreatePlayers(data) {
   });
 }
 
-function goPickBan(startingTeam) {
+function goPickBan() {
   currentPlayer = 0;
 
   map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
   isPickPhase = true;
-  currentTeam = startingTeam;
   pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
   // hud.displayProfiles(me, enemy);
-  hud.switchToGameMode();
-
   pickPhase.initPickPhase();
-  listenToInputs();
 
+  hud.switchToGameMode();
+  if (!isListening) listenToInputs();
   if (!isAnimed) {
     isAnimed = true;
     Anim.mainLoop();
@@ -116,6 +122,12 @@ function goPickBan(startingTeam) {
 function goGame() {
   console.log("START GAME");
   isPickPhase = false;
+  hud.switchToGameMode();
+  if (!isListening) listenToInputs();
+  if (!isAnimed) {
+    isAnimed = true;
+    Anim.mainLoop();
+  }
 
   entities = [];
   PLAYERS.forEach((p) => {
@@ -137,6 +149,7 @@ function addEventListeners() {
 }
 
 function initGlobals() {
+  map = [];
   currentPlayer = 0;
   projectiles = [];
   entities = [];
@@ -145,6 +158,7 @@ function initGlobals() {
 }
 
 function listenToInputs() {
+  isListening = true
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event);
     pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));

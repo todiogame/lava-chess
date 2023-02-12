@@ -5,6 +5,7 @@ const router = require('./lib/server/routes')
 const bodyParser = require("body-parser");
 const Game = require('./lib/server/Game');
 const Network = require('./lib/Network');
+const c = require("./lib/const")
 
 // Start the web server
 app.use(express.static('public'));
@@ -35,7 +36,7 @@ wss.on('connection', function connection(ws, req) {
   if (clientsLookingForGame.length % 2 === 0) {
     const clientA = clientsLookingForGame.shift();
     const clientB = clientsLookingForGame.shift();
-    games.push(new Game(clientA, clientB));
+    games.push(new Game(clientA, clientB, c.GAME_MODE.QUICK));
   }
 
   ws.on("close", () => {

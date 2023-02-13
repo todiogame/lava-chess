@@ -299,6 +299,7 @@ function quickMatch() {
   document.getElementById("quick-match").setAttribute("disabled", true);
   document.getElementById("looking").style.display = "block";
   document.getElementById("cancel-match").style.display = "block";
+  document.getElementById("game-result").style = "display:flex;";
   me.nickname = document.getElementById("nickname").value;
   //if (socket) socket.close();
   connect();

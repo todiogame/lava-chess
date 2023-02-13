@@ -146,19 +146,19 @@ ongoingGame = og;
 
 
 function addEventListeners() {
-  const nameInput = document.getElementById("nickname");
-  // Get the stored name from localStorage
-  const storedName = localStorage.getItem("name");
-  // Set the stored name as the value of the name input field
-  if (storedName) {
-    nameInput.value = storedName;
-    // document.getElementById("name").value = storedName;
-  }
-  // When the name input changes
-  nameInput.addEventListener("input", function () {
-    // Store the name in localStorage
-    localStorage.setItem("name", nameInput.value);
-  });
+  // const nameInput = document.getElementById("nickname");
+  // // Get the stored name from localStorage
+  // const storedName = localStorage.getItem("name");
+  // // Set the stored name as the value of the name input field
+  // if (storedName) {
+  //   nameInput.value = storedName;
+  //   // document.getElementById("name").value = storedName;
+  // }
+  // // When the name input changes
+  // nameInput.addEventListener("input", function () {
+  //   // Store the name in localStorage
+  //   localStorage.setItem("name", nameInput.value);
+  // });
 
   document.getElementById("quick-match").addEventListener("click", quickMatch);
   document

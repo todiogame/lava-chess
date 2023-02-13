@@ -7,7 +7,7 @@ on a plus la killcam finale
 l'ordre des joueurs est mauvais, il reste les morts
 
 mieux notifier quand cest a toi de jouer  
-
+donner la meme couleur a tous les glyphes identiques
 ______________________
 UI:
 - quand on clic sur le mec : voir ses CD

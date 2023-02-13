@@ -61,6 +61,44 @@
   margin-top: 20px;
 }
 
+#account-info {
+  text-align: center;
+  margin: 10px;
+  font-size: 18px;
+  font-weight: bold;
+  color: #ffc107;
+}
+
+#experience-bar {
+  height: 20px;
+  width: 100%;
+  border: 5px solid #ffc107;
+  margin: 10px 0;
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+#experience-bar-fill {
+  height: 100%;
+  width: 0%;
+  background-color: #ff6600;
+  position: absolute;
+  top: 0;
+  left: 0;
+  border-radius: 20px;
+}
+
+@keyframes fill {
+  0% {
+    width: 0%;
+  }
+
+  100% {
+    width: 100%;
+  }
+}
+
 .buttons .disabled {
   background-color: gray;
   pointer-events: none;

@@ -12,6 +12,7 @@ const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
 const interface = require("./lib/client/interface");
 const OngoingGame = require("./lib/OngoingGame")
+const data = require("./lib/client/data")
 
 var isAnimed = false;
 var isListening = false;
@@ -21,6 +22,8 @@ hoverInfo = {};
 displayAllHP = false;
 var socket;
 var ongoingGame;
+storedData = data.retrieve();
+storedData.updateHTML();
 addEventListeners();
 
 function connect() {
@@ -38,7 +41,6 @@ function connect() {
 
   socket.onclose = function (event) {
     console.log("Disconnected from server");
-    alert("Disconnected from server");
     if (socket) {
       socket.close();
       cancelMatch();
@@ -47,6 +49,7 @@ function connect() {
 
   socket.onerror = function (error) {
     console.log("Error: " + error);
+    alert("Disconnected from server");
     if (socket) {
       socket.close();
       cancelMatch();
@@ -89,7 +92,7 @@ function connect() {
     }
     if (received.type == "END_GAME") {
       console.log("received endgame")
-      utils.endGame(TEAM == received.data);
+      utils.waitAnimationThenDisplayEndScreen(TEAM == received.data); // wait before calling endGame so we can see the animations
       if (socket) socket.close();
     }
   };
@@ -141,23 +144,21 @@ function goGame(players) {
     isAnimed = true;
     Anim.mainLoop(og);
   }
-ongoingGame = og; 
+  ongoingGame = og;
 }
 
 
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
-  // Get the stored name from localStorage
-  const storedName = localStorage.getItem("name");
   // Set the stored name as the value of the name input field
-  if (storedName) {
-    nameInput.value = storedName;
-    // document.getElementById("name").value = storedName;
+  if (storedData.username) {
+    nameInput.value = storedData.username;
   }
   // When the name input changes
+  // Store the name in localStorage
   nameInput.addEventListener("input", function () {
-    // Store the name in localStorage
-    localStorage.setItem("name", nameInput.value);
+    storedData.username = nameInput.value;
+    data.save(storedData)
   });
 
   document.getElementById("quick-match").addEventListener("click", quickMatch);
@@ -186,10 +187,10 @@ function listenToInputs(og) {
     function (event) {
       // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
       // else {
-        const { x, y } = mouseEventToXY(event);
-        let hitHUD = interface.onMouseClicHUD(x, y, og);
-        // console.log("hit hud!", hitHUD);
-        if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+      const { x, y } = mouseEventToXY(event);
+      let hitHUD = interface.onMouseClicHUD(x, y, og);
+      // console.log("hit hud!", hitHUD);
+      if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event), og);
       // }
     },
     false,

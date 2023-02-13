@@ -11,7 +11,6 @@ const turnOrder = require("./lib/turnOrder");
 const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
 const interface = require("./lib/client/interface");
-const globals = require("./lib/client/globals");
 const OngoingGame = require("./lib/OngoingGame")
 
 var isAnimed = false;
@@ -39,7 +38,7 @@ function connect() {
 
   socket.onclose = function (event) {
     console.log("Disconnected from server");
-    //alert("Disconnected from server");
+    alert("Disconnected from server");
     if (socket) {
       socket.close();
       cancelMatch();
@@ -153,7 +152,7 @@ function addEventListeners() {
   // Set the stored name as the value of the name input field
   if (storedName) {
     nameInput.value = storedName;
-    document.getElementById("name").value = storedName;
+    // document.getElementById("name").value = storedName;
   }
   // When the name input changes
   nameInput.addEventListener("input", function () {

@@ -316,5 +316,6 @@ buttonSpell = {
   w_offset: c.CANVAS.WIDTH / 10,
   h_offset: c.CANVAS.HEIGHT - 30,
   borderColor: "yellow",
+  borderColorEnemyTurn: "grey",
   borderWidth: 5,
 };

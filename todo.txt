@@ -1,18 +1,16 @@
 todo:
 multibugs:
-mur dur a placer sur un shiled?.
-probleme fin de game : ex golem qui s'isole sur un caillou
-bug : on peut passer les tours des invocs
-
+bug relance quickgame apres la game
+probleme fin de game : ex golem qui s'isole sur une case
+l'affichage des glyphes de l'unit in hover est casse
+on a plus la killcam finale
+l'ordre des joueurs est mauvais, il reste les morts
 
 mieux notifier quand cest a toi de jouer  
 
 ______________________
 UI:
-souris sur un perso :
-- ca dit quand il joue ?
 - quand on clic sur le mec : voir ses CD
-- quand les infos hover depassent de l'ecran => les afficher ailleurs
 
 TIMER:
 - gerer cote serveur
@@ -37,7 +35,6 @@ Loading screen
 
 ______________________
 Mode multi :
-Securiser un minimum :
 envoyer "a ton tour" a un client et refuser les messages de l'autre
 checker castSpell
 fin du tour => donner la main a l'autre

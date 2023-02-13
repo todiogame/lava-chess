@@ -10,8 +10,9 @@ const pickPhase = require("./lib/client/pickPhase");
 const turnOrder = require("./lib/turnOrder");
 const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
-const interface =  require("./lib/client/interface");
-const globals =  require("./lib/client/globals");
+const interface = require("./lib/client/interface");
+const globals = require("./lib/client/globals");
+const OngoingGame = require("./lib/OngoingGame")
 
 var isAnimed = false;
 var isListening = false;
@@ -20,6 +21,7 @@ var enemy = {};
 hoverInfo = {};
 displayAllHP = false;
 var socket;
+var ongoingGame;
 addEventListeners();
 
 function connect() {
@@ -38,14 +40,18 @@ function connect() {
   socket.onclose = function (event) {
     console.log("Disconnected from server");
     //alert("Disconnected from server");
-    if (socket) {socket.close();
-    cancelMatch();}
+    if (socket) {
+      socket.close();
+      cancelMatch();
+    }
   };
 
   socket.onerror = function (error) {
     console.log("Error: " + error);
-    if (socket) {socket.close();
-      cancelMatch();}
+    if (socket) {
+      socket.close();
+      cancelMatch();
+    }
   };
 
   socket.onmessage = function (event) {
@@ -64,13 +70,9 @@ function connect() {
     }
 
     if (received.type == "PLAYERS") {
-      PLAYERS = recreatePlayers(received.data);
-      goGame();
+      let players = recreatePlayers(received.data);
+      goGame(players);
     }
-    if (received.type == "starting_team") {
-      currentTeam = received.data;
-    }
-
     if (received.type == "GAME_MODE") {
       if (received.data == c.GAME_MODE.DRAFT) goPickBan();
       // else if (received.data == c.GAME_MODE.QUICK)
@@ -80,7 +82,7 @@ function connect() {
       pickPhase.playAction(received.data);
     }
     if (received.type == "ACTION") {
-      logic.playAction(received.data);
+      logic.playAction(received.data, ongoingGame);
     }
     if (received.type == "RAGEQUIT") {
       utils.endGame(true, "RAGEQUIT");
@@ -104,47 +106,41 @@ function recreatePlayers(data) {
   });
 }
 
-function goPickBan() {
-  currentPlayer = 0;
+// function goPickBan() {
+//   currentPlayer = 0;
 
-  map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
+//   map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
-  isPickPhase = true;
-  pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
+//   isPickPhase = true;
+//   pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
-  // hud.displayProfiles(me, enemy);
-  pickPhase.initPickPhase();
+//   // hud.displayProfiles(me, enemy);
+//   pickPhase.initPickPhase();
 
-  hud.switchToGameMode();
-  if (!isListening) listenToInputs();
-  if (!isAnimed) {
-    isAnimed = true;
-    Anim.mainLoop();
-  }
-}
+//   hud.switchToGameMode();
+//   if (!isListening) listenToInputs();
+//   if (!isAnimed) {
+//     isAnimed = true;
+//     Anim.mainLoop();
+//   }
+// }
 
-function goGame() {
+function goGame(players) {
   console.log("START GAME");
   isPickPhase = false;
   hud.switchToGameMode();
-  if (!isListening) listenToInputs();
+  og = new OngoingGame(players)
+  og.PLAYERS = drawing.loadImages(og.PLAYERS);
+  turnOrder.beginTurn(og);
+  if (!isListening) listenToInputs(og);
   if (!isAnimed) {
     isAnimed = true;
-    Anim.mainLoop();
+    Anim.mainLoop(og);
   }
-
-  entities = [];
-  PLAYERS.forEach((p) => {
-    entities.push(p.entity);
-  });
-  PLAYERS = drawing.loadImages(PLAYERS);
-  //reinit map
-  map = logic.initMap(c.CONSTANTS.MAP_RADIUS);
-  idCurrentPlayer = 0;
-  currentPlayer = PLAYERS[idCurrentPlayer];
-
-  turnOrder.beginTurn(currentPlayer, globals.turnTimer);
+ongoingGame = og; 
 }
+
+
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
   // Get the stored name from localStorage
@@ -167,45 +163,45 @@ function addEventListeners() {
 }
 
 function initGlobals() {
-  map = [];
-  currentPlayer = 0;
+  // map = [];
+  // currentPlayer = 0;
   projectiles = [];
-  entities = [];
+  // entities = [];
   particles = [];
 }
 
-function listenToInputs() {
+function listenToInputs(og) {
   isListening = true;
   canvas.onmousemove = function (event) {
-    generateTooltipInfo(event);
-    pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
-    if (!isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event));
+    generateTooltipInfo(event, og);
+    // pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
+    if (!isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event), og);
   };
   canvas.addEventListener(
     "click",
     function (event) {
-      if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
-      else {
+      // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
+      // else {
         const { x, y } = mouseEventToXY(event);
-        let hitHUD = interface.onMouseClicHUD(x, y);
-        console.log("hit hud!", hitHUD);
-        if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event));
-      }
+        let hitHUD = interface.onMouseClicHUD(x, y, og);
+        // console.log("hit hud!", hitHUD);
+        if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+      // }
     },
     false,
   );
 
   document.addEventListener("keydown", (event) => {
     if (event.key === "1" || event.key === "Q") {
-      interface.clickSpell(0);
+      interface.clickSpell(0, og);
     } else if (event.key === "2" || event.key === "W") {
-      interface.clickSpell(1);
+      interface.clickSpell(1, og);
     } else if (event.key === "3" || event.key === "E") {
-      interface.clickSpell(2);
+      interface.clickSpell(2, og);
     } else if (event.key === "4" || event.key === "R") {
-      interface.clickPassTurnOrRiseLava();
+      interface.clickPassTurnOrRiseLava(og);
     } else if (event.key === "`" || event.key === "M") {
-      interface.clickMove();
+      interface.clickMove(og);
     }
   });
 }
@@ -224,15 +220,15 @@ function mouseEventToXY(e) {
   return { x, y };
 }
 
-function generateTooltipInfo(event) {
+function generateTooltipInfo(event, og) {
   const { x, y } = mouseEventToXY(event);
   let hPtClick = mouseEventToHexCoord(event);
   let hPtClickRound = hPtClick.round();
   hoverInfo.cell = hPtClickRound;
-  let found = map.find((b) => hPtClickRound.distance(b) == 0);
+  let found = og.map.find((b) => hPtClickRound.distance(b) == 0);
   if (found) {
     hoverInfo.aoe = found.aoe;
-    let ent = utils.findEntityOnCell(found);
+    let ent = utils.findEntityOnCell(found, og);
     if (ent) {
       hoverInfo.entity = ent;
     } else hoverInfo.entity = null;
@@ -242,7 +238,7 @@ function generateTooltipInfo(event) {
   }
 
   hoverInfo.element = undefined;
-  if (currentPlayer) {
+  if (og.currentPlayer) {
     let btnX = buttonSpell.w_offset - buttonSpell.width - 10;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)
@@ -255,7 +251,7 @@ function generateTooltipInfo(event) {
     ) {
       hoverInfo.element = c.GAMEDATA.MOVE_SPELL;
     }
-    for (let i = 0; i < currentPlayer.spells.length; i++) {
+    for (let i = 0; i < og.currentPlayer.spells.length; i++) {
       btnX = buttonSpell.w_offset + i * (buttonSpell.width + 10);
       if (
         x > btnX &&
@@ -263,7 +259,7 @@ function generateTooltipInfo(event) {
         y > btnY &&
         y < btnY + buttonSpell.height
       ) {
-        hoverInfo.element = currentPlayer.spells[i];
+        hoverInfo.element = og.currentPlayer.spells[i];
       }
     }
     btnX = (c.CANVAS.WIDTH * 7) / 10;
@@ -273,7 +269,7 @@ function generateTooltipInfo(event) {
       y > btnY &&
       y < btnY + buttonSpell.height
     ) {
-      if (currentPlayer.isSummoned) hoverInfo.element = c.GAMEDATA.PASS_SPELL;
+      if (og.currentPlayer.isSummoned) hoverInfo.element = c.GAMEDATA.PASS_SPELL;
       else hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
     }
   }
@@ -283,10 +279,10 @@ function generateTooltipInfo(event) {
     Math.pow(75, 2)
   ) {
     hoverInfo.help = true;
-    PLAYERS.forEach(
+    og.PLAYERS.forEach(
       (p, i) =>
-        (p.entity.currentOrder =
-          (i - idCurrentPlayer + PLAYERS.length) % PLAYERS.length),
+      (p.entity.currentOrder =
+        (i - og.idCurrentPlayer + og.PLAYERS.length) % og.PLAYERS.length),
     );
   } else {
     hoverInfo.help = false;

@@ -88,6 +88,11 @@ function connect() {
       utils.endGame(true, "RAGEQUIT");
       if (socket) socket.close();
     }
+    if (received.type == "END_GAME") {
+      console.log("received endgame")
+      utils.endGame(TEAM == received.data);
+      if (socket) socket.close();
+    }
   };
 }
 

@@ -36,7 +36,7 @@ wss.on('connection', function connection(ws, req) {
   if (clientsLookingForGame.length % 2 === 0) {
     const clientA = clientsLookingForGame.shift();
     const clientB = clientsLookingForGame.shift();
-    games.push(new Game(clientA, clientB, c.GAME_MODE.QUICK));
+    games.push(new Game(clientA, clientB, c.GAME_MODE.QUICK, onGameEnd));
   }
 
   ws.on("close", () => {
@@ -52,4 +52,15 @@ wss.on('connection', function connection(ws, req) {
   ws.on("message", (message) => {
     Network.handleMessageFromClient(ws, message);
   });
+
+  function onGameEnd(game) {
+    console.log("ongameend")
+    if (game.clientA) game.clientA.close()
+    if (game.clientB) game.clientB.close()
+    // When the game is finished, find its index in the games array and remove it
+    const gameIndex = games.indexOf(game);
+    if (gameIndex !== -1) {
+      games.splice(gameIndex, 1);
+    }
+  }
 });

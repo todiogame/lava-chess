@@ -14,8 +14,6 @@ const interface = require("./lib/client/interface");
 const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
 
-var isAnimed = false;
-var isListening = false;
 var me = {};
 var enemy = {};
 hoverInfo = {};
@@ -92,7 +90,9 @@ function connect() {
     }
     if (received.type == "END_GAME") {
       console.log("received endgame")
-      utils.waitAnimationThenDisplayEndScreen(TEAM == received.data); // wait before calling endGame so we can see the animations
+      utils.waitAnimationThenDisplayEndScreen(TEAM == received.data, ongoingGame); // wait before calling endGame so we can see the animations
+      canvas.removeEventListener('click', canvasEventListener)
+      og.isListening = false
       if (socket) socket.close();
     }
   };
@@ -138,13 +138,14 @@ function goGame(players) {
   hud.switchToGameMode();
   og = new OngoingGame(players)
   og.PLAYERS = drawing.loadImages(og.PLAYERS);
+  ongoingGame = og;
   turnOrder.beginTurn(og);
-  if (!isListening) listenToInputs(og);
-  if (!isAnimed) {
-    isAnimed = true;
+  if (!og.isListening) listenToInputs(og);
+  if (!og.isAnimed) {
+    og.isAnimed = true;
+    console.log("start anim")
     Anim.mainLoop(og);
   }
-  ongoingGame = og;
 }
 
 
@@ -175,27 +176,43 @@ function initGlobals() {
   particles = [];
 }
 
+const myfunkmyfunk = function (event, og){
+  // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
+  // else {
+  const { x, y } = mouseEventToXY(event);
+  let hitHUD = interface.onMouseClicHUD(x, y, og);
+  // console.log("hit hud!", hitHUD);
+  if (!hitHUD)
+    interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+}
+
+var canvasEventListener;
+
+
 function listenToInputs(og) {
-  isListening = true;
+  og.isListening = true;
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event, og);
     // pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
     if (!isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event), og);
   };
+
+  canvasEventListener = (event) => {
+    const { x, y } = mouseEventToXY(event);
+    let hitHUD = interface.onMouseClicHUD(x, y, og);
+    // console.log("hit hud!", hitHUD);
+    if (!hitHUD)
+      interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+  }
+
   canvas.addEventListener(
     "click",
-    function (event) {
-      // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
-      // else {
-      const { x, y } = mouseEventToXY(event);
-      let hitHUD = interface.onMouseClicHUD(x, y, og);
-      // console.log("hit hud!", hitHUD);
-      if (!hitHUD) interface.onMouseClicGame(mouseEventToHexCoord(event), og);
-      // }
-    },
+    canvasEventListener,
     false,
   );
 
+
+  
   document.addEventListener("keydown", (event) => {
     if (event.key === "1" || event.key === "Q") {
       interface.clickSpell(0, og);

@@ -284,10 +284,11 @@ function generateTooltipInfo(event, og) {
     Math.pow(75, 2)
   ) {
     hoverInfo.help = true;
-    og.PLAYERS.forEach(
+    let playingPlayers = og.PLAYERS.filter(p => !p.dead)
+    playingPlayers.forEach(
       (p, i) =>
       (p.entity.currentOrder =
-        (i - og.idCurrentPlayer + og.PLAYERS.length) % og.PLAYERS.length),
+        (i - playingPlayers.indexOf(og.currentPlayer) + playingPlayers.length) % playingPlayers.length),
     );
   } else {
     hoverInfo.help = false;

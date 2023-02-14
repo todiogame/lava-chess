@@ -1,13 +1,24 @@
 todo:
+selection des persos
+remettre timer
+pas de fin de game quand le gasser meurt du bidon dans le gaz
+
 multibugs:
-bug relance quickgame apres la game
+sale bug si un client refresh et pas l'autre ? lors de la 2nde game
 probleme fin de game : ex golem qui s'isole sur une case
-l'affichage des glyphes de l'unit in hover est casse
-on a plus la killcam finale
-l'ordre des joueurs est mauvais, il reste les morts
+la charge ne doit pas traverser la lave
+summon undefined order just when summon (from other player pov)
 
 mieux notifier quand cest a toi de jouer  
 donner la meme couleur a tous les glyphes identiques
+anim ninja slash
+anim force wave mage
+nerf ldv assassin ?
+rework dragon
+fix range elem lave (special range)
+ajouter elem d'eau
+
+rework systeme de preview range / target avec un tableau de cellules : comme ca cumulable par ex. sur l'aoe du ninja qui cible une case en double
 ______________________
 UI:
 - quand on clic sur le mec : voir ses CD
@@ -19,13 +30,9 @@ ______________________
 
 anim laggg => a investiguer
 
-add abandon button ?
+add abandon button
 
-add sounds
-
-ecran game over : victory / defeat + play again + inscription  
-
-add backend : login UI, database, ... 
+add backend : login UI + create acc
 
 gerer la fin de partie quand on ne peux plus enlever de cases : egalite ?
 

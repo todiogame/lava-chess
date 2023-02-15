@@ -176,7 +176,7 @@ function initGlobals() {
   particles = [];
 }
 
-const myfunkmyfunk = function (event, og){
+const myfunkmyfunk = function (event, og) {
   // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
   // else {
   const { x, y } = mouseEventToXY(event);
@@ -212,7 +212,7 @@ function listenToInputs(og) {
   );
 
 
-  
+
   document.addEventListener("keydown", (event) => {
     if (event.key === "1" || event.key === "Q") {
       interface.clickSpell(0, og);
@@ -261,39 +261,8 @@ function generateTooltipInfo(event, og) {
 
   hoverInfo.element = undefined;
   if (og.currentPlayer) {
-    let btnX = buttonSpell.w_offset - buttonSpell.width - 10;
-    let btnY = buttonSpell.h_offset - buttonSpell.height;
-    // console.log("X: " + x, btnX, btnX + buttonSpell.width)
-    // console.log("Y: " + y, btnY, btnY + buttonSpell.height)
-    if (
-      x > btnX &&
-      x < btnX + buttonSpell.width &&
-      y > btnY &&
-      y < btnY + buttonSpell.height
-    ) {
-      hoverInfo.element = c.GAMEDATA.MOVE_SPELL;
-    }
-    for (let i = 0; i < og.currentPlayer.spells.length; i++) {
-      btnX = buttonSpell.w_offset + i * (buttonSpell.width + 10);
-      if (
-        x > btnX &&
-        x < btnX + buttonSpell.width &&
-        y > btnY &&
-        y < btnY + buttonSpell.height
-      ) {
-        hoverInfo.element = og.currentPlayer.spells[i];
-      }
-    }
-    btnX = (c.CANVAS.WIDTH * 7) / 10;
-    if (
-      x > btnX &&
-      x < btnX + buttonSpell.width &&
-      y > btnY &&
-      y < btnY + buttonSpell.height
-    ) {
-      if (og.currentPlayer.isSummoned) hoverInfo.element = c.GAMEDATA.PASS_SPELL;
-      else hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
-    }
+    makeHoverInfoSpell(buttonSpell1, true);
+    makeHoverInfoSpell(buttonSpell2, false);
   }
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (
@@ -309,6 +278,40 @@ function generateTooltipInfo(event, og) {
     );
   } else {
     hoverInfo.help = false;
+  }
+
+  function makeHoverInfoSpell(buttonSpell, haveButtonRiseLava) {
+    let btnX = buttonSpell.w_offset;
+    let btnY = buttonSpell.h_offset - buttonSpell.height;
+    // console.log("X: " + x, btnX, btnX + buttonSpell.width)
+    // console.log("Y: " + y, btnY, btnY + buttonSpell.height)
+    if (x > btnX &&
+      x < btnX + buttonSpell.width &&
+      y > btnY &&
+      y < btnY + buttonSpell.height) {
+      hoverInfo.element = c.GAMEDATA.MOVE_SPELL;
+    }
+    for (let i = 0; i < og.currentPlayer.spells.length; i++) {
+      btnX = buttonSpell.w_offset + (i+1) * (buttonSpell.width + 10);
+      if (x > btnX &&
+        x < btnX + buttonSpell.width &&
+        y > btnY &&
+        y < btnY + buttonSpell.height) {
+        hoverInfo.element = og.currentPlayer.spells[i];
+      }
+    }
+    if (haveButtonRiseLava) {
+      btnX = (c.CANVAS.WIDTH * 7) / 10;
+      if (x > btnX &&
+        x < btnX + buttonSpell.width &&
+        y > btnY &&
+        y < btnY + buttonSpell.height) {
+        if (og.currentPlayer.isSummoned)
+          hoverInfo.element = c.GAMEDATA.PASS_SPELL;
+        else
+          hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
+      }
+    }
   }
 }
 
@@ -330,11 +333,20 @@ function cancelMatch() {
   document.getElementById("cancel-match").style.display = "none";
 }
 // Define the buttonSpell properties
-buttonSpell = {
+buttonSpell1 = {
   width: 100,
   height: 100,
-  w_offset: c.CANVAS.WIDTH / 10,
+  w_offset: c.CANVAS.WIDTH / 10 -110,
   h_offset: c.CANVAS.HEIGHT - 30,
+  borderColor: "yellow",
+  borderColorEnemyTurn: "grey",
+  borderWidth: 5,
+};
+buttonSpell2 = {
+  width: 50,
+  height: 50,
+  w_offset: c.CANVAS.WIDTH / 10 -105,
+  h_offset: 350,
   borderColor: "yellow",
   borderColorEnemyTurn: "grey",
   borderWidth: 5,

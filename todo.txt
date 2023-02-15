@@ -17,6 +17,7 @@ nerf ldv assassin ?
 rework dragon
 fix range elem lave (special range)
 ajouter elem d'eau
+fix anim push dans la lave
 
 rework systeme de preview range / target avec un tableau de cellules : comme ca cumulable par ex. sur l'aoe du ninja qui cible une case en double
 ______________________

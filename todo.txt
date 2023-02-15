@@ -1,23 +1,21 @@
 todo:
 selection des persos
 remettre timer
+emotes comme sur dofus lol
+range des sorts dans la tooltip
+a l'hover des sorts ennemis : afficher la range au sol
+afficher les noms des joueurs
 
 multibugs:
-afficher spells des allies mais pas les siens
-la cell du shotgun ne contient pas l'icone gas gas gas en hover
 pas de fin de game quand le gasser meurt du bidon dans le gaz
 sale bug si un client refresh et pas l'autre ? lors de la 2nde game
 probleme fin de game : ex golem qui s'isole sur une case
 la charge ne doit pas traverser la lave
-summon undefined order just when summon (from other player pov)
 
 mieux notifier quand cest a toi de jouer  
-donner la meme couleur a tous les glyphes identiques
-anim ninja slash
 anim force wave mage
 nerf ldv assassin ?
 rework dragon
-fix range elem lave (special range)
 fix anim push dans la lave
 
 rework systeme de preview range / target avec un tableau de cellules : comme ca cumulable par ex. sur l'aoe du ninja qui cible une case en double

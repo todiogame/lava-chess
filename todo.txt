@@ -1,9 +1,9 @@
 todo:
 selection des persos
 remettre timer
-pas de fin de game quand le gasser meurt du bidon dans le gaz
 
 multibugs:
+pas de fin de game quand le gasser meurt du bidon dans le gaz
 sale bug si un client refresh et pas l'autre ? lors de la 2nde game
 probleme fin de game : ex golem qui s'isole sur une case
 la charge ne doit pas traverser la lave
@@ -16,7 +16,6 @@ anim force wave mage
 nerf ldv assassin ?
 rework dragon
 fix range elem lave (special range)
-ajouter elem d'eau
 fix anim push dans la lave
 
 rework systeme de preview range / target avec un tableau de cellules : comme ca cumulable par ex. sur l'aoe du ninja qui cible une case en double

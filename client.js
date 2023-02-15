@@ -261,8 +261,15 @@ function generateTooltipInfo(event, og) {
 
   hoverInfo.element = undefined;
   if (og.currentPlayer) {
-    makeHoverInfoSpell(buttonSpell1, true);
-    makeHoverInfoSpell(buttonSpell2, false);
+    const subArr = og.PLAYERS.slice(og.idCurrentPlayer);
+    let usersNextPLayer = subArr.find(p => p.entity.team == TEAM);
+    if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
+    if (usersNextPLayer) makeHoverInfoSpell(buttonSpell1, usersNextPLayer, true) //bottom row
+
+    let selectedEntity = og.entities.find(e => e.selected)
+    let foundSelectedPlayer = utils.findPlayerFromEntity(selectedEntity, og);
+    let selectedPlayer = foundSelectedPlayer ? foundSelectedPlayer : og.currentPlayer;
+    if (selectedPlayer) makeHoverInfoSpell(buttonSpell2, selectedPlayer, false) //top left
   }
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (
@@ -280,7 +287,7 @@ function generateTooltipInfo(event, og) {
     hoverInfo.help = false;
   }
 
-  function makeHoverInfoSpell(buttonSpell, haveButtonRiseLava) {
+  function makeHoverInfoSpell(buttonSpell, player, bottomRow) {
     let btnX = buttonSpell.w_offset;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)
@@ -291,22 +298,22 @@ function generateTooltipInfo(event, og) {
       y < btnY + buttonSpell.height) {
       hoverInfo.element = c.GAMEDATA.MOVE_SPELL;
     }
-    for (let i = 0; i < og.currentPlayer.spells.length; i++) {
-      btnX = buttonSpell.w_offset + (i+1) * (buttonSpell.width + 10);
+    for (let i = 0; i < player.spells.length; i++) {
+      btnX = buttonSpell.w_offset + (i + 1) * (buttonSpell.width + 10);
       if (x > btnX &&
         x < btnX + buttonSpell.width &&
         y > btnY &&
         y < btnY + buttonSpell.height) {
-        hoverInfo.element = og.currentPlayer.spells[i];
+        hoverInfo.element = player.spells[i];
       }
     }
-    if (haveButtonRiseLava) {
+    if (bottomRow) {
       btnX = (c.CANVAS.WIDTH * 7) / 10;
       if (x > btnX &&
         x < btnX + buttonSpell.width &&
         y > btnY &&
         y < btnY + buttonSpell.height) {
-        if (og.currentPlayer.isSummoned)
+        if (player.isSummoned)
           hoverInfo.element = c.GAMEDATA.PASS_SPELL;
         else
           hoverInfo.element = c.GAMEDATA.LAVA_SPELL;
@@ -336,7 +343,7 @@ function cancelMatch() {
 buttonSpell1 = {
   width: 100,
   height: 100,
-  w_offset: c.CANVAS.WIDTH / 10 -110,
+  w_offset: c.CANVAS.WIDTH / 10 - 110,
   h_offset: c.CANVAS.HEIGHT - 30,
   borderColor: "yellow",
   borderColorEnemyTurn: "grey",
@@ -345,7 +352,7 @@ buttonSpell1 = {
 buttonSpell2 = {
   width: 50,
   height: 50,
-  w_offset: c.CANVAS.WIDTH / 10 -105,
+  w_offset: c.CANVAS.WIDTH / 10 - 105,
   h_offset: 350,
   borderColor: "yellow",
   borderColorEnemyTurn: "grey",

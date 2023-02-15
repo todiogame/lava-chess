@@ -261,15 +261,14 @@ function generateTooltipInfo(event, og) {
 
   hoverInfo.element = undefined;
   if (og.currentPlayer) {
-    const subArr = og.PLAYERS.slice(og.idCurrentPlayer);
-    let usersNextPLayer = subArr.find(p => p.entity.team == TEAM);
+    let usersNextPLayer = utils.findNextPlayer(og, TEAM);
     if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
     if (usersNextPLayer) makeHoverInfoSpell(buttonSpell1, usersNextPLayer, true) //bottom row
 
     let selectedEntity = og.entities.find(e => e.selected)
     let foundSelectedPlayer = utils.findPlayerFromEntity(selectedEntity, og);
     let selectedPlayer = foundSelectedPlayer ? foundSelectedPlayer : og.currentPlayer;
-    if (selectedPlayer) makeHoverInfoSpell(buttonSpell2, selectedPlayer, false) //top left
+    if (selectedPlayer && (selectedPlayer != og.currentPlayer || selectedPlayer.entity.team != TEAM)) makeHoverInfoSpell(buttonSpell2, selectedPlayer, false) //top left
   }
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (

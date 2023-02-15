@@ -3,6 +3,8 @@ selection des persos
 remettre timer
 
 multibugs:
+afficher spells des allies mais pas les siens
+la cell du shotgun ne contient pas l'icone gas gas gas en hover
 pas de fin de game quand le gasser meurt du bidon dans le gaz
 sale bug si un client refresh et pas l'autre ? lors de la 2nde game
 probleme fin de game : ex golem qui s'isole sur une case

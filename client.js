@@ -122,7 +122,7 @@ function goGamePickBan() {
   // map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
   // og.isPickPhase = true;
-  pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
+  // pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
   // hud.displayProfiles(me, enemy);
   pickPhase.initPickPhase(og);

@@ -8,6 +8,8 @@ afficher les noms des joueurs
 ajouter zone d'aoe pour splash
 
 multibugs:
+description spell ghost pas bonne glyph
+debut de tour : reset la selection
 pas de fin de game quand le gasser meurt du bidon dans le gaz
 sale bug si un client refresh et pas l'autre ? lors de la 2nde game
 probleme fin de game : ex golem qui s'isole sur une case

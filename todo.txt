@@ -5,6 +5,8 @@ emotes comme sur dofus lol
 range des sorts dans la tooltip
 a l'hover des sorts ennemis : afficher la range au sol
 afficher les noms des joueurs
+ordre des joueurs 0
+ajouter zone d'aoe pour splash
 
 multibugs:
 pas de fin de game quand le gasser meurt du bidon dans le gaz

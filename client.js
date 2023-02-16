@@ -71,15 +71,16 @@ function connect() {
 
     if (received.type == "PLAYERS") {
       let players = recreatePlayers(received.data);
-      goGame(players);
+      // goGame(players);
+      startGameAfterDraft(ongoingGame, players);
     }
     if (received.type == "GAME_MODE") {
-      if (received.data == c.GAME_MODE.DRAFT) goPickBan();
+      if (received.data == c.GAME_MODE.DRAFT) goGamePickBan();
       // else if (received.data == c.GAME_MODE.QUICK)
       // goGame();
     }
     if (received.type == "PICKBAN") {
-      pickPhase.playAction(received.data);
+      pickPhase.playAction(received.data, ongoingGame);
     }
     if (received.type == "ACTION") {
       logic.playAction(received.data, ongoingGame);
@@ -113,30 +114,50 @@ function recreatePlayers(data) {
   });
 }
 
-// function goPickBan() {
-//   currentPlayer = 0;
+function goGamePickBan() {
+  currentPlayer = 0;
+  this.og = new OngoingGame(true)
+  ongoingGame = og;
 
-//   map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
+  // map = logic.initMap(c.CONSTANTS.MAP_RADIUS, "pickban");
 
-//   isPickPhase = true;
-//   pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
+  // og.isPickPhase = true;
+  pickOrBanIndex = 0; // c.CONSTANTS.PICK_BAN_ORDER[0]
 
-//   // hud.displayProfiles(me, enemy);
-//   pickPhase.initPickPhase();
+  // hud.displayProfiles(me, enemy);
+  pickPhase.initPickPhase(og);
 
-//   hud.switchToGameMode();
-//   if (!isListening) listenToInputs();
-//   if (!isAnimed) {
-//     isAnimed = true;
-//     Anim.mainLoop();
-//   }
-// }
+  console.log("START DRAFT");
+  hud.switchToGameMode();
 
+  // drawing.layout = drawing.makeLayout(og);
+
+
+  if (!og.isListening) listenToInputs(og);
+  if (!og.isAnimed) {
+    og.isAnimed = true;
+    console.log("start anim")
+    Anim.mainLoop(og);
+  }
+  // startGame(og);
+
+}
+
+function startGameAfterDraft(og, players) {
+  console.log("startGame")
+  og.setPLAYERS(players)
+  og.PLAYERS = drawing.loadImages(og.PLAYERS);
+  turnOrder.beginTurn(og);
+
+}
+
+
+// quick game
 function goGame(players) {
   console.log("START GAME");
-  isPickPhase = false;
+  og.isPickPhase = false;
   hud.switchToGameMode();
-  og = new OngoingGame(players)
+  og = new OngoingGame(false, players)
   og.PLAYERS = drawing.loadImages(og.PLAYERS);
   ongoingGame = og;
   turnOrder.beginTurn(og);
@@ -175,34 +196,27 @@ function initGlobals() {
   // entities = [];
   particles = [];
 }
-
-const myfunkmyfunk = function (event, og) {
-  // if (isPickPhase) pickPhase.onMouseClicDraft(mouseEventToHexCoord(event));
-  // else {
-  const { x, y } = mouseEventToXY(event);
-  let hitHUD = interface.onMouseClicHUD(x, y, og);
-  // console.log("hit hud!", hitHUD);
-  if (!hitHUD)
-    interface.onMouseClicGame(mouseEventToHexCoord(event), og);
-}
-
 var canvasEventListener;
-
 
 function listenToInputs(og) {
   og.isListening = true;
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event, og);
-    // pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event));
-    if (!isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event), og);
+    if (og.isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event), og);
+    if (!og.isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event), og);
   };
 
   canvasEventListener = (event) => {
     const { x, y } = mouseEventToXY(event);
-    let hitHUD = interface.onMouseClicHUD(x, y, og);
-    // console.log("hit hud!", hitHUD);
-    if (!hitHUD)
-      interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+    if (!og.isPickPhase) {
+      let hitHUD = interface.onMouseClicHUD(x, y, og);
+      // console.log("hit hud!", hitHUD);
+      if (!hitHUD)
+        interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+    } else {
+      pickPhase.onMouseClicDraft(mouseEventToHexCoord(event), og);
+
+    }
   }
 
   canvas.addEventListener(

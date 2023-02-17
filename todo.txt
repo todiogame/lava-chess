@@ -1,8 +1,7 @@
 todo:
-
-remettre timer
-emotes comme sur dofus lol
+transition debut de game
 afficher les noms des joueurs
+traduction
 
 multibugs:
 

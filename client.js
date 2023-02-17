@@ -57,8 +57,8 @@ function connect() {
   socket.onmessage = function (event) {
     // console.log(event)
     const received = Network.decode(event.data);
-    // console.log("received")
-    // console.log(received)
+    console.log("received "+received.type)
+    // console.log(received.type)
     if (received.type == "INFO") {
       if (received.data.nickname) enemy.nickname = received.data.nickname;
       // hud.displayProfiles(me, enemy);
@@ -83,7 +83,7 @@ function connect() {
       pickPhase.playAction(received.data, ongoingGame);
     }
     if (received.type == "ACTION") {
-      console.log("received "+received.data)
+      // console.log("received "+received.data)
       logic.playAction(received.data, ongoingGame);
     }
     if (received.type == "RAGEQUIT") {
@@ -104,6 +104,7 @@ function recreatePlayers(data) {
   console.log("recreatePlayers", data);
   return data.map((p) => {
     let en = new Entity(
+      p.entity.id,
       p.entity.name,
       p.entity.team,
       p.entity.auras,

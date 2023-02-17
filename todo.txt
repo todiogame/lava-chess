@@ -1,7 +1,6 @@
 todo:
 transition debut de game
 afficher les noms des joueurs
-traduction
 
 multibugs:
 
@@ -23,24 +22,19 @@ range des sorts dans la tooltip
 a l'hover des sorts ennemis : afficher la range au sol
 
 TIMER:
-- gerer cote serveur
 - gerer la phase de pick/ban
 ______________________
 
 anim laggg => a investiguer
-
 add abandon button
-
 add backend : login UI + create acc
-
 gerer la fin de partie quand on ne peux plus enlever de cases : egalite ?
-
 pathfinding?
 
 Loading screen
-
 ______________________
 Mode multi :
+
 envoyer "a ton tour" a un client et refuser les messages de l'autre
 checker castSpell
 fin du tour => donner la main a l'autre

@@ -57,7 +57,7 @@ function connect() {
   socket.onmessage = function (event) {
     // console.log(event)
     const received = Network.decode(event.data);
-    console.log("received "+received.type)
+    console.log("received " + received.type)
     // console.log(received.type)
     if (received.type == "INFO") {
       if (received.data.nickname) enemy.nickname = received.data.nickname;
@@ -150,7 +150,8 @@ function startGameAfterDraft(og, players) {
   og.setPLAYERS(players)
   og.PLAYERS = drawing.loadImages(og.PLAYERS);
   turnOrder.beginTurn(og);
-
+  og.popupContent = 'GAME STARTS'
+  og.popupTime = og.popupDuration = 2000;
 }
 
 

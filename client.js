@@ -83,6 +83,7 @@ function connect() {
       pickPhase.playAction(received.data, ongoingGame);
     }
     if (received.type == "ACTION") {
+      console.log("received "+received.data)
       logic.playAction(received.data, ongoingGame);
     }
     if (received.type == "RAGEQUIT") {

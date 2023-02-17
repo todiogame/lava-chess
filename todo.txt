@@ -2,21 +2,16 @@ todo:
 
 remettre timer
 emotes comme sur dofus lol
-range des sorts dans la tooltip
-a l'hover des sorts ennemis : afficher la range au sol
 afficher les noms des joueurs
-ajouter zone d'aoe pour splash
 
 multibugs:
-description spell ghost pas bonne glyph
-debut de tour : reset la selection
+
 pas de fin de game quand le gasser meurt du bidon dans le gaz
-sale bug si un client refresh et pas l'autre ? lors de la 2nde game
+sale bug si un client refresh et pas l'autre ? lors de la 2nde game => a reporoduire ?
 probleme fin de game : ex golem qui s'isole sur une case
-la charge ne doit pas traverser la lave
+la charge ne doit pas traverser la lave => mettre une condition dans le spell
 
 mieux notifier quand cest a toi de jouer  
-anim force wave mage
 nerf ldv assassin ?
 rework dragon
 fix anim push dans la lave
@@ -24,7 +19,9 @@ fix anim push dans la lave
 rework systeme de preview range / target avec un tableau de cellules : comme ca cumulable par ex. sur l'aoe du ninja qui cible une case en double
 ______________________
 UI:
-- quand on clic sur le mec : voir ses CD
+- quand on clic sur le mec :
+range des sorts dans la tooltip
+a l'hover des sorts ennemis : afficher la range au sol
 
 TIMER:
 - gerer cote serveur

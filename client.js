@@ -182,12 +182,6 @@ function goGame(players) {
 
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
-  // Set the stored name as the value of the name input field
-  // if (storedData.username) {
-  //   nameInput.value = storedData.username;
-  // }
-  // When the name input changes
-  // Store the name in localStorage
   nameInput.addEventListener("input", function () {
     storedData.username = nameInput.value;
     data.save(storedData)
@@ -287,12 +281,12 @@ function generateTooltipInfo(event, og) {
   if (og.currentPlayer) {
     let usersNextPLayer = utils.findNextPlayer(og, TEAM);
     if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
-    if (usersNextPLayer) makeHoverInfoSpell(buttonSpell1, usersNextPLayer, true) //bottom row
+    if (usersNextPLayer) makeHoverInfoSpell(og, buttonSpell1, usersNextPLayer, true) //bottom row
 
     let selectedEntity = og.entities.find(e => e.selected)
     let foundSelectedPlayer = utils.findPlayerFromEntity(selectedEntity, og);
     let selectedPlayer = foundSelectedPlayer ? foundSelectedPlayer : og.currentPlayer;
-    if (selectedPlayer && (selectedPlayer != og.currentPlayer || selectedPlayer.entity.team != TEAM)) makeHoverInfoSpell(buttonSpell2, selectedPlayer, false) //top left
+    if (selectedPlayer && (selectedPlayer != og.currentPlayer || selectedPlayer.entity.team != TEAM)) makeHoverInfoSpell(og, buttonSpell2, selectedPlayer, false) //top left
   }
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (
@@ -310,7 +304,7 @@ function generateTooltipInfo(event, og) {
     hoverInfo.help = false;
   }
 
-  function makeHoverInfoSpell(buttonSpell, player, bottomRow) {
+  function makeHoverInfoSpell(og, buttonSpell, player, bottomRow) {
     let btnX = buttonSpell.w_offset;
     let btnY = buttonSpell.h_offset - buttonSpell.height;
     // console.log("X: " + x, btnX, btnX + buttonSpell.width)

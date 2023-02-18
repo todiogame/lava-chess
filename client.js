@@ -232,16 +232,19 @@ function listenToInputs(og) {
 
 
   document.addEventListener("keydown", (event) => {
+    let usersNextPLayer = utils.findNextPlayer(og, TEAM);
+    if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
+
     if (event.key === "1" || event.key === "Q") {
-      interface.clickSpell(0, og);
+      interface.clickSpell(usersNextPLayer, 0, og);
     } else if (event.key === "2" || event.key === "W") {
-      interface.clickSpell(1, og);
+      interface.clickSpell(usersNextPLayer, 1, og);
     } else if (event.key === "3" || event.key === "E") {
-      interface.clickSpell(2, og);
+      interface.clickSpell(usersNextPLayer, 2, og);
     } else if (event.key === "4" || event.key === "R") {
-      interface.clickPassTurnOrRiseLava(og);
+      interface.clickPassTurnOrRiseLava(usersNextPLayer, og);
     } else if (event.key === "`" || event.key === "M") {
-      interface.clickMove(og);
+      interface.clickMove(usersNextPLayer, og);
     }
   });
 }

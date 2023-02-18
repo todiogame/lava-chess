@@ -20,8 +20,7 @@ hoverInfo = {};
 displayAllHP = false;
 var socket;
 var ongoingGame;
-storedData = data.retrieve();
-storedData.updateHTML();
+data.retrieve();
 addEventListeners();
 
 function connect() {
@@ -34,7 +33,7 @@ function connect() {
   socket.onopen = function (event) {
     console.log("Connected to server");
     Network.clientSocket = socket;
-    if (me.nickname) Network.clientSendInfo({ nickname: me.nickname });
+    if (storedData) Network.clientSendInfo({ userInfo: storedData });
   };
 
   socket.onclose = function (event) {
@@ -89,6 +88,14 @@ function connect() {
     if (received.type == "RAGEQUIT") {
       utils.endGame(true, "RAGEQUIT");
       if (socket) socket.close();
+    }
+
+    if (received.type == "ELO") {
+      if (received.data) {
+        storedData.setElo(received.data)
+        data.save(storedData)
+      }
+      // hud.displayProfiles(me, enemy);
     }
     if (received.type == "END_GAME") {
       console.log("received endgame")
@@ -176,9 +183,9 @@ function goGame(players) {
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
   // Set the stored name as the value of the name input field
-  if (storedData.username) {
-    nameInput.value = storedData.username;
-  }
+  // if (storedData.username) {
+  //   nameInput.value = storedData.username;
+  // }
   // When the name input changes
   // Store the name in localStorage
   nameInput.addEventListener("input", function () {
@@ -344,7 +351,6 @@ function quickMatch() {
   document.getElementById("looking").style.display = "block";
   document.getElementById("cancel-match").style.display = "block";
   document.getElementById("game-result").style = "display:flex;";
-  me.nickname = document.getElementById("nickname").value;
   //if (socket) socket.close();
   connect();
 }

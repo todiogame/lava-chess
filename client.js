@@ -15,7 +15,7 @@ const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
 
 var me = {};
-var enemy = {};
+enemy = {};
 hoverInfo = {};
 displayAllHP = false;
 var socket;
@@ -59,8 +59,9 @@ function connect() {
     console.log("received " + received.type)
     // console.log(received.type)
     if (received.type == "INFO") {
-      if (received.data.nickname) enemy.nickname = received.data.nickname;
-      // hud.displayProfiles(me, enemy);
+      console.log(received)
+      if (received.data.userInfo) enemy.userInfo = received.data.userInfo;
+      console.log(enemy)
     }
 
     if (received.type == "TEAM") {
@@ -183,8 +184,9 @@ function goGame(players) {
 function addEventListeners() {
   const nameInput = document.getElementById("nickname");
   nameInput.addEventListener("input", function () {
-    storedData.username = nameInput.value;
-    data.save(storedData)
+    const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
+    storedData.username = nickname;
+    data.save(storedData);
   });
 
   document.getElementById("quick-match").addEventListener("click", quickMatch);
@@ -293,7 +295,7 @@ function generateTooltipInfo(event, og) {
   }
   // c.CANVAS.WIDTH - 330, 10, 150, 150
   if (
-    Math.pow(x - (c.CANVAS.WIDTH - 330 + 75), 2) + Math.pow(y - (10 + 75), 2) <
+    Math.pow(x - (c.CANVAS.WIDTH - 330 + 75), 2) + Math.pow(y - (110 + 75), 2) <
     Math.pow(75, 2)
   ) {
     hoverInfo.help = true;

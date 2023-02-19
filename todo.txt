@@ -1,10 +1,11 @@
 todo:
-afficher les noms des joueurs
 
 multibugs:
 faire un truc pour maintenir la connexion si ya une couille
 
-sale bug si un client refresh et pas l'autre ? lors de la 2nde game => a reporoduire ?
+sale bug si un client refresh et pas l'autre ? lors de la 2nde game => a reproduire ?
+bug lors du pick, le perso ne se deplace pas dans le client ?? chez l'autre  ca marche => a reproduire
+jai eu un autre bug ou le shaman castait les spells du golem...
 probleme fin de game : ex golem qui s'isole sur une case : faire qu'une cellule entouree entierement coule
 
 la charge ne doit pas traverser la lave => mettre une condition dans le spell

@@ -249,6 +249,15 @@ function listenToInputs(og) {
       interface.clickMove(usersNextPLayer, og);
     }
   });
+
+  window.addEventListener("beforeunload", function (event) {
+    // Save ragequit
+    if (!ongoingGame?.gameHasEnded) {
+      //lose 30 elo on a ragequit
+      storedData.setElo(storedData.elo -30);
+      data.save(storedData);
+    }
+  });
 }
 
 function mouseEventToHexCoord(e) {

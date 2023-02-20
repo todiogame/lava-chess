@@ -1,4 +1,9 @@
 todo:
+mettre les icone de sort en glyphe => ok remove les icones useless
+refaire les icones degueu rasta + infernal
+faire le discord
+faire un reddit
+faire un leaderboard
 
 multibugs:
 faire un truc pour maintenir la connexion si ya une couille

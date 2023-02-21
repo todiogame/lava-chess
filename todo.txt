@@ -13,6 +13,7 @@ stats
 
 multibugs:
 faire un truc pour maintenir la connexion si ya une couille
+barrel ne devrait pas faire de dommages au fantome
 
 sale bug si un client refresh et pas l'autre ? lors de la 2nde game => a reproduire ?
 bug lors du pick, le perso ne se deplace pas dans le client ?? chez l'autre  ca marche => a reproduire

@@ -2,7 +2,10 @@ todo:
 
 > login
 > use users value instead of guest account when logged in
-> impact these values after a game result
+> donner son cookie a l'ouverture du websocket
+> end of game : save users elo in database
+
+> leaderboard
 
 afficher les regles du jeu
 login page

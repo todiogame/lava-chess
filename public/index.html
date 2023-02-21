@@ -23,7 +23,7 @@
 
     <div class="d-flex">
       <div class="leftpane">
-        <div class="create_acc panel">
+        <div id="connection" class="create_acc panel">
           <form action="/login" method="POST" enctype="application/x-www-form-urlencoded">
             <h2>Login</h2>
             <label for="email">Email:</label>
@@ -60,9 +60,13 @@
           <div id="banner">
             <h1 id="game-result" style="display:none;"></h1>
             <h1>Lava Chess</h1>
-            <label for="nickname">Enter your nickname:</label>
-            <input type="text" id="nickname" name="nickname" maxlength="10" />
-
+            <div id="guest">
+              <label for="nickname">Enter your nickname:</label>
+              <input type="text" id="nickname" name="nickname" maxlength="10" />
+            </div>
+            <div id="logged-in">
+              <h2 id="logged-in-name"></h2>
+            </div>
             <div id="account-info">
               <p>Level: <span id="level"></span></p>
               <div id="experience-bar">
@@ -89,6 +93,17 @@
       <div class="rightpane">
         <div class="leaderboard">
           <h1>Leaderboard</h1>
+          <table>
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Name</th>
+                <th>Elo</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-data">
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

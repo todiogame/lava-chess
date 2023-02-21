@@ -13,8 +13,9 @@ const drawing = require("./lib/client/drawing");
 const interface = require("./lib/client/interface");
 const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
+const Leaderboard = require("./lib/client/Leaderboard")
 
-var me = {};
+Leaderboard.make();
 enemy = {};
 hoverInfo = {};
 displayAllHP = false;
@@ -182,18 +183,24 @@ function goGame(players) {
 
 
 function addEventListeners() {
-  const nameInput = document.getElementById("nickname");
-  nameInput.addEventListener("input", function () {
-    const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
-    storedData.username = nickname;
-    data.save(storedData);
-  });
-
+  // var loggedInUser = document.cookie;
+  // if (loggedInUser) {
+  //   document.getElementById("connection").style.display = "none";
+  //   document.getElementById("guest").style.display = "none";
+  //   document.getElementById("logged-in-name").textContent = loggedInUser.username
+  // } else {
+    const nameInput = document.getElementById("nickname");
+    nameInput.addEventListener("input", function () {
+      const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
+      storedData.username = nickname;
+      data.save(storedData);
+    });
+  }
   document.getElementById("quick-match").addEventListener("click", quickMatch);
   document
     .getElementById("cancel-match")
     .addEventListener("click", cancelMatch);
-}
+// }
 
 function initGlobals() {
   // map = [];
@@ -254,7 +261,7 @@ function listenToInputs(og) {
     // Save ragequit
     if (!ongoingGame?.gameHasEnded) {
       //lose 30 elo on a ragequit
-      storedData.setElo(storedData.elo -30);
+      storedData.setElo(storedData.elo - 30);
       data.save(storedData);
     }
   });

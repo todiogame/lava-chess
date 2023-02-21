@@ -1,8 +1,15 @@
 todo:
-mettre les icone de sort en glyphe => ok remove les icones useless
-refaire les icones degueu rasta + infernal
+
+> login
+> use users value instead of guest account when logged in
+> impact these values after a game result
+
+afficher les regles du jeu
+login page
+pouvoir faire glisser les personages au draft
 faire un leaderboard
 resize toutes les icones en plus petit format
+stats
 
 multibugs:
 faire un truc pour maintenir la connexion si ya une couille
@@ -32,7 +39,6 @@ ______________________
 anim laggg => a investiguer
 add abandon button
 add backend : login UI + create acc
-gerer la fin de partie quand on ne peux plus enlever de cases : egalite ?
 pathfinding?
 
 Loading screen

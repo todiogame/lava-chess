@@ -18,43 +18,82 @@
   <a class="social-icon reddit-icon" href="https://www.reddit.com/r/LavaChess/" target="_blank">
     <img src="pics/reddit.png" alt="Reddit">
   </a>
-  
-  <!-- <div id="ending-page" class="landing-page" style="display: none">
-    <h1>GG</h1>
-    <h1 id="ragequit" style="display: none">Opponent disconnected</h1>
-    <h1 id="game-result">???</h1>
-    <canvas id="xp-gauge"></canvas>
-    <button id="play-again-same">Play again with the same opponent!</button>
-  </div> -->
-  <div id="landing-page" class="landing-page">
-    <div id="banner">
-      <h1 id="game-result" style="display:none;"></h1>
-      <h1>Lava Chess</h1>
-      <label for="nickname">Enter your nickname:</label>
-      <input type="text" id="nickname" name="nickname" maxlength="10" />
 
-      <div id="account-info">
-        <p>Level: <span id="level"></span></p>
-        <div id="experience-bar">
-          <div id="experience-bar-fill"></div>
+  <div id="container" class="container">
+
+    <div class="d-flex">
+      <div class="leftpane">
+        <div class="create_acc panel">
+          <form action="/login" method="POST" enctype="application/x-www-form-urlencoded">
+            <h2>Login</h2>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"><br>
+
+            <input type="submit" value="Login">
+          </form>
+          <form action="/create-account" method="POST">
+            <h2>Or create an account</h2>
+
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name"><br>
+
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email"><br>
+
+            <label for="password">Password:</label>
+            <input type="password" id="password" name="password"><br>
+
+            <input type="hidden" id="levelform" name="levelform" value="0">
+            <input type="hidden" id="experienceform" name="experienceform" value="0">
+            <input type="hidden" id="eloform" name="eloform" value="0">
+
+            <input type="submit" value="Submit">
+          </form>
         </div>
-        <p>Elo : <span id="elo"></span></p>
-        <p> <span id="message"></span></p>
       </div>
+      <div class="middlepane">
 
-    </div>
-    <div id="buttons" class="buttons">
-      <!-- <button id="create-game" class="disabled">Create Game</button>
+        <div id="landing-page" class="landing-page">
+          <div id="banner">
+            <h1 id="game-result" style="display:none;"></h1>
+            <h1>Lava Chess</h1>
+            <label for="nickname">Enter your nickname:</label>
+            <input type="text" id="nickname" name="nickname" maxlength="10" />
+
+            <div id="account-info">
+              <p>Level: <span id="level"></span></p>
+              <div id="experience-bar">
+                <div id="experience-bar-fill"></div>
+              </div>
+              <p>Elo : <span id="elo"></span></p>
+              <p> <span id="message"></span></p>
+            </div>
+
+          </div>
+          <div id="buttons" class="buttons">
+            <!-- <button id="create-game" class="disabled">Create Game</button>
         <div>
           <label for="game-id">Join Game (ID):</label>
           <input type="text" id="game-id" name="game-id" class="disabled" />
           <button id="join-game" class="disabled">Join Game</button>
         </div> -->
-      <button id="quick-match">Quick Match</button>
-      <button id="cancel-match" style="display: none">Cancel</button>
+            <button id="quick-match">Quick Match</button>
+            <button id="cancel-match" style="display: none">Cancel</button>
+          </div>
+          <h1 id="looking" style="display: none">Looking for a game...</h1>
+        </div>
+      </div>
+      <div class="rightpane">
+        <div class="leaderboard">
+          <h1>Leaderboard</h1>
+        </div>
+      </div>
     </div>
-    <h1 id="looking" style="display: none">Looking for a game...</h1>
   </div>
+
   <div id="game-container" class="game-container" style="display:none;">
     <canvas id="canvas"></canvas>
   </div>

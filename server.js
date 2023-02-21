@@ -2,11 +2,11 @@ const express = require('express');
 const app = express();
 const config = require('./config');
 const router = require('./lib/server/routes')
-const bodyParser = require("body-parser");
 const Game = require('./lib/server/Game');
 const Network = require('./lib/Network');
 const c = require("./lib/const")
 
+app.use(express.urlencoded({ extended: true }));
 // Start the web server
 app.use(express.static('public'));
 app.use(express.json());

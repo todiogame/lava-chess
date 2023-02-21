@@ -1,16 +1,12 @@
 todo:
 
-> login
 > use users value instead of guest account when logged in
 > donner son cookie a l'ouverture du websocket
 > end of game : save users elo in database
-
-> leaderboard
+> refresh leaderboard
 
 afficher les regles du jeu
-login page
 pouvoir faire glisser les personages au draft
-faire un leaderboard
 resize toutes les icones en plus petit format
 stats
 

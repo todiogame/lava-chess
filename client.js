@@ -15,7 +15,7 @@ const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
 const Leaderboard = require("./lib/client/Leaderboard")
 
-Leaderboard.make();
+Leaderboard.update();
 enemy = {};
 hoverInfo = {};
 displayAllHP = false;
@@ -88,8 +88,11 @@ function connect() {
       logic.playAction(received.data, ongoingGame);
     }
     if (received.type == "RAGEQUIT") {
-      utils.endGame(true, "RAGEQUIT");
+      endGame(true, "RAGEQUIT");
+      canvas.removeEventListener('click', canvasEventListener)
+      og.isListening = false
       if (socket) socket.close();
+      Leaderboard.update();
     }
 
     if (received.type == "ELO") {
@@ -101,10 +104,11 @@ function connect() {
     }
     if (received.type == "END_GAME") {
       console.log("received endgame")
-      utils.waitAnimationThenDisplayEndScreen(TEAM == received.data, ongoingGame); // wait before calling endGame so we can see the animations
+      waitAnimationThenDisplayEndScreen(TEAM == received.data, ongoingGame); // wait before calling endGame so we can see the animations
       canvas.removeEventListener('click', canvasEventListener)
       og.isListening = false
       if (socket) socket.close();
+      Leaderboard.update();
     }
   };
 }
@@ -189,17 +193,17 @@ function addEventListeners() {
   //   document.getElementById("guest").style.display = "none";
   //   document.getElementById("logged-in-name").textContent = loggedInUser.username
   // } else {
-    const nameInput = document.getElementById("nickname");
-    nameInput.addEventListener("input", function () {
-      const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
-      storedData.username = nickname;
-      data.save(storedData);
-    });
-  }
-  document.getElementById("quick-match").addEventListener("click", quickMatch);
-  document
-    .getElementById("cancel-match")
-    .addEventListener("click", cancelMatch);
+  const nameInput = document.getElementById("nickname");
+  nameInput.addEventListener("input", function () {
+    const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
+    storedData.username = nickname;
+    data.save(storedData);
+  });
+}
+document.getElementById("quick-match").addEventListener("click", quickMatch);
+document
+  .getElementById("cancel-match")
+  .addEventListener("click", cancelMatch);
 // }
 
 function initGlobals() {
@@ -395,3 +399,24 @@ buttonSpell2 = {
   borderColorEnemyTurn: "grey",
   borderWidth: 5,
 };
+
+function waitAnimationThenDisplayEndScreen(isMeWinner, og) {
+  setTimeout(() => {
+    og.gameHasEnded = true;
+    endGame(isMeWinner);
+  }, 1500);
+}
+
+function endGame(win, reason) {
+  let xp = 100
+  if (win) {
+    xp = 1000
+    document.getElementById("game-result").innerText = "VICTORY" + (reason ? "by "+reason : "");
+  } else {
+    document.getElementById("game-result").innerText = "DEFEAT";
+  }
+  document.getElementById("game-result").style = "display:flex;";
+  hud.switchToEndGame();
+  storedData.addExperience(xp)
+  data.save(storedData)
+}

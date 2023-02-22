@@ -192,3 +192,47 @@ body {
   box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
   cursor: pointer;
 }
+
+.leaderboard {
+  margin: 5px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Russo One', sans-serif;
+  background-color: #5b3a1c;
+  padding: 20px;
+  border-radius: 10px;
+  box-shadow: 3px 3px 5px 0px rgba(0, 0, 0, 0.75);
+}
+
+.leaderboard h1 {
+  color: #ff6600;
+  text-shadow: 2px 2px 2px #222;
+  margin-bottom: 30px;
+}
+
+.leaderboard table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.leaderboard th,
+.leaderboard td {
+  padding: 10px;
+  text-align: center;
+  border-bottom: 1px solid #ffc107;
+  color: #ffc107;
+}
+
+.leaderboard th {
+  background-color: #8a6a4f;
+}
+
+.leaderboard tr:nth-child(even) {
+  background-color: #5b3a1c;
+}
+
+.leaderboard tr:hover {
+  background-color: #9c7d5e;
+}

@@ -3,7 +3,7 @@ todo:
 > use users value instead of guest account when logged in
 > donner son cookie a l'ouverture du websocket
 > end of game : save users elo in database
-> refresh leaderboard
+>> instead of using cookie to store elo... use a /me that gives back the info
 
 afficher les regles du jeu
 pouvoir faire glisser les personages au draft

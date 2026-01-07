@@ -26,7 +26,8 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "browserify client.js -t loose-envify -o public/main.js"
+    "dev": "vite",
+    "build": "vite build"
   },
   "repository": {
     "type": "git",
@@ -37,5 +38,9 @@
   "bugs": {
     "url": "https://github.com/todiogame/lava-chess/issues"
   },
-  "homepage": "https://github.com/todiogame/lava-chess#readme"
+  "homepage": "https://github.com/todiogame/lava-chess#readme",
+  "devDependencies": {
+    "vite": "^7.3.1",
+    "vite-plugin-commonjs": "^0.10.4"
+  }
 }

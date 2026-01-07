@@ -2,3 +2,4 @@ node_modules/
 public/main.js
 db_lavachess.db
 localStorage.key
+dist/

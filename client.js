@@ -226,12 +226,19 @@ function addEventListeners() {
       }
     } catch (e) { console.error("Error parsing user cookie", e); }
   } else {
+    // Guest Mode: Pre-fill nickname if exists in local storage (via storedData)
     const nameInput = document.getElementById("nickname");
-    nameInput.addEventListener("input", function () {
-      const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
-      storedData.username = nickname;
-      data.save(storedData);
-    });
+    if (nameInput && storedData && storedData.username) {
+      nameInput.value = storedData.username;
+    }
+
+    if (nameInput) {
+      nameInput.addEventListener("input", function () {
+        const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
+        if (storedData) storedData.username = nickname;
+        // data.save(storedData); // Optional: save on every keystroke or just on play
+      });
+    }
   }
 
   // Intercept Login Form

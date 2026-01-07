@@ -9,5 +9,5 @@ module.exports = {
 
   SUPABASE_URL: process.env.SUPABASE_URL || 'https://lowfzagrjpifnxcafgvc.supabase.co',
   SUPABASE_KEY: process.env.SUPABASE_KEY || 'sb_publishable_SdMzgpdYRszHFK6OYCFw3w_j9P8nABm',
-  TEST: true,
+  TEST: process.env.NODE_ENV !== 'production',
 };

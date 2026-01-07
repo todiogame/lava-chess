@@ -253,8 +253,16 @@ function addEventListeners() {
           body: JSON.stringify(data)
         });
 
+        const text = await response.text();
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          console.error("Non-JSON response:", text);
+          throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+        }
+
         if (response.ok) {
-          const result = await response.json();
           if (result.success && result.userJSON) {
             // Set cookie manually (expiration 7 days)
             const d = new Date();
@@ -264,7 +272,7 @@ function addEventListeners() {
             window.location.reload();
           }
         } else {
-          alert("Login failed.");
+          alert("Login failed: " + (result.error || "Unknown error"));
         }
       } catch (error) {
         console.error('Login error:', error);
@@ -301,8 +309,16 @@ function addEventListeners() {
           body: JSON.stringify(data)
         });
 
+        const text = await response.text();
+        let result;
+        try {
+          result = JSON.parse(text);
+        } catch (e) {
+          console.error("Non-JSON response:", text);
+          throw new Error(`Server returned non-JSON response: ${text.substring(0, 100)}...`);
+        }
+
         if (response.ok) {
-          const result = await response.json();
           if (result.success && result.userJSON) {
             // Set cookie manually
             const d = new Date();
@@ -312,8 +328,7 @@ function addEventListeners() {
             window.location.reload();
           }
         } else {
-          const errJson = await response.json();
-          alert("Creation failed: " + (errJson.error || "Unknown"));
+          alert("Creation failed: " + (result.error || "Unknown"));
         }
       } catch (error) {
         console.error('Signup error:', error);

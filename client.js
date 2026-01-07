@@ -30,12 +30,22 @@ function connect() {
   if (socket) socket.close();
 
   let wsUrl;
-  if (config.TEST) {
+  // Auto-detect if we are running locally or in production
+  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+
+  if (config.TEST && isLocal) {
     wsUrl = `ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`;
   } else {
-    // Production: Use WSS (Secure WebSocket) and default to port 443 (implied)
-    // Remove 'https://' if present in EXTERNAL_IP_ADDRESS to avoid double protocol
-    const host = config.EXTERNAL_IP_ADDRESS.replace(/^https?:\/\//, '');
+    // Production: Use WSS (Secure WebSocket)
+    // If config still says localhost (because build:prod wasn't used), use the Northflank URL
+    let host = config.EXTERNAL_IP_ADDRESS;
+
+    if (host === 'localhost' || host === '127.0.0.1' || !host) {
+      host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+    }
+
+    // Remove 'https://' if present
+    host = host.replace(/^https?:\/\//, '');
     wsUrl = `wss://${host}`;
   }
 

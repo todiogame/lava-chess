@@ -207,18 +207,121 @@ function goGame(players) {
 
 
 function addEventListeners() {
-  // var loggedInUser = document.cookie;
-  // if (loggedInUser) {
-  //   document.getElementById("connection").style.display = "none";
-  //   document.getElementById("guest").style.display = "none";
-  //   document.getElementById("logged-in-name").textContent = loggedInUser.username
-  // } else {
-  const nameInput = document.getElementById("nickname");
-  nameInput.addEventListener("input", function () {
-    const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
-    storedData.username = nickname;
-    data.save(storedData);
-  });
+  // Check if user is already logged in
+  var loggedInUser = document.cookie.replace(/(?:(?:^|.*;\s*)userJSON\s*\=\s*([^;]*).*$)|^.*$/, "$1");
+  if (loggedInUser) {
+    try {
+      loggedInUser = JSON.parse(decodeURIComponent(loggedInUser));
+      if (loggedInUser.name) {
+        document.getElementById("connection").style.display = "none";
+        document.getElementById("guest").style.display = "none";
+        document.getElementById("logged-in-name").innerText = "Welcome " + loggedInUser.name;
+      }
+    } catch (e) { console.error("Error parsing user cookie", e); }
+  } else {
+    const nameInput = document.getElementById("nickname");
+    nameInput.addEventListener("input", function () {
+      const nickname = nameInput.value.slice(0, 10); // limit input to 10 characters
+      storedData.username = nickname;
+      data.save(storedData);
+    });
+  }
+
+  // Intercept Login Form
+  const loginForm = document.querySelector('form[action="/login"]');
+  if (loginForm) {
+    loginForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(loginForm);
+      const data = Object.fromEntries(formData.entries());
+
+      let apiUrl = '';
+      // Logic to determine API URL (same as WebSocket connect)
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal || !config.TEST) {
+        let host = config.EXTERNAL_IP_ADDRESS;
+        if (host === 'localhost' || host === '127.0.0.1' || !host) {
+          host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+        }
+        // Remove 'ws://' if present (from config) just in case, though it should be domain
+        host = host.replace(/^wss?:\/\//, '').replace(/^https?:\/\//, '');
+        apiUrl = `https://${host}`;
+      }
+
+      try {
+        const response = await fetch(`${apiUrl}/login`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.userJSON) {
+            // Set cookie manually (expiration 7 days)
+            const d = new Date();
+            d.setTime(d.getTime() + (7 * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = "userJSON=" + result.userJSON + ";" + expires + ";path=/";
+            window.location.reload();
+          }
+        } else {
+          alert("Login failed.");
+        }
+      } catch (error) {
+        console.error('Login error:', error);
+        alert("Login Error: " + error.message);
+      }
+    });
+  }
+
+  // Intercept Create Account Form
+  const createForm = document.querySelector('form[action="/create-account"]');
+  if (createForm) {
+    createForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(createForm);
+      const data = Object.fromEntries(formData.entries());
+
+      let apiUrl = '';
+      // Logic to determine API URL (same as WebSocket connect)
+      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+      if (!isLocal || !config.TEST) {
+        let host = config.EXTERNAL_IP_ADDRESS;
+        if (host === 'localhost' || host === '127.0.0.1' || !host) {
+          host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+        }
+        host = host.replace(/^wss?:\/\//, '').replace(/^https?:\/\//, '');
+        apiUrl = `https://${host}`;
+      }
+
+      try {
+        const response = await fetch(`${apiUrl}/create-account`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          const result = await response.json();
+          if (result.success && result.userJSON) {
+            // Set cookie manually
+            const d = new Date();
+            d.setTime(d.getTime() + (7 * 24 * 60 * 60 * 1000));
+            let expires = "expires=" + d.toUTCString();
+            document.cookie = "userJSON=" + result.userJSON + ";" + expires + ";path=/";
+            window.location.reload();
+          }
+        } else {
+          const errJson = await response.json();
+          alert("Creation failed: " + (errJson.error || "Unknown"));
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        alert("Signup Error: " + error.message);
+      }
+    });
+  }
 }
 document.getElementById("quick-match").addEventListener("click", quickMatch);
 document

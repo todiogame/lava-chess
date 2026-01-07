@@ -21,6 +21,9 @@ hoverInfo = {};
 displayAllHP = false;
 var socket;
 var ongoingGame;
+// Fix ReferenceError by declaring global
+var storedData = null;
+
 data.retrieve();
 addEventListeners();
 
@@ -514,6 +517,21 @@ function generateTooltipInfo(event, og) {
 }
 
 function quickMatch() {
+  // Nickname Validation
+  const nicknameInput = document.getElementById("nickname");
+  if (nicknameInput && nicknameInput.value.trim() === "") {
+    alert("Please enter a nickname to play!");
+    nicknameInput.focus();
+    nicknameInput.style.borderColor = "#FF4500";
+    nicknameInput.style.boxShadow = "0 0 15px #FF4500";
+    return;
+  }
+
+  // Also update storedData from input if guest
+  if (nicknameInput && storedData) {
+    storedData.username = nicknameInput.value.trim();
+  }
+
   document.getElementById("quick-match").classList.add("disabled");
   document.getElementById("quick-match").setAttribute("disabled", true);
   document.getElementById("looking").style.display = "block";

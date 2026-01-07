@@ -26,7 +26,9 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js",
-    "build": "cross-env NODE_ENV=production browserify client.js -t loose-envify -o public/main.js"
+    "build": "cross-env NODE_ENV=production browserify client.js -t loose-envify -o public/main.js",
+    "dev-build": "browserify client.js -t loose-envify -o public/main.js",
+    "watch": "watchify client.js -t loose-envify -o public/main.js -v"
   },
   "repository": {
     "type": "git",
@@ -39,6 +41,7 @@
   },
   "homepage": "https://github.com/todiogame/lava-chess#readme",
   "devDependencies": {
-    "cross-env": "^10.1.0"
+    "cross-env": "^10.1.0",
+    "watchify": "^4.0.0"
   }
 }

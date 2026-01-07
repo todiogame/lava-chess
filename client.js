@@ -10,22 +10,20 @@ const pickPhase = require("./lib/client/pickPhase");
 const turnOrder = require("./lib/turnOrder");
 const utils = require("./lib/gameUtils");
 const drawing = require("./lib/client/drawing");
-const interface = require("./lib/client/interface");
+const gameInterface = require("./lib/client/interface");
 const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
 const Leaderboard = require("./lib/client/Leaderboard")
 
-Leaderboard.update();
-enemy = {};
-hoverInfo = {};
-displayAllHP = false;
-var socket;
-var ongoingGame;
 // Fix ReferenceError by declaring global
-var storedData = null;
+window.storedData = null; // Use window to ensure global access across legacy modules
 
-data.retrieve();
-addEventListeners();
+export function initGameClient() {
+  console.log("Initializing Game Client...");
+  Leaderboard.update();
+  data.retrieve();
+  addEventListeners();
+}
 
 function connect() {
   initGlobals();
@@ -379,16 +377,16 @@ function listenToInputs(og) {
   canvas.onmousemove = function (event) {
     generateTooltipInfo(event, og);
     if (og.isPickPhase) pickPhase.onMouseHoverDraft(mouseEventToHexCoord(event), og);
-    if (!og.isPickPhase) interface.onMouseHoverGame(mouseEventToHexCoord(event), og);
+    if (!og.isPickPhase) gameInterface.onMouseHoverGame(mouseEventToHexCoord(event), og);
   };
 
   canvasEventListener = (event) => {
     const { x, y } = mouseEventToXY(event);
     if (!og.isPickPhase) {
-      let hitHUD = interface.onMouseClicHUD(x, y, og);
+      let hitHUD = gameInterface.onMouseClicHUD(x, y, og);
       // console.log("hit hud!", hitHUD);
       if (!hitHUD)
-        interface.onMouseClicGame(mouseEventToHexCoord(event), og);
+        gameInterface.onMouseClicGame(mouseEventToHexCoord(event), og);
     } else {
       pickPhase.onMouseClicDraft(mouseEventToHexCoord(event), og);
 
@@ -408,15 +406,15 @@ function listenToInputs(og) {
     if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
 
     if (event.key === "1" || event.key === "Q") {
-      interface.clickSpell(usersNextPLayer, 0, og);
+      gameInterface.clickSpell(usersNextPLayer, 0, og);
     } else if (event.key === "2" || event.key === "W") {
-      interface.clickSpell(usersNextPLayer, 1, og);
+      gameInterface.clickSpell(usersNextPLayer, 1, og);
     } else if (event.key === "3" || event.key === "E") {
-      interface.clickSpell(usersNextPLayer, 2, og);
+      gameInterface.clickSpell(usersNextPLayer, 2, og);
     } else if (event.key === "4" || event.key === "R") {
-      interface.clickPassTurnOrRiseLava(usersNextPLayer, og);
+      gameInterface.clickPassTurnOrRiseLava(usersNextPLayer, og);
     } else if (event.key === "`" || event.key === "M") {
-      interface.clickMove(usersNextPLayer, og);
+      gameInterface.clickMove(usersNextPLayer, og);
     }
   });
 

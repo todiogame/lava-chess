@@ -1,155 +1,137 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="en">
 <head>
-  <link rel="icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="shortcut icon" href="favicon.ico" type="image/x-icon" />
-  <link rel="stylesheet" type="text/css" href="style.css" />
-  <audio id="tic-sound">
-    <source src="sounds/tic.wav" type="audio/wav">
-  </audio>
-  <title>Lava Chess</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lava Chess - Molten Strategy</title>
+    <link rel="icon" href="favicon.ico" type="image/x-icon" />
+    <link rel="stylesheet" type="text/css" href="lava.css" /> 
+    <audio id="tic-sound">
+        <source src="sounds/tic.wav" type="audio/wav">
+    </audio>
 </head>
-
 <body>
-  <a class="social-icon discord-icon" href="https://discord.gg/y6Gum8MSAN" target="_blank">
-    <img src="pics/discord.png" alt="Discord">
-  </a>
-  <a class="social-icon reddit-icon" href="https://www.reddit.com/r/LavaChess/" target="_blank">
-    <img src="pics/reddit.png" alt="Reddit">
-  </a>
 
-  <div id="container" class="container">
-
-    <div class="d-flex">
-      <div class="leftpane">
-        <div id="connection" class="create_acc panel">
-          <form action="/login" method="POST" enctype="application/x-www-form-urlencoded">
-            <h2>Login</h2>
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email"><br>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password"><br>
-
-            <input type="submit" value="Login">
-          </form>
-          <form action="/create-account" method="POST">
-            <h2>Or create an account</h2>
-
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name"><br>
-
-            <label for="email">Email:</label>
-            <input type="email" id="email" name="email"><br>
-
-            <label for="password">Password:</label>
-            <input type="password" id="password" name="password"><br>
-
-            <input type="hidden" id="levelform" name="levelform" value="0">
-            <input type="hidden" id="experienceform" name="experienceform" value="0">
-            <input type="hidden" id="eloform" name="eloform" value="0">
-
-            <input type="submit" value="Submit">
-          </form>
-        </div>
-      </div>
-      <div class="middlepane">
-
-        <div id="landing-page" class="landing-page">
-          <div id="banner">
-            <h1 id="game-result" style="display:none;"></h1>
-            <h1>Lava Chess</h1>
-            <div id="guest">
-              <label for="nickname">Enter your nickname:</label>
-              <input type="text" id="nickname" name="nickname" maxlength="10" />
-            </div>
-            <div id="logged-in">
-              <h2 id="logged-in-name"></h2>
-            </div>
-            <div id="account-info">
-              <p>Level: <span id="level"></span></p>
-              <div id="experience-bar">
-                <div id="experience-bar-fill"></div>
-              </div>
-              <p>Elo : <span id="elo"></span></p>
-              <p> <span id="message"></span></p>
-            </div>
-
-          </div>
-          <div id="buttons" class="buttons">
-            <!-- <button id="create-game" class="disabled">Create Game</button>
-        <div>
-          <label for="game-id">Join Game (ID):</label>
-          <input type="text" id="game-id" name="game-id" class="disabled" />
-          <button id="join-game" class="disabled">Join Game</button>
-        </div> -->
-            <button id="quick-match">Quick Match</button>
-            <button id="cancel-match" style="display: none">Cancel</button>
-          </div>
-          <h1 id="looking" style="display: none">Looking for a game...</h1>
-        </div>
-      </div>
-      <div class="rightpane">
-        <div class="leaderboard">
-          <h1>Leaderboard</h1>
-          <table>
-            <thead>
-              <tr>
-                <th>Rank</th>
-                <th>Name</th>
-                <th>Elo</th>
-              </tr>
-            </thead>
-            <tbody id="leaderboard-data">
-            </tbody>
-          </table>
-        </div>
-      </div>
+    <!-- Main Game Canvas (Hidden by default, shown when game starts) -->
+    <div id="game-container" class="game-container" style="display:none;">
+        <canvas id="canvas"></canvas>
     </div>
-  </div>
 
-  <div id="game-container" class="game-container" style="display:none;">
-    <canvas id="canvas"></canvas>
-  </div>
-  <!-- <div id="create-account" style="display:none;">
-        <div>
-            <h2>Create an account</h2>
-            <form action="/create-account" method="post">
-              <div>
-                <label for="name">Name:</label>
-                <input type="text" id="name" name="name">
-              </div>
-              <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
-              </div>
-              <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password">
-              </div>
-              <button type="submit">Create Account</button>
-            </form>
-          </div>
-          
-          <div>
-            <h2>Log in</h2>
-            <form action="/login" method="post">
-              <div>
-                <label for="email">Email:</label>
-                <input type="email" id="email" name="email">
-              </div>
-              <div>
-                <label for="password">Password:</label>
-                <input type="password" id="password" name="password">
-              </div>
-              <button type="submit">Log In</button>
-            </form>
-          </div>
-          
-    </div> -->
+    <div id="container">
+        <!-- Navigation -->
+        <header>
+            <div class="brand">LAVA CHESS</div>
+            <div class="user-controls">
+                <!-- Socials -->
+                <a href="https://discord.gg/y6Gum8MSAN" target="_blank" style="color: #7289da; text-decoration: none;">Discord</a>
+                <a href="https://www.reddit.com/r/LavaChess/" target="_blank" style="color: #ff4500; text-decoration: none;">Reddit</a>
+            </div>
+        </header>
 
-  <script src="./main.js"></script>
+        <!-- Landing Page Content -->
+        <!-- Logic Note: 'landing-page' ID is used to hide this entire section when game starts -->
+        <div id="landing-page"> 
+
+            <!-- Hero Section -->
+            <section class="hero">
+                <h1 id="game-title">Lava Chess</h1>
+                <p class="tagline">Forged in Fire. Played on Hexagons.</p>
+                
+                <h2 id="looking" style="display: none; color: var(--primary-magma);">Looking for opponent...</h2>
+                <h1 id="game-result" style="display:none; color: var(--primary-magma);"></h1>
+
+                <!-- Main Action Buttons -->
+                <div id="buttons">
+                    <button id="quick-match">Play Now</button>
+                    <button id="cancel-match" style="display: none">Cancel Search</button>
+                </div>
+            </section>
+
+            <!-- Bento Grid Content -->
+            <div class="bento-grid">
+                
+                <!-- Left Column: Leaderboard -->
+                <div class="card leaderboard-card">
+                    <h3 class="card-title">Top Strategists</h3>
+                    <div class="leaderboard">
+                        <table id="leaderboard">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Name</th>
+                                    <th>Elo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="leaderboard-data">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Right Column: Profile & Auth -->
+                <div class="flex-column" style="display: flex; flex-direction: column; gap: 24px;">
+                    
+                    <!-- Profile Stats (Visible when logged in) -->
+                    <div id="logged-in" style="display: none;" class="card">
+                        <h3 class="card-title">Commander Profile</h3>
+                        <h2 id="logged-in-name" style="margin-bottom: 10px; color: white;"></h2>
+                        
+                        <div id="account-info">
+                            <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                                <span>Level <span id="level">0</span></span>
+                                <span>Elo <span id="elo">1000</span></span>
+                            </div>
+                            <div id="experience-bar">
+                                <div id="experience-bar-fill"></div>
+                            </div>
+                            <p><span id="message"></span></p>
+                        </div>
+                    </div>
+
+                    <!-- Guest Setup (Visible when NOT logged in) -->
+                    <div id="guest" class="card">
+                        <h3 class="card-title">Guest Access</h3>
+                        <label for="nickname" style="display: block; margin-bottom: 10px; color: #aaa;">Enter Nickname:</label>
+                        <input type="text" id="nickname" name="nickname" maxlength="10" placeholder="GuestPlayer" style="width: 100%; text-align: left;">
+                    </div>
+
+                    <!-- Authentication Forms (Login / Create) -->
+                    <!-- Logic Note: 'connection' ID wraps the auth forms -->
+                    <div id="connection" class="card auth-card">
+                        <h3 class="card-title">Authentication</h3>
+                        
+                        <!-- Login Form -->
+                        <form action="/login" method="POST" style="margin-bottom: 20px;">
+                            <input type="email" id="email" name="email" placeholder="Email Address" required>
+                            <input type="password" id="password" name="password" placeholder="Password" required>
+                            <input type="submit" value="Log In">
+                        </form>
+
+                        <div style="text-align: center; margin: 10px 0; color: #555;">&mdash; OR &mdash;</div>
+
+                        <!-- Signup Form -->
+                        <form action="/create-account" method="POST">
+                            <input type="text" id="name" name="name" placeholder="Commander Name" required>
+                            <input type="email" id="email_signup" name="email" placeholder="Email Address" required>
+                            <input type="password" id="password_signup" name="password" placeholder="Password" required>
+                            
+                            <!-- Hidden Fields for Legacy Logic -->
+                            <input type="hidden" id="levelform" name="levelform" value="0">
+                            <input type="hidden" id="experienceform" name="experienceform" value="0">
+                            <input type="hidden" id="eloform" name="eloform" value="0">
+
+                            <input type="submit" value="Create Account" style="border-color: var(--accent-ember); color: var(--accent-ember);">
+                        </form>
+                    </div>
+
+                </div> <!-- End Right Column -->
+
+            </div> <!-- End Bento Grid -->
+
+        </div> <!-- End Landing Page -->
+    </div>
+
+    <script src="./main.js"></script>
 </body>
-
 </html>

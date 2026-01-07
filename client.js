@@ -43,8 +43,16 @@ const progressInterval = setInterval(() => {
 }, 50);
 
 AssetManager.downloadAll(() => {
-  console.log("All assets loaded!");
   clearInterval(progressInterval);
+
+  if (AssetManager.errorCount > 0) {
+    console.error(`Failed to load ${AssetManager.errorCount} assets.`);
+    if (loadingText) loadingText.innerText = `Error: Failed to load ${AssetManager.errorCount} assets. Check console.`;
+    if (loadingText) loadingText.style.color = "red";
+    return; // Stop game initialization
+  }
+
+  console.log("All assets loaded!");
   if (progressBar) progressBar.style.width = "100%";
 
   // Initialize drawing assets

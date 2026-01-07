@@ -29,25 +29,23 @@ function connect() {
 
   if (socket) socket.close();
 
-  let wsUrl;
-  // Auto-detect if we are running locally or in production
-  const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
+  // config.js now handles the environment variables via envify
+  // If EXTERNAL_IP_ADDRESS contains 'code.run' or 'vercel', we assume Secure WebSocket (WSS)
 
-  if (config.TEST && isLocal) {
-    wsUrl = `ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`;
-  } else {
-    // Production: Use WSS (Secure WebSocket)
-    // If config still says localhost (because build:prod wasn't used), use the Northflank URL
-    let host = config.EXTERNAL_IP_ADDRESS;
+  let wsProtocol = 'ws://';
+  let host = config.EXTERNAL_IP_ADDRESS;
+  let port = config.WEBSOCKET_PORT ? `:${config.WEBSOCKET_PORT}` : '';
 
-    if (host === 'localhost' || host === '127.0.0.1' || !host) {
-      host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
-    }
+  // Simple heuristic: if it's not localhost, use wss and no port (or standard 443)
+  if (host !== 'localhost' && host !== '127.0.0.1') {
+    wsProtocol = 'wss://';
+    port = ''; // Cloud platforms usually map 80/443 to the container
 
-    // Remove 'https://' if present
-    host = host.replace(/^https?:\/\//, '');
-    wsUrl = `wss://${host}`;
+    // Clean up host if it has protocol
+    host = host.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
   }
+
+  const wsUrl = `${wsProtocol}${host}${port}`;
 
   console.log("Connecting to: " + wsUrl);
   socket = new WebSocket(wsUrl);
@@ -236,16 +234,16 @@ function addEventListeners() {
       const data = Object.fromEntries(formData.entries());
 
       let apiUrl = '';
-      // Logic to determine API URL (same as WebSocket connect)
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (!isLocal || !config.TEST) {
-        let host = config.EXTERNAL_IP_ADDRESS;
-        if (host === 'localhost' || host === '127.0.0.1' || !host) {
-          host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
-        }
-        // Remove 'ws://' if present (from config) just in case, though it should be domain
-        host = host.replace(/^wss?:\/\//, '').replace(/^https?:\/\//, '');
-        apiUrl = `https://${host}`;
+      // Logic to determine API URL should match WebSocket logic
+      let host = config.EXTERNAL_IP_ADDRESS;
+
+      // Simple heuristic: if it's not localhost, use https and no port
+      if (host !== 'localhost' && host !== '127.0.0.1') {
+        // Clean up host if it has protocol
+        const cleanHost = host.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
+        apiUrl = `https://${cleanHost}`;
+      } else {
+        apiUrl = ''; // Localhost: relative path works
       }
 
       try {
@@ -284,15 +282,16 @@ function addEventListeners() {
       const data = Object.fromEntries(formData.entries());
 
       let apiUrl = '';
-      // Logic to determine API URL (same as WebSocket connect)
-      const isLocal = window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1';
-      if (!isLocal || !config.TEST) {
-        let host = config.EXTERNAL_IP_ADDRESS;
-        if (host === 'localhost' || host === '127.0.0.1' || !host) {
-          host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
-        }
-        host = host.replace(/^wss?:\/\//, '').replace(/^https?:\/\//, '');
-        apiUrl = `https://${host}`;
+      // Logic to determine API URL should match WebSocket logic
+      let host = config.EXTERNAL_IP_ADDRESS;
+
+      // Simple heuristic: if it's not localhost, use https and no port
+      if (host !== 'localhost' && host !== '127.0.0.1') {
+        // Clean up host if it has protocol
+        const cleanHost = host.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
+        apiUrl = `https://${cleanHost}`;
+      } else {
+        apiUrl = ''; // Localhost: relative path works
       }
 
       try {

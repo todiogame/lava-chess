@@ -28,9 +28,19 @@ function connect() {
   initGlobals();
 
   if (socket) socket.close();
-  socket = new WebSocket(
-    `ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`,
-  );
+
+  let wsUrl;
+  if (config.TEST) {
+    wsUrl = `ws://${config.EXTERNAL_IP_ADDRESS}:${config.WEBSOCKET_PORT}`;
+  } else {
+    // Production: Use WSS (Secure WebSocket) and default to port 443 (implied)
+    // Remove 'https://' if present in EXTERNAL_IP_ADDRESS to avoid double protocol
+    const host = config.EXTERNAL_IP_ADDRESS.replace(/^https?:\/\//, '');
+    wsUrl = `wss://${host}`;
+  }
+
+  console.log("Connecting to: " + wsUrl);
+  socket = new WebSocket(wsUrl);
   socket.onopen = function (event) {
     console.log("Connected to server");
     Network.clientSocket = socket;
@@ -411,7 +421,7 @@ function endGame(win, reason) {
   let xp = 100
   if (win) {
     xp = 1000
-    document.getElementById("game-result").innerText = "VICTORY" + (reason ? "by "+reason : "");
+    document.getElementById("game-result").innerText = "VICTORY" + (reason ? "by " + reason : "");
   } else {
     document.getElementById("game-result").innerText = "DEFEAT";
   }

@@ -1,5 +1,5 @@
 module.exports = {
-  EXTERNAL_IP_ADDRESS: process.env.EXTERNAL_IP_ADDRESS || '4.193.96.209',
+  EXTERNAL_IP_ADDRESS: process.env.EXTERNAL_IP_ADDRESS || 'p01--lava-chess--wd56yy4hk9cj.code.run',
   INTERNAL_IP_ADDRESS: process.env.INTERNAL_IP_ADDRESS || '10.2.0.4',
   PORT: process.env.PORT || 80,
   WEBSOCKET_PORT: process.env.PORT || 80,

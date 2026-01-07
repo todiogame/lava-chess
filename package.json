@@ -23,7 +23,9 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "node server.js"
+    "start": "node server.js",
+    "build": "browserify client.js -o public/main.js",
+    "build:prod": "cp config_prod.js config.js && npm run build"
   },
   "repository": {
     "type": "git",

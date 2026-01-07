@@ -6,20 +6,26 @@ const Game = require('./lib/server/Game');
 const Network = require('./lib/Network');
 const c = require("./lib/const")
 
+const cors = require('cors');
+
 app.use(express.urlencoded({ extended: true }));
+// Enable CORS for all routes (important for Vercel/Northflank split)
+app.use(cors());
+
 // Start the web server
 app.use(express.static('public'));
 app.use(express.json());
 app.use('/', router);
 
-app.listen(config.PORT, config.INTERNAL_IP_ADDRESS, () => {
-  console.log(`Server running at http://${config.INTERNAL_IP_ADDRESS}:${config.PORT}`);
+const server = app.listen(config.PORT, '0.0.0.0', () => {
+  console.log(`Server running at http://0.0.0.0:${config.PORT}`);
 });
 
 
 // Start the game server
 const WebSocket = require('ws');
-const wss = new WebSocket.Server({ host: config.INTERNAL_IP_ADDRESS, port: config.WEBSOCKET_PORT });
+// Mount WebSocket on the SAME HTTP server instance (single port)
+const wss = new WebSocket.Server({ server });
 
 const clientsLookingForGame = [];
 const games = [];

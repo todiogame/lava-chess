@@ -1,10 +1,9 @@
 todo:
 
-> use users value instead of guest account when logged in
-> donner son cookie a l'ouverture du websocket
-> end of game : save users elo in database
->> instead of using cookie to store elo... use a /me that gives back the info
-
+> en draft : explique comment drafter
+> bloquer game solo meme compte backend
+>numeroter les spells
+"salve de mitrailleuse" trop long
 afficher les regles du jeu
 pouvoir faire glisser les personages au draft
 resize toutes les icones en plus petit format

@@ -14,6 +14,7 @@ const interface = require("./lib/client/interface");
 const OngoingGame = require("./lib/OngoingGame")
 const data = require("./lib/client/data")
 const Leaderboard = require("./lib/client/Leaderboard")
+const AssetManager = require("./lib/client/AssetManager");
 
 Leaderboard.update();
 enemy = {};
@@ -24,11 +25,54 @@ var ongoingGame;
 // Fix ReferenceError by declaring global
 var storedData = null;
 
+
+// Start Loading Assets
+const progressBar = document.getElementById("progress-bar-fill");
+const loadingText = document.getElementById("loading-text");
+
+// Poll for progress updates
+const progressInterval = setInterval(() => {
+  if (AssetManager.downloadQueue.length > 0) {
+    const total = AssetManager.downloadQueue.length;
+    const current = AssetManager.successCount + AssetManager.errorCount;
+    const progress = Math.floor((current / total) * 100);
+
+    if (progressBar) progressBar.style.width = `${progress}%`;
+    if (loadingText) loadingText.innerText = `Forging Hexagons... ${progress}%`;
+  }
+}, 50);
+
+AssetManager.downloadAll(() => {
+  console.log("All assets loaded!");
+  clearInterval(progressInterval);
+  if (progressBar) progressBar.style.width = "100%";
+
+  // Initialize drawing assets
+  drawing.initAssets();
+
+  // Hide Loading Screen
+  const loader = document.getElementById("loading-screen");
+  if (loader) {
+    loader.style.opacity = "0";
+    setTimeout(() => {
+      loader.style.display = "none";
+    }, 500);
+  }
+});
+
 data.retrieve();
 addEventListeners();
 
 function connect() {
   initGlobals();
+
+  // Debug Environment Variables
+  console.log("-----------------------------------------");
+  console.log("Environment Config Check:");
+  console.log("TEST Mode:", config.TEST);
+  console.log("NB_PAWNS:", c.CONSTANTS.NB_PAWNS);
+  console.log("MAX_HP_PLAYER:", c.CONSTANTS.MAX_HP_PLAYER);
+  console.log("-----------------------------------------");
 
   if (socket) socket.close();
 

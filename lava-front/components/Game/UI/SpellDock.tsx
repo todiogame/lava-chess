@@ -11,19 +11,6 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
     const currentPlayer = ongoingGame.currentPlayer; // Playable
     const myTurn = currentPlayer?.entity?.team === TEAM;
 
-    // If it's not my turn, or I'm not the current player (e.g. spectator?), we still show the dock but disabled?
-    // Legacy behavior: "color spell enemy turn".
-    // Also, we need to find "usersNextPlayer" if we are not currently playing? 
-    // Legacy: `let usersNextPLayer = utils.findNextPlayer(og, TEAM);`
-    // If I correspond to the current player, show active.
-
-    // Simplification: In this game, there are sequential turns.
-    // If `ongoingGame.currentPlayer` is ME, then I am active.
-    // If `ongoingGame.currentPlayer` is NOT ME, I might still want to see MY spells?
-    // Legacy `drawSpells`: "if (bottomRow || player != og.currentPlayer...)".
-    // "usersNextPlayer" is passed to drawSpells.
-    // We should find the player object that belongs to ME (TEAM).
-
     // Logic to determine which player's spells to show
     const getDisplayedPlayer = () => {
         // If it's my turn, show the current player (if it's me)
@@ -53,10 +40,6 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
 
     const isMyTurn = displayedPlayer === currentPlayer && displayedPlayer.entity.team === TEAM;
     const isSummoned = displayedPlayer.isSummoned;
-
-    // Actions should target the displayed player (which is either current or next)
-    // NOTE: In legacy, can you cast spells if it's not your turn? No.
-    // So if !isMyTurn, buttons should be disabled or "preview only".
 
     const handleMoveClick = () => {
         if (!isMyTurn) return;
@@ -105,7 +88,10 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
             {displayedPlayer.spells.map((spell: any, index: number) => {
                 const onCooldown = spell.currentCD > 0;
                 const isPassive = spell.passive;
-                // isSilenced logic?
+                // Check for silence aura on the player entity
+                const isSilenced = displayedPlayer.entity.auras?.some((a: any) => a.name === 'silence');
+
+                const isDisabled = !isMyTurn || onCooldown || isPassive || isSilenced;
 
                 return (
                     <div
@@ -116,22 +102,39 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                     >
                         <button
                             onClick={() => handleSpellClick(index)}
-                            disabled={!isMyTurn || onCooldown || isPassive}
-                            className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer ${isMyTurn && !onCooldown && !isPassive ? 'border-yellow-500 hover:scale-105' : 'border-gray-600 grayscale brightness-50'
-                                }`}
+                            disabled={isDisabled}
+                            className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer relative 
+                                ${!isDisabled ? 'border-yellow-500 hover:scale-105' : 'border-gray-600'}
+                                ${isSilenced ? 'border-purple-500' : ''}
+                            `}
                         >
                             <img
                                 src={spell.image?.src || "./pics/spells/spell_placeholder.webp"}
                                 alt={spell.name}
-                                className="w-full h-full object-cover"
+                                className={`w-full h-full object-cover transition-all 
+                                    ${isDisabled && !isSilenced ? 'grayscale brightness-50' : ''} 
+                                    ${isSilenced ? 'grayscale brightness-75 sepia hue-rotate-[250deg]' : ''}
+                                `}
                             />
-                            {onCooldown && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/60 text-white font-bold text-3xl">
-                                    {spell.currentCD}
+
+                            {/* Overlays */}
+                            {isSilenced && (
+                                <div className="absolute inset-0 bg-purple-900/40 flex items-center justify-center">
+                                    <img src="./pics/silence.webp" alt="Silenced" className="w-2/3 h-2/3 opacity-90" />
                                 </div>
                             )}
+
+                            {onCooldown && !isSilenced && (
+                                <div className="absolute inset-0 flex items-center justify-center bg-black/50">
+                                    <img src="./pics/spells/cd_icon.webp" alt="CD" className="absolute w-2/3 h-2/3 opacity-60" />
+                                    <span className="relative text-white font-bold text-3xl drop-shadow-md">{spell.currentCD}</span>
+                                </div>
+                            )}
+
                             {isPassive && (
-                                <div className="absolute inset-0 flex items-center justify-center bg-black/40 text-xs text-gray-300 font-bold uppercase">Passive</div>
+                                <div className="absolute inset-0 flex items-center justify-center bg-gray-900/60 ring-1 ring-inset ring-gray-600">
+                                    <span className="text-xs text-gray-300 font-bold uppercase">Passive</span>
+                                </div>
                             )}
                         </button>
                     </div>
@@ -152,8 +155,6 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                     className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer ${isMyTurn ? 'border-yellow-500 hover:scale-105' : 'border-gray-600 grayscale brightness-50'
                         }`}
                 >
-                    {/* Check if summoned: Pass vs Lava */}
-                    {/* Note: Legacy logic checks `og.currentPlayer.isSummoned` */}
                     <img
                         src={isSummoned ? "./pics/spells/pass.webp" : "./pics/spells/lavapass.webp"}
                         alt="End Turn"

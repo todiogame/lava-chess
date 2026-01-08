@@ -316,12 +316,12 @@ function drawMap(og) {
 
   if (og.map) {
     ctx.lineWidth = 1;
-    ctx.fillStyle = ORANGE;
-    // ctx.clearRect(0, 0, canvas.width, canvas.height);
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.drawImage(lava, 0, 0, c.CANVAS.WIDTH, c.CANVAS.HEIGHT);
-    ctx.fillStyle = "rgb(0, 0, 0, .15)";
-    ctx.fillRect(0, 0, c.CANVAS.WIDTH, c.CANVAS.HEIGHT);
+    // ctx.fillStyle = ORANGE;
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // ctx.drawImage(lava, 0, 0, c.CANVAS.WIDTH, c.CANVAS.HEIGHT);
+    // ctx.fillStyle = "rgb(0, 0, 0, .15)";
+    // ctx.fillRect(0, 0, c.CANVAS.WIDTH, c.CANVAS.HEIGHT);
 
     og.map.forEach((h) => {
       ctx.save()

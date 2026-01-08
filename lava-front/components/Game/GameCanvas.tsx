@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import GameHUD from './UI/GameHUD';
+import GameInfoBar from './UI/GameInfoBar';
 
 // Legacy global variables mocks
 let drawing: any;
@@ -183,52 +184,58 @@ export default function GameCanvas() {
     }, []);
 
     return (
-        <div className="relative w-full h-full flex flex-col justify-start items-center overflow-hidden bg-black">
+        <div className="w-full h-full flex flex-col items-center gap-4">
 
-            <style jsx>{`
-                @keyframes lava-scroll {
-                    0% { background-position: 0% 0%; }
-                    100% { background-position: 50% 50%; }
-                }
-                @keyframes heat-glow {
-                    0%, 100% { opacity: 0.1; }
-                    50% { opacity: 0.3; }
-                }
-            `}</style>
+            {/* Game Info Bar - Outside the Arena */}
+            <GameInfoBar ongoingGame={ongoingGame} />
 
-            {/* REALISTIC LAVA BACKGROUND */}
-            {/* Base Texture Layer - Tiled & Moving Slowly */}
-            <div
-                className="absolute inset-0 z-0 pointer-events-none"
-                style={{
-                    backgroundImage: "url('./pics/lava_bg_seamless.png')",
-                    backgroundSize: '1200px 1200px', // Larger scale for better detail
-                    animation: 'lava-scroll 120s linear infinite',
-                    filter: 'brightness(1.2) contrast(1.1) saturate(1.5)' // Vivid magma look
-                }}
-            />
+            <div className="relative w-full h-full flex flex-col justify-start items-center overflow-hidden bg-black rounded-xl border border-white/10 shadow-2xl">
 
-            {/* Heat/Glow Overlay - Pulsing Orange */}
-            <div
-                className="absolute inset-0 z-0 pointer-events-none bg-orange-600 mix-blend-overlay"
-                style={{
-                    animation: 'heat-glow 5s ease-in-out infinite'
-                }}
-            />
+                <style jsx>{`
+                    @keyframes lava-scroll {
+                        0% { background-position: 0% 0%; }
+                        100% { background-position: 50% 50%; }
+                    }
+                    @keyframes heat-glow {
+                        0%, 100% { opacity: 0.1; }
+                        50% { opacity: 0.3; }
+                    }
+                `}</style>
 
-            {/* Vignette for depth */}
-            <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(transparent_40%,#000000_100%)] opacity-90" />
+                {/* REALISTIC LAVA BACKGROUND */}
+                {/* Base Texture Layer - Tiled & Moving Slowly */}
+                <div
+                    className="absolute inset-0 z-0 pointer-events-none"
+                    style={{
+                        backgroundImage: "url('./pics/lava_bg_seamless.png')",
+                        backgroundSize: '1200px 1200px', // Larger scale for better detail
+                        animation: 'lava-scroll 120s linear infinite',
+                        filter: 'brightness(1.2) contrast(1.1) saturate(1.5)' // Vivid magma look
+                    }}
+                />
 
-            {/* Content Container */}
-            <div className="relative z-10 w-full h-full flex flex-col items-center">
-                {!status.includes("Started") && !status.includes("Draft") && (
-                    <div className="absolute top-10 text-white font-mono z-10 bg-black/50 p-2 rounded">
-                        Status: {status} <br />
-                        Server: {isConnected ? "Connected" : "Disconnected"}
-                    </div>
-                )}
-                <canvas ref={canvasRef} id="canvas" className="block shadow-[0_0_20px_rgba(255,69,0,0.5)] rounded-lg cursor-crosshair" />
-                {ongoingGame && <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />}
+                {/* Heat/Glow Overlay - Pulsing Orange */}
+                <div
+                    className="absolute inset-0 z-0 pointer-events-none bg-orange-600 mix-blend-overlay"
+                    style={{
+                        animation: 'heat-glow 5s ease-in-out infinite'
+                    }}
+                />
+
+                {/* Vignette for depth */}
+                <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(transparent_40%,#000000_100%)] opacity-90" />
+
+                {/* Content Container */}
+                <div className="relative z-10 w-full h-full flex flex-col items-center">
+                    {!status.includes("Started") && !status.includes("Draft") && (
+                        <div className="absolute top-10 text-white font-mono z-10 bg-black/50 p-2 rounded">
+                            Status: {status} <br />
+                            Server: {isConnected ? "Connected" : "Disconnected"}
+                        </div>
+                    )}
+                    <canvas ref={canvasRef} id="canvas" className="block shadow-[0_0_20px_rgba(255,69,0,0.5)] rounded-lg cursor-crosshair" />
+                    {ongoingGame && <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />}
+                </div>
             </div>
         </div>
     );

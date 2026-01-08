@@ -19,15 +19,15 @@ export default function DraftScreen({ ongoingGame }: { ongoingGame: any }) {
 
     return (
         <div className="absolute inset-0 pointer-events-none p-4">
-            {/* Turn Banner */}
-            <div className="absolute top-4 left-20 pointer-events-auto">
+            {/* Turn Banner - REMOVED (Moved to GameInfoBar) */}
+            {/* <div className="absolute top-4 left-20 pointer-events-auto">
                 <div className="bg-black/80 text-white font-[Russo One] text-2xl px-6 py-2 rounded-t-lg border-b-2 border-gray-600 w-fit">
                     You are TEAM <span className={TEAM === 'BLUE' ? 'text-blue-400' : 'text-red-500'}>{TEAM}</span>
                 </div>
                 <div className={`bg-black/90 font-[Russo One] text-2xl px-6 py-4 rounded-b-lg w-fit border-l-8 ${isMyTurn ? 'border-green-500 text-green-400' : 'border-red-500 text-red-500'}`}>
                     {isMyTurn ? "Your Turn" : "Enemy's Turn"} to {currentAction}
                 </div>
-            </div>
+            </div> */}
 
             {/* Sidebar Details */}
             {target && (

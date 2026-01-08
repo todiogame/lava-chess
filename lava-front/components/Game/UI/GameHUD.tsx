@@ -15,7 +15,7 @@ export default function GameHUD({ ongoingGame, gameStateVersion }: GameHUDProps)
     const isPickPhase = ongoingGame.isPickPhase;
 
     return (
-        <div className="absolute inset-0 pointer-events-none overflow-hidden">
+        <div className="absolute inset-0 pointer-events-none overflow-hidden flex flex-col">
             {/* Overlay Container - pointer-events-none lets clicks pass through to canvas by default */}
             {/* Child elements must have pointer-events-auto to be clickable */}
 

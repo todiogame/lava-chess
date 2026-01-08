@@ -22,7 +22,7 @@ function makeLayout(isPickPhase) {
 }
 
 function resizeCanvas() {
-  canvas.height = window.innerHeight - 20;
+  canvas.height = window.innerHeight - 130;  // Leave space for SpellDock
   canvas.width = canvas.height * aspectRatio;
 }
 
@@ -364,9 +364,8 @@ function drawMap(og) {
     drawProjectiles();
     drawParticles();
 
-    if (hoverInfo.aoe?.length) {
-      drawAOEtips(hoverInfo.aoe);
-    }
+    // Removed legacy HUD calls (drawAOEtips, drawClock, drawHelpCircle, drawSpells, etc.)
+    // Only keeping HP Bars for now as they are attached to units
     if (!og.isPickPhase && hoverInfo.entity?.maxHP) {
       drawHPBar(hoverInfo.entity);
     }
@@ -374,211 +373,20 @@ function drawMap(og) {
     if (hoverInfo.aoe || hoverInfo.entity || hoverInfo.element || hoverInfo.help) document.getElementById("canvas").style.cursor = 'pointer';
     else document.getElementById("canvas").style.cursor = 'auto';
   }
-
-  if (!og.isPickPhase) drawClock();
-  if (!og.isPickPhase) {
-    drawHelpCircle();
-    let usersNextPLayer = utils.findNextPlayer(og, TEAM);
-    if (usersNextPLayer) drawSpells(og, buttonSpell1, usersNextPLayer, true) //bottom row
-
-    let selectedEntity = og.entities.find(e => e.selected)
-    let foundSelectedPlayer = utils.findPlayerFromEntity(selectedEntity, og);
-    let selectedPlayer = foundSelectedPlayer ? foundSelectedPlayer : og.currentPlayer;
-    if (selectedPlayer) drawSpells(og, buttonSpell2, selectedPlayer, false) //top left
-  } else {
-    //draw HUD presentation characters
-    displayPickCharacterHUD(og)
-  }
-  drawNames(og)
-
-  // // Add popup
-  drawPopup(og);
-
 }
 
-function drawPopup(og) {
-  if (og.popupTime > 0) {
-    const opacity = Math.min(1, og.popupTime / og.popupDuration);
-    og.popupTime -= 30;
-    ctx.font = 'bold 100px Arial';
-    // const popupWidth = 600;
-    const popupHeight = 200;
-    const popupWidth = ctx.measureText(og.popupContent).width + 20;
-    // const popupHeight = ctx.measureText(og.popupContent).height + 20;
-    const x = (c.CANVAS.WIDTH - popupWidth) / 2;
-    const y = (c.CANVAS.HEIGHT - popupHeight) / 2;
+// function drawPopup(og) { REMOVED }
+function drawPopup(og) { }
 
-    // Draw popup background
-    ctx.fillStyle = `rgba(0, 0, 0, ${opacity * 0.8})`;
-    ctx.fillRect(x, y, popupWidth, popupHeight);
+// function displayPickCharacterHUD(og) { REMOVED }
+function displayPickCharacterHUD(og) { }
 
-    // Draw popup text
-    ctx.fillStyle = `rgba(255, 255, 255, ${opacity})`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
-    ctx.fillText(og.popupContent, c.CANVAS.WIDTH / 2, c.CANVAS.HEIGHT / 2);
-  }
+// function displayStars(num) { REMOVED }
 
-  ctx.textAlign = 'start';
-  ctx.textBaseline = 'alphabetic';
-}
-
-function displayPickCharacterHUD(og) {
-  // Draw background ctx.strokeStyle = "rgb(0, 0, 0)";
-  // Draw picking team
-  // console.log(og.pickOrBanIndex)
-  let lineMyTeam = "You are TEAM " + TEAM.toUpperCase();
-  let line = (og.currentTeamPicking == TEAM ? 'Your turn' : "Enemy's turn") + ' to ' +
-    (og.pickOrBanIndex < c.CONSTANTS.PICK_BAN_ORDER.length ? c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex] : '...');
-  ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-  ctx.lineWidth = 10;
-
-  ctx.font = 'bold 40px "Russo One", sans-serif';
-  let xx = (ctx.measureText(lineMyTeam).width)
-  ctx.beginPath();
-  ctx.fillRect(100, 20, xx + 20, 50);
-  ctx.stroke();
-  ctx.fill();
-
-  xx = (ctx.measureText(line).width)
-  ctx.beginPath();
-  ctx.fillRect(100, 90, xx + 20, 50);
-  ctx.stroke();
-  ctx.fill();
-
-  ctx.font = 'bold 40px "Russo One", sans-serif';
-  ctx.fillStyle = TEAM;
-  ctx.fillText(lineMyTeam, 110, 57);
-  ctx.fillStyle = og.currentTeamPicking;
-  ctx.fillText(line, 110, 127);
-
-  // Draw character info
-  let yTopPanel = 190
-
-  let currentEntity = og.entities.find((e) => e.selected);
-  if (!currentEntity) currentEntity = og.entities.find((e) => e.hovered);
-  if (currentEntity) {
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.beginPath();
-    ctx.fillRect(20, yTopPanel - 30, 550, 730);
-    ctx.fill();
-    //picture
-    drawPlayingEntityTopLeft(currentEntity, 30, yTopPanel, 160);
-    // Draw character name
-    ctx.font = 'bold 36px "Russo One", sans-serif';
-    ctx.fillStyle = '#ff6600';
-    ctx.fillText(currentEntity.name, 210, yTopPanel + 40);
-
-    // Draw character title
-    ctx.font = '24px "Russo One", sans-serif';
-    ctx.fillStyle = '#ff6600';
-    ctx.fillText(currentEntity.title, 210, yTopPanel + 90);
-
-    // Draw character difficulty stars
-    ctx.fillStyle = '#ff6600';
-    ctx.fillText('Difficulty: ' + displayStars(currentEntity.difficulty), 210, yTopPanel + 140);
-
-    // Draw character description
-    ctx.font = "20px 'Russo One', sans-serif";
-    ctx.fillStyle = '#ffc107';
-    // ctx.fillText(currentEntity.description, 20, 220);
-
-    let descriptionArr = [currentEntity.description]
-    let n = 1;
-    while (descriptionArr.some(line => ctx.measureText(line).width > 550 - 20)) {
-      n++
-      descriptionArr = text.format(currentEntity.description, n)
-    }
-    // console.log("split text in ", n)
-
-    descriptionArr.forEach((line, i) => {
-      ctx.fillText(line, 20 + 10, yTopPanel + 190 + 30 * i);
-    })
-    let xSpells = 20 + 100 + 10;
-    // Draw spells
-    for (let i = 0; i < currentEntity.spellsDisplay.length; i++) {
-      let spell = currentEntity.spellsDisplay[i];
-      if (spell) {
-        //Draw spell image
-        let spellImage = spell.image;
-        if (!spellImage || !spellImage.naturalWidth || !spellImage.naturalHeight) {
-          spellImage = placeholderSpell;
-        }
-        ctx.drawImage(spellImage, 20, yTopPanel + 330 + i * 120, 100, 100);
-        ctx.strokeStyle = '#ff6600';
-        ctx.lineWidth = 5;
-        ctx.strokeRect(20, yTopPanel + 330 + i * 120, 100, 100);
-        // Draw spell name and cooldown
-        ctx.font = 'bold 22px "Russo One", sans-serif';
-        ctx.fillStyle = '#ff6600';
-        ctx.fillText(
-          spell.name + (spell.cooldown ? ' (CD: ' + spell.cooldown + ')' : ''),
-          xSpells,
-          yTopPanel + 345 + i * 120
-        );
-
-        // Draw spell description
-        ctx.font = '20px "Russo One", sans-serif';
-        ctx.fillStyle = '#ffc107';
-        // ctx.fillText(spell.description, 20, 430 + i * 60);
-        let descriptionArr = [spell.description]
-        let n = 1;
-        while (descriptionArr.some(line => ctx.measureText(line).width > 550 - 20 - 100)) {
-          n++
-          descriptionArr = text.format(spell.description, n)
-        }
-        // console.log("split text in ", n)
-        if (n == 1) descriptionArr.unshift("")
-        descriptionArr.forEach((line, j) => {
-          ctx.fillText(
-            line,
-            xSpells + 10,
-            yTopPanel + 370 + i * 120 + 25 * j,
-          );
-        })
-      }
-    }
-  }
-}
-
-function displayStars(num) {
-  let stars = '';
-  for (let i = 0; i < num; i++) {
-    stars += '⭐️';
-  }
-  return stars;
-}
-
-function drawNames(og) {
-
-  //draw rectangle
-  ctx.strokeStyle = "rgb(0, 0, 0)";
-  ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-  ctx.lineWidth = 10;
-  ctx.font = "bold 26px 'Russo One', sans-serif";
-  let meText = storedData ? "[" + storedData.level + "] " + storedData.username + " - " + Math.floor(storedData.elo) : "You"
-  let enemyText = enemy.userInfo ? "[" + enemy.userInfo.level + "] " + enemy.userInfo.username + " - " + Math.floor(enemy.userInfo.elo) : "Enemy"
-
-  const divWidth = Math.max(ctx.measureText(meText).width, ctx.measureText(enemyText).width)
-  // + 20;
-  const divHeight = 100;
-  ctx.beginPath();
-  ctx.fillRect(c.CANVAS.WIDTH - 330, 10, divWidth, divHeight);
-  ctx.stroke();
-  ctx.fill();
-
-  ctx.fillStyle = TEAM;
-  ctx.fillText(meText, c.CANVAS.WIDTH - 330 + 15, 40);
-
-  ctx.fillStyle = TEAM == c.CONSTANTS.TEAM_BLUE ? c.CONSTANTS.TEAM_RED : c.CONSTANTS.TEAM_BLUE;
-  ctx.fillText(enemyText, c.CANVAS.WIDTH - 330 + 15, 90);
-}
-
-function drawHelpCircle() {
-  ctx.globalAlpha = 0.5;
-  ctx.drawImage(helpCircleImage, c.CANVAS.WIDTH - 330, 110, 150, 150);
-  ctx.globalAlpha = 1;
-}
+// function drawNames(og) { REMOVED }
+function drawNames(og) { }
+// function drawHelpCircle() { REMOVED }
+function drawHelpCircle() { }
 
 function drawPlayingEntityTopLeft(entity, x, y, size) {
   ctx.drawImage(lava, x, y, size, size,);
@@ -589,241 +397,14 @@ function drawPlayingEntityTopLeft(entity, x, y, size) {
   ctx.strokeRect(x, y, size, size);
 }
 
-function drawSpells(og, buttonSpell, player, bottomRow,) {
-  let x = buttonSpell.w_offset;
-  let y = buttonSpell.h_offset - buttonSpell.height;
+// function drawSpells(og, buttonSpell, player, bottomRow,) { REMOVED }
+function drawSpells(og, buttonSpell, player, bottomRow) { }
 
-  if (bottomRow || player != og.currentPlayer || player.entity.team != TEAM) { //dont draw top row spells if we are playing
-    //draw move button
-    x = buttonSpell.w_offset;
-    y = buttonSpell.h_offset - buttonSpell.height;
-    ctx.drawImage(move, x, y, buttonSpell.width, buttonSpell.height);
-    ctx.strokeStyle = (player.entity.team == TEAM) ? buttonSpell.borderColor : buttonSpell.borderColorEnemyTurn;
-    ctx.lineWidth = buttonSpell.borderWidth;
-    ctx.strokeRect(x, y, buttonSpell.width, buttonSpell.height);
+// function drawClock() { REMOVED }
+function drawClock() { }
 
-    if (player.movePoint <= 0) {
-      ctx.fillStyle = colorSpellDisabled;
-      ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-    }
-    //color move if unavailable
-    if (bottomRow && player != og.currentPlayer) {
-      ctx.fillStyle = colorSpellEnemyTurn;
-      ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-    }
-    //write move points
-    ctx.font = "bold 36px 'Russo One', sans-serif";
-    ctx.fillStyle = "white";
-    ctx.fillText(
-      player.movePoint,
-      x + (buttonSpell.width) - 28,
-      y + 32,
-    );
-    //draw spell buttons
-    for (let i = 0; i < player.spells.length; i++) {
-      x = buttonSpell.w_offset + (i + 1) * (buttonSpell.width + 10);
-
-      let spellImage = player.spells[i].image;
-      if (!spellImage || !spellImage.naturalWidth || !spellImage.naturalHeight) {
-        spellImage = placeholderSpell;
-      }
-      ctx.drawImage(spellImage, x, y, buttonSpell.width, buttonSpell.height);
-
-      ctx.strokeStyle = (player.entity.team == TEAM) ? buttonSpell.borderColor : buttonSpell.borderColorEnemyTurn;
-      ctx.lineWidth = buttonSpell.borderWidth;
-      ctx.strokeRect(x, y, buttonSpell.width, buttonSpell.height);
-      //color spell if unavailable
-      if (bottomRow && player != og.currentPlayer) {
-        ctx.fillStyle = colorSpellEnemyTurn;
-        ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-      }
-      //grey out passive
-      if (player.spells[i].passive) {
-        ctx.fillStyle = colorSpellPassive;
-        ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-        //grey out silence
-      } else if (player.entity.auras.length && player.entity.auras.some(a => a.name == "silence")) {
-        ctx.drawImage(silenceIcon, x, y, buttonSpell.width, buttonSpell.height);
-        ctx.fillStyle = colorSpellSilenced;
-        ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-        //grey out cd
-      } else if (player.spells[i].currentCD > 0) {
-        ctx.drawImage(cooldown, x, y, buttonSpell.width, buttonSpell.height);
-        ctx.fillStyle = colorSpellDisabled;
-        ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-        //write current CD
-        ctx.font = "bold " + parseInt(buttonSpell.height / 2 + 20) + "px 'Russo One', sans-serif";
-        ctx.fillStyle = "white";
-        ctx.fillText(
-          player.spells[i].currentCD,
-          x + buttonSpell.width / 3 + 2, y + buttonSpell.height / 2 + 20,
-        );
-      }
-
-    }
-  } else { //toprow, current player belongs to user : write YOUR TURN
-    //draw rectangle
-    ctx.strokeStyle = "rgb(0, 0, 0)";
-    ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-    ctx.lineWidth = 10;
-
-    x = buttonSpell.w_offset;
-    y = buttonSpell.h_offset - buttonSpell.height;
-    ctx.beginPath();
-    ctx.fillRect(
-      x,
-      y,
-      SIZE_PERSO * 2,
-      60,
-    );
-    ctx.stroke();
-    ctx.fill();
-
-    ctx.font = "bold 26px 'Russo One', sans-serif";
-    ctx.fillStyle = TEAM;
-    ctx.fillText(
-      "YOUR TURN",
-      x + 40,
-      y + 40,
-    );
-  }
-  if (bottomRow) {
-    //draw rise lava and pass buttons
-    x = c.CANVAS.WIDTH * 7 / 10
-    if (og.currentPlayer.isSummoned)
-      ctx.drawImage(pass, x, y, buttonSpell.width, buttonSpell.height);
-    else
-      ctx.drawImage(lavapass, x, y, buttonSpell.width, buttonSpell.height);
-    ctx.strokeStyle = (og.currentPlayer.entity.team == TEAM) ? buttonSpell.borderColor : buttonSpell.borderColorEnemyTurn;
-    ctx.lineWidth = buttonSpell.borderWidth;
-    ctx.strokeRect(x, y, buttonSpell.width, buttonSpell.height);
-    //color spell if unavailable
-    if (player != og.currentPlayer) {
-      ctx.fillStyle = colorSpellEnemyTurn;
-      ctx.fillRect(x, y, buttonSpell.width, buttonSpell.height);
-    }
-
-    //draw tooltips
-    if (hoverInfo.element) {
-      //draw rectangle
-      ctx.strokeStyle = "rgb(0, 0, 0)";
-      ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-      ctx.lineWidth = 10;
-
-      x = buttonSpell1.w_offset - (buttonSpell1.width) - 10 + 110;
-      y = buttonSpell1.h_offset - buttonSpell1.height * 2 - 10;
-      ctx.beginPath();
-      ctx.fillRect(
-        x,
-        y - 40,
-        430,
-        100 + 40,
-        20,
-      );
-      ctx.stroke();
-      ctx.fill();
-      //write spell name
-      ctx.font = "bold 26px 'Russo One', sans-serif";
-      ctx.fillStyle = "white";
-      ctx.fillText(
-        hoverInfo.element.name,
-        x + 10,
-        y + 30 - 40,
-      );
-      //write cooldown in description
-      if (hoverInfo.element.cooldown) {
-        ctx.drawImage(
-          cdIcon,
-          x + 430 - 100,
-          y - 40,
-          50, 50);
-        ctx.fillText(
-          hoverInfo.element.currentCD + "/" + hoverInfo.element.cooldown,
-          x + 430 - 100 + 55,
-          y + 30 - 40,
-        );
-      }
-      //write description
-      ctx.font = "20px 'Russo One', sans-serif";
-      let descriptionArr = [hoverInfo.element.description]
-      let n = 1;
-      while (descriptionArr.some(line => ctx.measureText(line).width > 410)) {
-        n++
-        descriptionArr = text.format(hoverInfo.element.description, n)
-      }
-      // console.log("split text in ", n)
-
-      descriptionArr.forEach((line, i) => {
-        ctx.fillText(
-          line,
-          x + 10,
-          y + 25 + 30 * i,
-        );
-      })
-    } else drawPlayingEntityTopLeft(player.entity, buttonSpell.w_offset, buttonSpell.h_offset - buttonSpell.height - 130, SIZE_PERSO * (bottomRow ? 1 : 2));
-  } else {
-    drawPlayingEntityTopLeft(player.entity, buttonSpell.w_offset, 50, SIZE_PERSO * (bottomRow ? 1 : 2));
-  }
-
-
-}
-
-function drawClock() {
-  let timeleft;
-  if (og.turnTimer.turnStartTime) {
-    timeleft = Math.ceil(
-      (c.CONSTANTS.TIME_TURN_MS - (Date.now() - og.turnTimer.turnStartTime)) /
-      1000,
-    );
-    if (timeleft <= 0) timeleft = 0;
-  } else timeleft = 9;
-  ctx.drawImage(clockImage, c.CANVAS.WIDTH - 160, 110, 150, 150);
-  ctx.font = "bold 80px 'Russo One', sans-serif";
-  ctx.fillStyle = "orange";
-  ctx.fillText(timeleft, c.CANVAS.WIDTH - 160 + 30 + (timeleft <= 9 ? 24 : 0), 210);
-  // }
-}
-
-function drawAOEtips(aoes) {
-  //draw bottom right
-  //draw rectangle
-  ctx.strokeStyle = "rgb(0, 0, 0)";
-  ctx.fillStyle = "rgba(0, 0, 0, 0.8)";
-  ctx.lineWidth = 10;
-
-  let posx = x = c.CANVAS.WIDTH * 7 / 10;
-  let posy = buttonSpell1.h_offset - buttonSpell1.height - 20 - aoes.length * 60 - 10;
-  ctx.beginPath();
-  ctx.fillRect(
-    posx,
-    posy,
-    430,
-    20 + aoes.length * 60,
-    20,
-  );
-  ctx.stroke();
-  ctx.fill();
-  //write spell effect picture and name
-  ctx.font = "bold 40px 'Russo One', sans-serif";
-  for (let i = 0; i < aoes.length; i++) {
-    ctx.fillStyle = "orange";
-    if (aoes[i].dealSpell == "damage") ctx.fillStyle = "red";
-    if (aoes[i].dealSpell == "root") ctx.fillStyle = "green";
-    if (aoes[i].dealSpell == "silence") ctx.fillStyle = "blue";
-    if (aoes[i].image) {
-      ctx.drawImage(
-        aoes[i].image,
-        posx + 20,
-        posy + 10 + 60 * i,
-        50, 50);
-    }
-    ctx.fillText(
-      aoes[i].name,
-      posx + 60 + 20,
-      posy + 50 + 60 * i,
-    );
-  }
-}
+// function drawAOEtips(aoes) { REMOVED }
+function drawAOEtips(aoes) { }
 
 function drawHPBar(entity, showOrder) {
   showOrder = showOrder && entity.types.includes(c.TYPES.PLAYABLE) ? 1 : 0;
@@ -1043,7 +624,11 @@ function findHexFromEvent(eventX, eventY) {
   const rect = canvas.getBoundingClientRect();
   const x = eventX - rect.left;
   const y = eventY - rect.top;
-  return layout.pixelToHex(new Point(x, y));
+
+  const scaleX = canvas.width / c.CANVAS.WIDTH;
+  const scaleY = canvas.height / c.CANVAS.HEIGHT;
+
+  return layout.pixelToHex(new Point(x / scaleX, y / scaleY));
 }
 
 module.exports = {

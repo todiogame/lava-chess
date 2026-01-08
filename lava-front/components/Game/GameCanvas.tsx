@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import GameHUD from './UI/GameHUD';
 
 // Legacy global variables mocks
 // In the legacy code, these were globals. We attach them to window or keep them module-scoped here if possible.
@@ -308,130 +309,26 @@ export default function GameCanvas() {
             canvas.onmousemove = (event: MouseEvent) => {
                 if (!ongoingGame) return;
 
-                const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-
-                // --- HUD HOVER LOGIC ---
-                // Re-implementing client.js logic here since interface.js is proving hard to patch
-                // @ts-ignore
-                if (window.hoverInfo) window.hoverInfo.element = undefined;
-
-                if (ongoingGame.currentPlayer && window.hoverInfo) {
-                    let usersNextPLayer = utils.findNextPlayer(ongoingGame, TEAM);
-                    if (!usersNextPLayer) usersNextPLayer = ongoingGame.PLAYERS.find((p: any) => p.entity.team == TEAM);
-
-                    // Helper to check buttons
-                    const checkButtons = (btn: any, player: any, bottom: boolean) => {
-                        if (!btn) return;
-                        let btnX = btn.w_offset;
-                        let btnY = btn.h_offset - btn.height;
-                        // Move
-                        if (x > btnX && x < btnX + btn.width && y > btnY && y < btnY + btn.height) {
-                            window.hoverInfo.element = consts.GAMEDATA.MOVE_SPELL;
-                        }
-                        // Spells
-                        for (let i = 0; i < player.spells.length; i++) {
-                            let sBtnX = btn.w_offset + (i + 1) * (btn.width + 10);
-                            if (x > sBtnX && x < sBtnX + btn.width && y > btnY && y < btnY + btn.height) {
-                                window.hoverInfo.element = player.spells[i];
-                            }
-                        }
-                        // Pass/Lava
-                        if (bottom) {
-                            let pBtnX = (consts.CANVAS.WIDTH * 7) / 10;
-                            if (x > pBtnX && x < pBtnX + btn.width && y > btnY && y < btnY + btn.height) {
-                                window.hoverInfo.element = player.isSummoned ? consts.GAMEDATA.PASS_SPELL : consts.GAMEDATA.LAVA_SPELL;
-                            }
-                        }
-                    };
-
-                    if (usersNextPLayer) checkButtons(window.buttonSpell1, usersNextPLayer, true);
-
-                    // Help Button (Display All HP)
-                    // drawing.js: drawHelpCircle at c.CANVAS.WIDTH - 330, 110, 150, 150
-                    const helpX = consts.CANVAS.WIDTH - 330;
-                    const helpY = 110;
-                    const helpSize = 150;
-                    // @ts-ignore
-                    window.hoverInfo.help = false;
-                    if (x > helpX && x < helpX + helpSize && y > helpY && y < helpY + helpSize) {
-                        // @ts-ignore
-                        window.hoverInfo.help = true;
-                    }
-
-                    // Selected entity inspection
-                    let selected = ongoingGame.entities.find((e: any) => e.selected) || ongoingGame.entities.find((e: any) => e.hovered);
-                    if (selected) {
-                        let p = utils.findPlayerFromEntity(selected, ongoingGame);
-                        if (p && (p !== ongoingGame.currentPlayer || p.entity.team !== TEAM)) {
-                            checkButtons(window.buttonSpell2, p, false);
-                        }
-                    }
-                }
-
+                // Map interactions only (Draft or Game)
                 if (ongoingGame.isPickPhase) {
                     pickPhase.onMouseHoverDraft(drawing.findHexFromEvent(event.clientX, event.clientY), ongoingGame);
                 } else {
                     interfaceLogic.onMouseHoverGame(drawing.findHexFromEvent(event.clientX, event.clientY), ongoingGame);
+
+                    // Sync hoverInfo.entity for legacy drawing (HP Bars)
+                    const hoveredEntity = ongoingGame.entities.find((e: any) => e.hovered);
+                    // @ts-ignore
+                    if (window.hoverInfo) {
+                        // @ts-ignore
+                        window.hoverInfo.entity = hoveredEntity;
+                    }
                 }
             };
 
             canvas.onclick = (event: MouseEvent) => {
                 if (!ongoingGame) return;
 
-                // 1. Check HUD Clicks first (Spells, Pass Turn)
-                const rect = canvas.getBoundingClientRect();
-                const x = event.clientX - rect.left;
-                const y = event.clientY - rect.top;
-
-                // --- HUD CLICK LOGIC (Local) ---
-                let hudHandled = false;
-
-                if (ongoingGame.currentPlayer) {
-                    let usersNextPLayer = utils.findNextPlayer(ongoingGame, TEAM);
-                    if (!usersNextPLayer) usersNextPLayer = ongoingGame.PLAYERS.find((p: any) => p.entity.team == TEAM);
-
-                    // Only proceed if we found a player AND valid buttons
-                    // @ts-ignore
-                    if (usersNextPLayer && window.buttonSpell1) {
-                        // @ts-ignore
-                        const btn = window.buttonSpell1;
-                        let btnX = btn.w_offset;
-                        let btnY = btn.h_offset - btn.height;
-
-                        // Move Click
-                        if (x > btnX && x < btnX + btn.width && y > btnY && y < btnY + btn.height) {
-                            interfaceLogic.clickMove(usersNextPLayer, ongoingGame);
-                            hudHandled = true;
-                        }
-
-                        // Spells Click
-                        if (usersNextPLayer.spells) {
-                            for (let i = 0; i < usersNextPLayer.spells.length; i++) {
-                                let sBtnX = btn.w_offset + (i + 1) * (btn.width + 10);
-                                if (x > sBtnX && x < sBtnX + btn.width && y > btnY && y < btnY + btn.height) {
-                                    interfaceLogic.clickSpell(usersNextPLayer, i, ongoingGame);
-                                    hudHandled = true;
-                                }
-                            }
-                        }
-
-                        // Pass/Lava Click
-                        let pBtnX = (consts.CANVAS.WIDTH * 7) / 10;
-                        if (x > pBtnX && x < pBtnX + btn.width && y > btnY && y < btnY + btn.height) {
-                            interfaceLogic.clickPassTurnOrRiseLava(usersNextPLayer, ongoingGame);
-                            hudHandled = true;
-                        }
-                    }
-                }
-
-                // If HUD handled the click, stop here
-                if (hudHandled) {
-                    return;
-                }
-
-                // 2. Map Clicks (Move, Cast, Select)
+                // Map interactions only
                 const hex = drawing.findHexFromEvent(event.clientX, event.clientY);
                 if (ongoingGame.isPickPhase) {
                     pickPhase.onMouseClicDraft(hex, ongoingGame);
@@ -444,13 +341,25 @@ export default function GameCanvas() {
 
         return () => {
             if (socket) socket.close();
-            // Cancel anim loop?
         };
 
     }, []);
 
+    // Game Loop for React UI updates (100ms)
+    // We use a simple counter to force re-render of HUD components
+    const [gameStateVersion, setGameStateVersion] = useState(0);
+    useEffect(() => {
+        const interval = setInterval(() => {
+            // Only update if game is running
+            if (ongoingGame) {
+                setGameStateVersion(v => v + 1);
+            }
+        }, 100);
+        return () => clearInterval(interval);
+    }, []);
+
     return (
-        <div className="relative w-full h-full flex flex-col justify-center items-center bg-black">
+        <div className="relative w-full h-full flex flex-col justify-start items-center bg-black">
             {!status.includes("Started") && !status.includes("Draft") && (
                 <div className="absolute top-10 text-white font-mono z-10 bg-black/50 p-2 rounded">
                     Status: {status} <br />
@@ -463,6 +372,12 @@ export default function GameCanvas() {
                 id="canvas"
                 className="block shadow-[0_0_20px_rgba(255,69,0,0.5)] rounded-lg cursor-crosshair"
             />
+
+            {/* React HUD Overlay */}
+            {ongoingGame && (
+                <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />
+            )}
         </div>
     );
 }
+

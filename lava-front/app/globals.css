@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+:root {
+  --background: #0a0a0a;
+  --foreground: #ffffff;
+  
+  --magma: #FF4500;
+  --ember: #FF8C00;
+  --blue: #00BFFF;
+  --glass: rgba(20, 20, 20, 0.7);
+  --surface: #141414;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-montserrat), sans-serif;
+  --font-display: var(--font-russo-one), sans-serif;
+
+  --color-magma: var(--magma);
+  --color-ember: var(--ember);
+  --color-deep: var(--background);
+  --color-surface: var(--surface);
+  --color-glass: var(--glass);
+}
+
+body {
+  background-color: var(--background);
+  color: var(--foreground);
+  font-family: var(--font-sans);
+  background-image:
+    radial-gradient(circle at 10% 20%, rgba(255, 69, 0, 0.03) 0%, transparent 40%),
+    radial-gradient(circle at 90% 80%, rgba(255, 140, 0, 0.03) 0%, transparent 40%);
+}

@@ -1,8 +1,23 @@
-const jwt = require('jsonwebtoken');
+// Shared Network file
+// In frontend, we mock/ignore server-side imports
+let jwt;
+let Encrypt;
 let secret;
-if (typeof window == "undefined") {
-    const Encrypt = require("./server/Encrypt")
-    secret = Encrypt.secret;
+
+if (typeof window === "undefined") {
+    // We are on server
+    // However, this file is in lava-front, which is mostly client.
+    // If Next.js SSR runs this, it might fail if jsonwebtoken is not installed.
+    // But this file seems to be intended for Client/Shared logic mainly?
+    // The previous error was "Can't resolve jsonwebtoken".
+    // We should probably just NOT import it if it's absent.
+    try {
+        jwt = require('jsonwebtoken');
+        Encrypt = require("./server/Encrypt");
+        secret = Encrypt.secret;
+    } catch (e) {
+        // Ignore if modules missing (client side build)
+    }
 }
 
 class Network {

@@ -1,4 +1,25 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+
 export default function Home() {
+  const router = useRouter();
+  const [nickname, setNickname] = useState("");
+
+  useEffect(() => {
+    // Generate random guest name on client-side mount
+    const randomName = "Guest_" + Math.floor(Math.random() * 10000);
+    setNickname(randomName);
+  }, []);
+
+  const handlePlay = () => {
+    if (!nickname) return;
+    // Save to localStorage for GameCanvas to read
+    localStorage.setItem("lava_username", nickname);
+    router.push("/game");
+  };
+
   return (
     <div className="min-h-screen flex flex-col p-4 max-w-7xl mx-auto w-full">
       {/* Navigation */}
@@ -40,11 +61,15 @@ export default function Home() {
               type="text"
               placeholder="Enter Nickname"
               maxLength={10}
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
               className="bg-white/5 border border-magma/50 rounded-xl px-6 py-4 text-center text-xl font-bold w-full max-w-xs focus:outline-none focus:ring-2 focus:ring-magma shadow-lg backdrop-blur-sm transition-all text-white placeholder:text-white/30"
             />
           </div>
 
-          <button className="bg-gradient-to-br from-magma to-[#D03000] text-white text-2xl font-black px-16 py-6 rounded-full shadow-[0_0_25px_rgba(255,69,0,0.4)] hover:shadow-[0_0_40px_rgba(255,69,0,0.6)] hover:scale-105 active:scale-95 transition-all duration-200 uppercase tracking-wider border-b-4 border-[#8B2500]">
+          <button
+            onClick={handlePlay}
+            className="bg-gradient-to-br from-magma to-[#D03000] text-white text-2xl font-black px-16 py-6 rounded-full shadow-[0_0_25px_rgba(255,69,0,0.4)] hover:shadow-[0_0_40px_rgba(255,69,0,0.6)] hover:scale-105 active:scale-95 transition-all duration-200 uppercase tracking-wider border-b-4 border-[#8B2500]">
             Play Now
           </button>
         </div>

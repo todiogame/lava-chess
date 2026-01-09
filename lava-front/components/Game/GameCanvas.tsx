@@ -56,7 +56,9 @@ export default function GameCanvas() {
             // @ts-ignore
             window.hoverInfo = {};
             // @ts-ignore
-            window.storedData = { username: "Guest", level: 1, elo: 1000 };
+            const savedName = typeof localStorage !== 'undefined' ? localStorage.getItem("lava_username") : null;
+            // @ts-ignore
+            window.storedData = { username: savedName || "Guest", level: 1, elo: 1000 };
             // @ts-ignore
             window.displayAllHP = false;
             // @ts-ignore

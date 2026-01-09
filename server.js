@@ -12,8 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 // Enable CORS for all routes (important for Vercel/Northflank split)
 app.use(cors());
 
-// Start the web server
-app.use(express.static('public'));
+// app.use(express.static('public')); // REMOVED: Frontend is now separate (lava-front)
 app.use(express.json());
 app.use('/', router);
 

@@ -47,9 +47,11 @@ const UnitLayer = ({ entities, layout, isPickPhase }) => {
                     filter = `drop-shadow(0 0 2px ${unit.team})`;
                 }
 
+                const uniqueKey = `${unit.id}_${unit.pos.q}_${unit.pos.r}_${unit.pos.s}`;
+
                 return (
                     <div
-                        key={unit.id} // or use a unique ID if unit.id is not unique enough (it should be)
+                        key={uniqueKey} // Fixed duplicate key issue for "wall" or "totem" using position
                         className="unit-container"
                         style={{
                             position: 'absolute',

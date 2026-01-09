@@ -168,7 +168,10 @@ export default function GameCanvas() {
             window.og = ongoingGame;
             pickPhase.initPickPhase(ongoingGame);
             hud.switchToGameMode();
-            if (!ongoingGame.isAnimed) { ongoingGame.isAnimed = true; Anim.mainLoop(ongoingGame); }
+            if (ongoingGame) {
+                // Anim.mainLoop(ongoingGame); // REMOVED: Legacy loop, replaced by React & EffectsLayer
+                // We still rely on EffectsLayer for particle looping
+            }
         }
 
         function startGameAfterDraft(og: any, players: any) {

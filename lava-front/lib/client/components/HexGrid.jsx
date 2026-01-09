@@ -57,8 +57,62 @@ const HexGrid = ({ map, layout, onHexClick, onHexHover, isPickPhase, currentTeam
         });
     }, [map, layout, gameStateVersion]);
 
+    // Touch Handling Logic
+    const lastHoveredHex = React.useRef(null);
+
+    const handleTouch = (e) => {
+        // Prevent default to stop scrolling while interacting with the grid
+        // e.preventDefault(); // Commented out to allow some scrolling, but might need it if dragging checks fail
+
+        const touch = e.touches[0] || e.changedTouches[0];
+        const element = document.elementFromPoint(touch.clientX, touch.clientY);
+
+        if (element) {
+            // Traverse up to find the group or polygon with data-hex-id (if we added one)
+            // Or simpler: The polygon has the onClick handler. We can try to map back to hex.
+            // Since we don't have easy lookup from DOM -> Hex, we rely on the fact that
+            // we are iterating gridData.
+            // Let's attach data attributes to the polygons!
+
+            const hexData = element.getAttribute('data-hex-id');
+            if (hexData) {
+                const [q, r, s] = hexData.split(',').map(Number);
+                // Find hex in map - strictly strictly matching coordinates
+                // Since 'map' objects are persistent references, we try to find the match
+                const foundHex = map.find(h => h.q === q && h.r === r && h.s === s);
+
+                if (foundHex && foundHex !== lastHoveredHex.current) {
+                    // Pass the touch object/event as second arg
+                    onHexHover(foundHex, touch);
+                    lastHoveredHex.current = foundHex;
+                } else if (foundHex) {
+                    // Continuous hover update for vector targeting even if hex is same!
+                    // This is CRITICAL for "Wall" spell which needs to track movement *within* the hex or across neighbors
+                    onHexHover(foundHex, touch);
+                }
+            }
+        }
+    };
+
+    const handleTouchEnd = (e) => {
+        if (lastHoveredHex.current) {
+            // Pass the touch event (from changedTouches usually) or just the event
+            const touch = e.changedTouches[0] || e.touches[0];
+            onHexClick(lastHoveredHex.current, touch || e);
+            lastHoveredHex.current = null;
+        }
+    };
+
     return (
-        <svg className="hex-grid-layer" width="100%" height="100%" style={{ overflow: 'visible' }}>
+        <svg
+            className="hex-grid-layer"
+            width="100%"
+            height="100%"
+            style={{ overflow: 'visible', touchAction: 'none' }} // touch-action: none is critical
+            onTouchStart={handleTouch}
+            onTouchMove={handleTouch}
+            onTouchEnd={handleTouchEnd}
+        >
             <g>
                 {gridData.map(({ hex, points, center, tileHref, key }) => (
                     <g key={key}>
@@ -89,8 +143,9 @@ const HexGrid = ({ map, layout, onHexClick, onHexHover, isPickPhase, currentTeam
                             fillOpacity="0"
                             stroke={tileHref ? "none" : "rgba(255,255,255,0.1)"} // Debug/Fallback grid
                             strokeWidth="1"
+                            data-hex-id={`${hex.q},${hex.r},${hex.s}`} // Added for Touch Logic
                             onClick={(e) => onHexClick(hex, e)}
-                            onMouseEnter={() => onHexHover(hex)}
+                            onMouseMove={(e) => onHexHover(hex, e)} // CHANGED from onMouseEnter to onMouseMove to track continuous movement
                             style={{ cursor: (hex.hoverMove || hex.hoverSpell) ? 'pointer' : 'default' }}
                         />
 

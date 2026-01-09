@@ -18,19 +18,58 @@ const GameBoard = ({ og, gameStateVersion }) => {
     // Force re-render on game state mutation
     const [, forceUpdate] = useState(0);
 
+    // Helper to get fractional hex from event
+    const getFractionalHex = (hex, e) => {
+        if (!e || !e.target) return hex; // Fallback to center if no event
+
+        // Find the scaler content
+        const container = document.getElementById('scaler-content');
+        if (!container) return hex;
+
+        const rect = container.getBoundingClientRect();
+
+        let clientX, clientY;
+        if (e.touches && typeof e.touches[0] !== 'undefined') {
+            clientX = e.touches[0].clientX;
+            clientY = e.touches[0].clientY;
+        } else if (e.changedTouches && typeof e.changedTouches[0] !== 'undefined') {
+            // For touchEnd
+            clientX = e.changedTouches[0].clientX;
+            clientY = e.changedTouches[0].clientY;
+        } else {
+            clientX = e.clientX;
+            clientY = e.clientY;
+        }
+
+        // Un-scale coordinates
+        // The container is scaled by CSS transform.
+        const scale = rect.width / c.CANVAS.WIDTH;
+
+        // X,Y relative to container origin (0,0 of the canvas)
+        const x = (clientX - rect.left) / scale;
+        const y = (clientY - rect.top) / scale;
+
+        if (layout) {
+            return layout.pixelToHex(new Point(x, y));
+        }
+        return hex;
+    };
+
     // Handlers
     const handleHexClick = (hex, e) => {
+        const preciseHex = getFractionalHex(hex, e);
         if (window.interface && !og.isPickPhase) {
-            window.interface.onMouseClicGame(hex, og);
+            window.interface.onMouseClicGame(preciseHex, og);
         } else if (window.pickPhase && og.isPickPhase) {
-            window.pickPhase.onMouseClicDraft(hex, og);
+            window.pickPhase.onMouseClicDraft(hex, og); // Draft doesn't need vector
         }
         forceUpdate(n => n + 1);
     };
 
-    const handleHexHover = (hex) => {
+    const handleHexHover = (hex, e) => {
+        const preciseHex = getFractionalHex(hex, e);
         if (window.interface && !og.isPickPhase) {
-            window.interface.onMouseHoverGame(hex, og);
+            window.interface.onMouseHoverGame(preciseHex, og);
         } else if (window.pickPhase && og.isPickPhase) {
             window.pickPhase.onMouseHoverDraft(hex, og);
         }
@@ -139,6 +178,7 @@ const GameBoard = ({ og, gameStateVersion }) => {
             <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(transparent_40%,#000000_100%)] opacity-90" />
 
             <div
+                id="scaler-content"
                 className="scaler-content z-10"
                 style={{
                     position: 'absolute',

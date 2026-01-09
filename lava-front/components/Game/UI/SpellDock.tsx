@@ -59,8 +59,9 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
     return (
         <div className="relative flex flex-wrap justify-center items-end gap-1 md:gap-2 bg-black/80 p-2 rounded-xl border border-gray-700 mx-2 mb-0">
             {/* Tooltip Popup */}
+            {/* Tooltip Popup */}
             {hoveredSpell && (
-                <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-slate-900 border border-yellow-600 text-white p-3 rounded shadow-xl z-50">
+                <div className="fixed top-20 left-1/2 -translate-x-1/2 w-80 z-50 md:absolute md:top-auto md:bottom-full md:mb-2 md:w-64 bg-slate-900 border border-yellow-600 text-white p-3 rounded shadow-xl">
                     <div className="font-bold text-lg text-yellow-500">{hoveredSpell.name}</div>
                     <div className="text-xs text-gray-400 mb-2">
                         {hoveredSpell.cooldown ? `CD: ${hoveredSpell.currentCD}/${hoveredSpell.cooldown}` : 'Passive/No CD'}

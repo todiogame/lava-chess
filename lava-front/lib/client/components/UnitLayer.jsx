@@ -47,11 +47,24 @@ const UnitLayer = ({ entities, layout, isPickPhase }) => {
                     filter = `drop-shadow(0 0 2px ${unit.team})`;
                 }
 
-                const uniqueKey = `${unit.id}_${unit.pos.q}_${unit.pos.r}_${unit.pos.s}`;
+                // Movement Animation Fix:
+                // We must provide a STABLE key for moving units so React updates the transform (triggering CSS transition).
+                // If we include position in the key (as we did for Walls to fix duplicate keys), the component remounts on move, breaking animation.
+
+                // Heuristic: "wall", "totem", "boulder" are static and may have duplicate IDs.
+                // Characters (Heroes) move and should have unique IDs (or at least unique per team).
+
+                const isStaticStructure = ['wall', 'totem', 'boulder', 'rune'].some(keyword => unit.id.toLowerCase().includes(keyword));
+
+                // Fallback to ID + Team for characters to handle mirror matches if IDs are just class names.
+                // For structures, use position to ensure uniqueness.
+                const uniqueKey = isStaticStructure
+                    ? `${unit.id}_${unit.pos.q}_${unit.pos.r}_${unit.pos.s}`
+                    : `${unit.id}_${unit.team}`;
 
                 return (
                     <div
-                        key={uniqueKey} // Fixed duplicate key issue for "wall" or "totem" using position
+                        key={uniqueKey}
                         className="unit-container"
                         style={{
                             position: 'absolute',

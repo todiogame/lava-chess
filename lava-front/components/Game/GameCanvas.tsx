@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import GameHUD from './UI/GameHUD';
 import GameInfoBar from './UI/GameInfoBar';
+import SpellDock from './UI/SpellDock';
 import GameBoard from '@/lib/client/components/GameBoard';
 
 // Legacy global variables mocks
@@ -182,7 +183,7 @@ export default function GameCanvas() {
             {/* Game Info Bar - Outside the Arena */}
             <GameInfoBar ongoingGame={ongoingGame} />
 
-            <div className="relative w-full h-full flex flex-col justify-start items-center overflow-hidden bg-black rounded-xl border border-white/10 shadow-2xl">
+            <div className="relative w-full flex-grow flex flex-col justify-start items-center overflow-hidden bg-black rounded-xl border border-white/10 shadow-2xl">
 
                 <style jsx>{`
                     @keyframes lava-scroll {
@@ -234,6 +235,13 @@ export default function GameCanvas() {
                     {ongoingGame && <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />}
 
                 </div>
+            </div>
+
+            {/* Spell Dock - Moved below game area */}
+            <div className="w-full flex justify-center pb-4 min-h-[100px]">
+                {ongoingGame && !ongoingGame.isPickPhase && (
+                    <SpellDock ongoingGame={ongoingGame} />
+                )}
             </div>
         </div>
     );

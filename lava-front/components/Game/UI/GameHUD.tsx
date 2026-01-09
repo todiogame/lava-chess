@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import TopBar from './TopBar';
-import SpellDock from './SpellDock';
+// import SpellDock from './SpellDock';
 import UnitFrame from './UnitFrame';
 import DraftScreen from './DraftScreen';
 
@@ -36,11 +36,6 @@ export default function GameHUD({ ongoingGame, gameStateVersion }: GameHUDProps)
                             {/* Right: Notifications/Logs (Future) */}
                             <div className="pointer-events-auto">
                             </div>
-                        </div>
-
-                        {/* Bottom: Spell Dock */}
-                        <div className="flex justify-center mb-4 pointer-events-auto">
-                            <SpellDock ongoingGame={ongoingGame} />
                         </div>
                     </div>
                 </>

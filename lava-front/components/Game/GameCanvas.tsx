@@ -25,6 +25,24 @@ let interfaceLogic: any;
 let OngoingGame: any;
 let consts: any;
 
+declare global {
+    interface Window {
+        og: any;
+        particles: any[];
+        projectiles: any[];
+        ARRAY_ICONS: any;
+        interface: any;
+        hoverInfo: any;
+        storedData: any;
+        displayAllHP: any;
+        enemy: any;
+        pickPhase: any;
+        buttonSpell1: any;
+        buttonSpell2: any;
+        TEAM: any;
+    }
+}
+
 // Game State Globals (Module Scope)
 let socket: WebSocket | null = null;
 let ongoingGame: any = null;

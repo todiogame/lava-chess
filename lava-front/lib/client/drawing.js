@@ -20,7 +20,7 @@ const aspectRatio = c.CANVAS.WIDTH / c.CANVAS.HEIGHT;
 
 
 function makeLayout(isPickPhase) {
-  origin = new Point(c.CANVAS.WIDTH / 2 + (isPickPhase ? 200 : 0), c.CANVAS.HEIGHT / 2);
+  origin = new Point(c.CANVAS.WIDTH / 2, c.CANVAS.HEIGHT / 2);
   const layout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
   return layout;
 }

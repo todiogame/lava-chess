@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import GameHUD from './UI/GameHUD';
 import GameInfoBar from './UI/GameInfoBar';
 import SpellDock from './UI/SpellDock';
+import TopBar from './UI/TopBar';
+import UnitFrame from './UI/UnitFrame';
+import DraftScreen from './UI/DraftScreen';
 import GameBoard from '@/lib/client/components/GameBoard';
 
 // Legacy global variables mocks
@@ -117,15 +119,22 @@ export default function GameCanvas() {
         function connect() {
             if (socket) socket.close();
             let host = config.EXTERNAL_IP_ADDRESS;
-            // if (window.location.hostname === 'localhost') host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+            // Force production server as requested
+            if (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1') {
+                host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+            }
+
             let wsProtocol = host.includes("code.run") ? "wss://" : "ws://";
-            let port = (window.location.hostname === 'localhost' && !host.includes("code.run")) ? ':4000' : '';
+            // Port logic: only add :4000 if we are NOT on the production domain
+            const isProd = host.includes("code.run");
+            let port = (!isProd && (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) ? ':4000' : '';
+
             host = host.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
             let wsUrl = `${wsProtocol}${host}${port}`;
 
             socket = new WebSocket(wsUrl);
             socket.onopen = () => {
-                console.log("DEBUG: Socket Connected!");
+                console.log("Socket Connected");
                 setIsConnected(true);
                 setStatus("Searching for opponent...");
                 Network.clientSocket = socket;
@@ -177,51 +186,43 @@ export default function GameCanvas() {
         return () => clearInterval(interval);
     }, []);
 
+    // Layout State Logic
+    const isPickPhase = ongoingGame && ongoingGame.isPickPhase;
+
     return (
-        <div className="w-full h-full flex flex-col items-center gap-4">
+        <div className="w-full h-full flex flex-col md:flex-row relative bg-gray-900 overflow-hidden">
 
-            {/* Game Info Bar - Outside the Arena */}
-            <GameInfoBar ongoingGame={ongoingGame} />
+            {/* LEFT SIDEBAR (HUD) */}
+            <div className="w-full md:w-[350px] md:h-full flex flex-col bg-black/80 md:border-r border-gray-700 z-20 shrink-0 overflow-y-auto relative p-2 gap-2">
 
-            <div className="relative w-full flex-grow flex flex-col justify-start items-center overflow-hidden bg-black rounded-xl border border-white/10 shadow-2xl">
+                {/* 1. Global Status / Info */}
+                <GameInfoBar ongoingGame={ongoingGame} />
 
-                <style jsx>{`
-                    @keyframes lava-scroll {
-                        0% { background-position: 0% 0%; }
-                        100% { background-position: 50% 50%; }
-                    }
-                    @keyframes heat-glow {
-                        0%, 100% { opacity: 0.1; }
-                        50% { opacity: 0.3; }
-                    }
-                `}</style>
+                {/* 2. Dynamic Content (Draft or Game) */}
+                {ongoingGame && (isPickPhase ? (
+                    <DraftScreen ongoingGame={ongoingGame} />
+                ) : (
+                    <>
+                        {/* Player Info & Timer - Stacked */}
+                        <div className="relative w-full min-h-[150px]">
+                            <TopBar ongoingGame={ongoingGame} />
+                        </div>
 
-                {/* REALISTIC LAVA BACKGROUND */}
-                {/* Base Texture Layer - Tiled & Moving Slowly */}
-                <div
-                    className="absolute inset-0 z-0 pointer-events-none"
-                    style={{
-                        backgroundImage: "url('./pics/lava_bg_seamless.png')",
-                        backgroundSize: '1200px 1200px', // Larger scale for better detail
-                        animation: 'lava-scroll 120s linear infinite',
-                        filter: 'brightness(1.2) contrast(1.1) saturate(1.5)' // Vivid magma look
-                    }}
-                />
+                        {/* Spacer/Flex Grow */}
+                        <div className="flex-grow"></div>
 
-                {/* Heat/Glow Overlay - Pulsing Orange */}
-                <div
-                    className="absolute inset-0 z-0 pointer-events-none bg-orange-600 mix-blend-overlay"
-                    style={{
-                        animation: 'heat-glow 5s ease-in-out infinite'
-                    }}
-                />
+                        {/* Unit Info */}
+                        <div className="flex justify-center w-full">
+                            <UnitFrame ongoingGame={ongoingGame} />
+                        </div>
+                    </>
+                ))}
+            </div>
 
-                {/* Vignette for depth */}
-                <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(transparent_40%,#000000_100%)] opacity-90" />
+            {/* RIGHT GAME AREA */}
+            <div className="relative flex-grow h-[50vh] md:h-full flex flex-col justify-end items-center overflow-hidden bg-gray-950">
 
-                {/* Content Container */}
-                <div className="relative z-10 w-full h-full flex flex-col items-center">
-
+                <div className="absolute inset-0 z-10 flex flex-col items-center justify-center p-0">
                     {/* React Game Board */}
                     {ongoingGame && <GameBoard og={ongoingGame} gameStateVersion={gameStateVersion} />}
 
@@ -231,17 +232,16 @@ export default function GameCanvas() {
                             Server: {isConnected ? "Connected" : "Disconnected"}
                         </div>
                     )}
-                    {/* Legacy Canvas Removed in favor of GameBoard */}
-                    {ongoingGame && <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />}
-
                 </div>
-            </div>
 
-            {/* Spell Dock - Moved below game area */}
-            <div className="w-full flex justify-center pb-4 min-h-[100px]">
-                {ongoingGame && !ongoingGame.isPickPhase && (
-                    <SpellDock ongoingGame={ongoingGame} />
-                )}
+                {/* Spell Dock - Bottom of Game Area, Overlay */}
+                <div className="absolute bottom-1 left-0 w-full flex justify-center pb-2 z-20 pointer-events-none">
+                    <div className="pointer-events-auto">
+                        {ongoingGame && !ongoingGame.isPickPhase && (
+                            <SpellDock ongoingGame={ongoingGame} />
+                        )}
+                    </div>
+                </div>
             </div>
         </div>
     );

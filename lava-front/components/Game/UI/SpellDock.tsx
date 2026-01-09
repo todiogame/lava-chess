@@ -57,7 +57,7 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
     };
 
     return (
-        <div className="relative flex items-end space-x-2 bg-black/80 p-3 rounded-xl border border-gray-700">
+        <div className="relative flex flex-wrap justify-center items-end gap-1 md:gap-2 bg-black/80 p-2 rounded-xl border border-gray-700 mx-2 mb-0">
             {/* Tooltip Popup */}
             {hoveredSpell && (
                 <div className="absolute bottom-full mb-2 left-1/2 transform -translate-x-1/2 w-64 bg-slate-900 border border-yellow-600 text-white p-3 rounded shadow-xl z-50">
@@ -74,12 +74,12 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                 <button
                     onClick={handleMoveClick}
                     disabled={!isMyTurn || displayedPlayer.movePoint <= 0}
-                    className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer ${isMyTurn && displayedPlayer.movePoint > 0 ? 'border-yellow-500 hover:scale-105' : 'border-gray-600 grayscale brightness-50'
+                    className={`w-12 h-12 md:w-16 md:h-16 rounded border-2 overflow-hidden transition-all cursor-pointer ${isMyTurn && displayedPlayer.movePoint > 0 ? 'border-yellow-500 hover:scale-105' : 'border-gray-600 grayscale brightness-50'
                         }`}
                 >
                     <img src="./pics/spells/move.webp" alt="Move" className="w-full h-full object-cover" />
                 </button>
-                <div className="absolute bottom-1 right-1 text-white font-black text-xl drop-shadow-md">
+                <div className="absolute bottom-0 right-0 md:bottom-1 md:right-1 text-white font-black text-sm md:text-xl drop-shadow-md">
                     {displayedPlayer.movePoint}
                 </div>
             </div>
@@ -103,7 +103,7 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                         <button
                             onClick={() => handleSpellClick(index)}
                             disabled={isDisabled}
-                            className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer relative 
+                            className={`w-12 h-12 md:w-16 md:h-16 rounded border-2 overflow-hidden transition-all cursor-pointer relative 
                                 ${!isDisabled ? 'border-yellow-500 hover:scale-105' : 'border-gray-600'}
                                 ${isSilenced ? 'border-purple-500' : ''}
                             `}
@@ -127,7 +127,7 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                             {onCooldown && !isSilenced && (
                                 <div className="absolute inset-0 flex items-center justify-center bg-black/50">
                                     <img src="./pics/spells/cd_icon.webp" alt="CD" className="absolute w-2/3 h-2/3 opacity-60" />
-                                    <span className="relative text-white font-bold text-3xl drop-shadow-md">{spell.currentCD}</span>
+                                    <span className="relative text-white font-bold text-xl md:text-3xl drop-shadow-md">{spell.currentCD}</span>
                                 </div>
                             )}
 
@@ -152,13 +152,12 @@ export default function SpellDock({ ongoingGame }: { ongoingGame: any }) {
                 <button
                     onClick={handlePassClick}
                     disabled={!isMyTurn}
-                    className={`w-20 h-20 rounded border-2 overflow-hidden transition-all cursor-pointer ${isMyTurn ? 'border-yellow-500 hover:scale-105' : 'border-gray-600 grayscale brightness-50'
-                        }`}
+                    className={`w-12 h-12 md:w-16 md:h-16 rounded border-2 flex items-center justify-center transition-all cursor-pointer ${isMyTurn ? 'bg-red-900 border-red-500 hover:bg-red-800' : 'bg-gray-900 border-gray-600 grayscale'}
+                `}
                 >
                     <img
                         src={isSummoned ? "./pics/spells/pass.webp" : "./pics/spells/lavapass.webp"}
                         alt="End Turn"
-                        className="w-full h-full object-cover"
                     />
                 </button>
             </div>

@@ -19,8 +19,8 @@ const GAME_MODE = Object.freeze({
 });
 
 const CANVAS = Object.freeze({
-  WIDTH: 1600,
-  HEIGHT: 900,
+  WIDTH: 1100,
+  HEIGHT: 1100,
 });
 
 const ANIMATIONS = {

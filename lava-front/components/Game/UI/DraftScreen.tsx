@@ -20,21 +20,14 @@ export default function DraftScreen({ ongoingGame }: { ongoingGame: any }) {
     return (
         <div className="absolute inset-0 pointer-events-none p-4">
             {/* Turn Banner - REMOVED (Moved to GameInfoBar) */}
-            {/* <div className="absolute top-4 left-20 pointer-events-auto">
-                <div className="bg-black/80 text-white font-[Russo One] text-2xl px-6 py-2 rounded-t-lg border-b-2 border-gray-600 w-fit">
-                    You are TEAM <span className={TEAM === 'BLUE' ? 'text-blue-400' : 'text-red-500'}>{TEAM}</span>
-                </div>
-                <div className={`bg-black/90 font-[Russo One] text-2xl px-6 py-4 rounded-b-lg w-fit border-l-8 ${isMyTurn ? 'border-green-500 text-green-400' : 'border-red-500 text-red-500'}`}>
-                    {isMyTurn ? "Your Turn" : "Enemy's Turn"} to {currentAction}
-                </div>
-            </div> */}
+            {/* Turn Banner - REMOVED (Moved to GameInfoBar) */}
 
             {/* Sidebar Details */}
             {target && (
-                <div className="absolute top-40 left-0 w-[450px] h-[730px] bg-black/90 border-r-4 border-orange-600 rounded-r-3xl p-6 pointer-events-auto overflow-y-auto">
+                <div className="absolute inset-0 md:top-40 md:left-0 md:bottom-auto md:right-auto md:w-[450px] md:h-[730px] bg-black/95 md:bg-black/90 border-r-0 md:border-r-4 border-orange-600 rounded-none md:rounded-r-3xl p-4 md:p-6 pointer-events-auto overflow-y-auto flex flex-col justify-center md:block z-50">
                     <div className="flex items-start">
                         {/* Avatar */}
-                        <div className="w-32 h-32 flex-shrink-0 border-4 border-orange-500 rounded-lg overflow-hidden mr-4 bg-gray-900">
+                        <div className="w-20 h-20 md:w-32 md:h-32 flex-shrink-0 border-4 border-orange-500 rounded-lg overflow-hidden mr-4 bg-gray-900">
                             <img
                                 src={target.image?.src || `./pics/${target.id.toLowerCase()}.webp`}
                                 alt={target.name}
@@ -43,15 +36,15 @@ export default function DraftScreen({ ongoingGame }: { ongoingGame: any }) {
                         </div>
                         {/* Header */}
                         <div>
-                            <h2 className="text-4xl font-[Russo One] text-orange-500 mb-1">{target.name}</h2>
-                            <h3 className="text-2xl font-[Russo One] text-orange-400 mb-2">{target.title}</h3>
-                            <div className="text-yellow-500">
+                            <h2 className="text-2xl md:text-4xl font-[Russo One] text-orange-500 mb-1">{target.name}</h2>
+                            <h3 className="text-lg md:text-2xl font-[Russo One] text-orange-400 mb-2">{target.title}</h3>
+                            <div className="text-yellow-500 text-sm md:text-base">
                                 Difficulty: {displayStars(target.difficulty)}
                             </div>
                         </div>
                     </div>
 
-                    <p className="mt-4 text-orange-200 text-lg leading-relaxed font-[Russo One]">
+                    <p className="mt-4 text-orange-200 text-sm md:text-lg leading-relaxed font-[Russo One]">
                         {target.description}
                     </p>
 
@@ -67,10 +60,10 @@ export default function DraftScreen({ ongoingGame }: { ongoingGame: any }) {
                                     />
                                 </div>
                                 <div>
-                                    <div className="text-orange-500 font-bold text-xl font-[Russo One]">
-                                        {spell.name} {spell.cooldown && <span className="text-sm text-gray-400">(CD: {spell.cooldown})</span>}
+                                    <div className="text-orange-500 font-bold text-lg md:text-xl font-[Russo One]">
+                                        {spell.name} {spell.cooldown && <span className="text-xs md:text-sm text-gray-400">(CD: {spell.cooldown})</span>}
                                     </div>
-                                    <div className="text-orange-200 text-sm leading-tight mt-1">
+                                    <div className="text-orange-200 text-xs md:text-sm leading-tight mt-1">
                                         {spell.description}
                                     </div>
                                 </div>

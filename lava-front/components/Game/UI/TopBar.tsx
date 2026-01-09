@@ -47,27 +47,27 @@ export default function TopBar({ ongoingGame }: { ongoingGame: any }) {
     const isMyTurn = ongoingGame.currentPlayer?.entity?.team === myTeam;
 
     return (
-        <div className="absolute top-0 left-0 w-full flex justify-between items-start pointer-events-none p-4">
+        <div className="relative w-full flex justify-between md:flex-col md:justify-start md:gap-4 items-start md:items-stretch pointer-events-none p-2 md:p-4 z-50">
             {/* My Info */}
-            <div className={`flex flex-col items-start bg-black/60 p-2 rounded-br-xl border-l-4 ${myTeam === 'BLUE' ? 'border-blue-500' : 'border-red-500'} pointer-events-auto`}>
-                <div className="text-xl font-bold text-white font-[Russo One]">{myData.username}</div>
-                <div className="text-sm text-gray-300">Lvl {myData.level} • {Math.floor(myData.elo)} ELO</div>
+            <div className={`flex flex-col items-start md:items-center bg-black/60 p-1 md:p-3 rounded-br-xl md:rounded-xl border-l-4 md:border-l-0 md:border-b-4 ${myTeam === 'BLUE' ? 'border-blue-500' : 'border-red-500'} pointer-events-auto`}>
+                <div className="text-sm md:text-xl font-bold text-white font-[Russo One]">{myData.username}</div>
+                <div className="text-[10px] md:text-sm text-gray-300">Lvl {myData.level} • {Math.floor(myData.elo)} ELO</div>
             </div>
 
             {/* Timer & Turn Status */}
-            <div className="flex flex-col items-center">
-                <div className={`text-4xl font-[Russo One] drop-shadow-lg ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
+            <div className="flex flex-col items-center mt-1 md:mt-0 md:order-first">
+                <div className={`text-2xl md:text-5xl font-[Russo One] drop-shadow-lg ${timeLeft <= 10 ? 'text-red-500 animate-pulse' : 'text-white'}`}>
                     {timeLeft}
                 </div>
-                <div className={`mt-1 px-4 py-1 rounded-full text-sm font-bold tracking-wider ${isMyTurn ? 'bg-green-600/80 text-white' : 'bg-red-600/80 text-white'}`}>
+                <div className={`mt-1 px-2 md:px-6 py-0.5 md:py-2 rounded-full text-[10px] md:text-lg font-bold tracking-wider ${isMyTurn ? 'bg-green-600/80 text-white' : 'bg-red-600/80 text-white'}`}>
                     {isMyTurn ? "YOUR TURN" : "ENEMY TURN"}
                 </div>
             </div>
 
             {/* Enemy Info */}
-            <div className={`flex flex-col items-end bg-black/60 p-2 rounded-bl-xl border-r-4 ${enemyTeam === 'BLUE' ? 'border-blue-500' : 'border-red-500'} pointer-events-auto`}>
-                <div className="text-xl font-bold text-white font-[Russo One]">{enemyData?.username || "Opponent"}</div>
-                <div className="text-sm text-gray-300">Lvl {enemyData?.level || "?"} • {Math.floor(enemyData?.elo || 1000)} ELO</div>
+            <div className={`flex flex-col items-end md:items-center bg-black/60 p-1 md:p-3 rounded-bl-xl md:rounded-xl border-r-4 md:border-r-0 md:border-t-4 ${enemyTeam === 'BLUE' ? 'border-blue-500' : 'border-red-500'} pointer-events-auto`}>
+                <div className="text-sm md:text-xl font-bold text-white font-[Russo One]">{enemyData?.username || "Opponent"}</div>
+                <div className="text-[10px] md:text-sm text-gray-300">Lvl {enemyData?.level || "?"} • {Math.floor(enemyData?.elo || 1000)} ELO</div>
             </div>
         </div>
     );

@@ -40,9 +40,22 @@ const GameBoard = ({ og, gameStateVersion }) => {
     // Resize Logic (simplified from drawing.js)
     useEffect(() => {
         const handleResize = () => {
-            const height = window.innerHeight - 130;
-            const width = height * (c.CANVAS.WIDTH / c.CANVAS.HEIGHT);
-            setCanvasSize({ width, height });
+            // Check for desktop breakpoint (md: 768px)
+            const isDesktop = window.innerWidth >= 768;
+            const sidebarWidth = isDesktop ? 350 : 0;
+
+            // Updated for new Overlay layout:
+            // Height: Full window height (minus small margin) as SpellDock overlays.
+            // Width: Full window width minus Sidebar (minus small margin).
+            const availableHeight = window.innerHeight - 10;
+            const availableWidth = window.innerWidth - sidebarWidth - 10;
+
+            const scale = Math.min(availableWidth / c.CANVAS.WIDTH, availableHeight / c.CANVAS.HEIGHT);
+
+            setCanvasSize({
+                width: c.CANVAS.WIDTH * scale,
+                height: c.CANVAS.HEIGHT * scale
+            });
         };
         window.addEventListener('resize', handleResize);
         handleResize();
@@ -53,7 +66,7 @@ const GameBoard = ({ og, gameStateVersion }) => {
     useEffect(() => {
         // Replicate makeLayout logic
         const isPick = og.isPickPhase;
-        const origin = new Point(c.CANVAS.WIDTH / 2 + (isPick ? 200 : 0), c.CANVAS.HEIGHT / 2);
+        const origin = new Point(c.CANVAS.WIDTH / 2, c.CANVAS.HEIGHT / 2);
         const newLayout = new Layout(Layout.pointy, new Point(SCALE, SCALE), origin);
         setLayout(newLayout);
 
@@ -89,9 +102,44 @@ const GameBoard = ({ og, gameStateVersion }) => {
                 // Container size: calculated by resize.
                 // We'll wrap items in a scaler div.
             }}
+            className="relative overflow-hidden bg-black rounded-xl border border-white/10 shadow-2xl"
         >
+            <style jsx>{`
+                @keyframes lava-scroll {
+                    0% { background-position: 0% 0%; }
+                    100% { background-position: 50% 50%; }
+                }
+                @keyframes heat-glow {
+                    0%, 100% { opacity: 0.1; }
+                    50% { opacity: 0.3; }
+                }
+            `}</style>
+
+            {/* REALISTIC LAVA BACKGROUND */}
+            {/* Base Texture Layer - Tiled & Moving Slowly */}
             <div
-                className="scaler-content"
+                className="absolute inset-0 z-0 pointer-events-none"
+                style={{
+                    backgroundImage: "url('./pics/lava_bg_seamless.png')",
+                    backgroundSize: '1200px 1200px', // Larger scale for better detail
+                    animation: 'lava-scroll 120s linear infinite',
+                    filter: 'brightness(1.2) contrast(1.1) saturate(1.5)' // Vivid magma look
+                }}
+            />
+
+            {/* Heat/Glow Overlay - Pulsing Orange */}
+            <div
+                className="absolute inset-0 z-0 pointer-events-none bg-orange-600 mix-blend-overlay"
+                style={{
+                    animation: 'heat-glow 5s ease-in-out infinite'
+                }}
+            />
+
+            {/* Vignette for depth */}
+            <div className="absolute inset-0 z-0 pointer-events-none bg-[radial-gradient(transparent_40%,#000000_100%)] opacity-90" />
+
+            <div
+                className="scaler-content z-10"
                 style={{
                     position: 'absolute',
                     top: 0,

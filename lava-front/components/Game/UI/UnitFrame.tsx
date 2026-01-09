@@ -18,10 +18,10 @@ export default function UnitFrame({ ongoingGame }: { ongoingGame: any }) {
     const teamColor = target.team === 'BLUE' ? 'border-blue-500' : target.team === 'RED' ? 'border-red-500' : 'border-yellow-500';
 
     return (
-        <div className="flex flex-col items-start bg-black/70 p-4 rounded-xl border-2 border-gray-600 w-64 pointer-events-auto shadow-2xl backdrop-blur-sm">
+        <div className="flex flex-col items-start bg-black/70 p-2 md:p-4 rounded-xl border-2 border-gray-600 w-48 md:w-64 pointer-events-auto shadow-2xl backdrop-blur-sm">
 
-            <div className="flex w-full mb-3">
-                <div className={`relative w-20 h-20 border-4 ${teamColor} rounded shadow-lg overflow-hidden shrink-0 bg-gray-900`}>
+            <div className="flex w-full mb-2 md:mb-3">
+                <div className={`relative w-12 h-12 md:w-20 md:h-20 border-2 md:border-4 ${teamColor} rounded shadow-lg overflow-hidden shrink-0 bg-gray-900`}>
                     <img src="./pics/lavasmall.webp" alt="bg" className="absolute inset-0 w-full h-full object-cover opacity-50" />
                     <img
                         src={target.image?.src || `./pics/${target.id.toLowerCase()}.webp`}
@@ -30,8 +30,8 @@ export default function UnitFrame({ ongoingGame }: { ongoingGame: any }) {
                         onError={(e) => (e.currentTarget.style.display = 'none')}
                     />
                 </div>
-                <div className="ml-3 flex flex-col justify-center overflow-hidden w-full">
-                    <div className="text-white font-bold text-lg font-[Russo One] stroke-black truncate drop-shadow-md">{target.name}</div>
+                <div className="ml-2 md:ml-3 flex flex-col justify-center overflow-hidden w-full">
+                    <div className="text-white font-bold text-sm md:text-lg font-[Russo One] stroke-black truncate drop-shadow-md">{target.name}</div>
                     {movePoints !== undefined && (
                         <div className="text-sm text-blue-300 font-semibold drop-shadow-sm">Moves: {movePoints}</div>
                     )}
@@ -60,7 +60,7 @@ export default function UnitFrame({ ongoingGame }: { ongoingGame: any }) {
 
                         return (
                             <div key={idx} className="relative group">
-                                <div className={`w-10 h-10 border rounded overflow-hidden cursor-help bg-black transition-colors relative
+                                <div className={`w-8 h-8 md:w-10 md:h-10 border rounded overflow-hidden cursor-help bg-black transition-colors relative
                                     ${isSilenced ? 'border-purple-500' : 'border-gray-500 hover:border-yellow-400'}
                                 `}>
                                     <img

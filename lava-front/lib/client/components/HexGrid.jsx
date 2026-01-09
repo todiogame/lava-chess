@@ -15,6 +15,16 @@ const COLORS = {
     SPAWN_RED: "rgba(255, 0, 0, 0.2)",
     SPAWN_BLUE_ACTIVE: "rgba(0,200,200, 0.7)",
     SPAWN_RED_ACTIVE: "rgba(255, 0, 0, 0.7)",
+    GLYPH_BAN: "rgba(200, 0, 0, 0.1)",
+    GLYPH_BLUE: "rgba(50, 150, 255, 0.2)",
+    GLYPH_BROWN: "rgba(150, 50, 30, 0.5)",
+    GLYPH_DARK: "rgba(12, 30, 12, 0.5)",
+    GLYPH_ORANGE: "rgba(255, 65, 0, 0.5)",
+    GLYPH_PURPLE: "rgba(255,0,255, 0.3)",
+    GLYPH_FLOWER: "rgba(30, 205, 50, 0.3)",
+    GLYPH_GAZ: "rgba(100, 255, 150, 0.3)",
+    GLYPH_WATER: "rgba(0, 0, 150, 0.3)",
+    GLYPH_PREVIEW: "rgba(255, 65, 0, 0.2)",
     GLYPH_HIGHLIGHT: "rgba(255, 255, 200, 0.2)"
 };
 
@@ -45,7 +55,7 @@ const HexGrid = ({ map, layout, onHexClick, onHexHover, isPickPhase, currentTeam
                 key: `${hex.q},${hex.r},${hex.s}`
             };
         });
-    }, [map, layout]);
+    }, [map, layout, gameStateVersion]);
 
     return (
         <svg className="hex-grid-layer" width="100%" height="100%" style={{ overflow: 'visible' }}>
@@ -61,8 +71,16 @@ const HexGrid = ({ map, layout, onHexClick, onHexHover, isPickPhase, currentTeam
                                 width="144"
                                 height="144"
                                 style={{ pointerEvents: 'none' }}
+                                clipPath={`url(#clip-${key})`}
                             />
                         )}
+
+                        {/* ClipPath Definition for this Hex */}
+                        <defs>
+                            <clipPath id={`clip-${key}`}>
+                                <polygon points={points} />
+                            </clipPath>
+                        </defs>
 
                         {/* Interactive Polygon (Hitbox & Overlays) */}
                         <polygon
@@ -84,13 +102,31 @@ const HexGrid = ({ map, layout, onHexClick, onHexHover, isPickPhase, currentTeam
                         {hex.hoverSpell && <polygon points={points} fill={COLORS.SPELL_HOVER} pointerEvents="none" />}
 
                         {/* AOE/Glyphs */}
-                        {hex.aoe && hex.aoe.length > 0 && hex.aoe.map((spell, idx) => (
-                            <React.Fragment key={idx}>
-                                {spell.color && (
-                                    <polygon points={points} fill={spell.color} fillOpacity="0.3" pointerEvents="none" />
-                                )}
-                            </React.Fragment>
-                        ))}
+                        {/* AOE/Glyphs */}
+                        {hex.aoe && hex.aoe.length > 0 && hex.aoe.map((spell, idx) => {
+                            // Color resolution: check if color is a key in COLORS, else use raw value
+                            const fillColor = COLORS[spell.color] || spell.color || "rgba(255,255,255,0.2)";
+                            const glyphSrc = spell.image?.src || (spell.glyphIcon ? `pics/${spell.glyphIcon}.webp` : null); // legacy drawing assumed logic
+
+                            return (
+                                <React.Fragment key={idx}>
+                                    {/* Glyphs: If icon exists, render ONLY icon with opacity. Else render color fill. */}
+                                    {glyphSrc ? (
+                                        <image
+                                            href={glyphSrc}
+                                            x={center.x - 57.5}
+                                            y={center.y - 57.5}
+                                            width="115"
+                                            height="115"
+                                            style={{ pointerEvents: 'none', opacity: 0.3 }}
+                                            clipPath={`url(#clip-${key})`}
+                                        />
+                                    ) : (
+                                        <polygon points={points} fill={fillColor} pointerEvents="none" />
+                                    )}
+                                </React.Fragment>
+                            );
+                        })}
 
                         {/* Pick Phase Spawns */}
                         {isPickPhase && hex.floor && (

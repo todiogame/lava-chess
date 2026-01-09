@@ -1,0 +1,23 @@
+/* lava-front/lib/client/components/Game.css */
+
+.hex-grid-layer {
+    user-select: none;
+}
+
+.unit-layer {
+    user-select: none;
+    pointer-events: none !important;
+}
+
+.unit-container {
+    backface-visibility: hidden;
+    /* Optimization for transforms */
+    will-change: transform;
+}
+
+.scaler-content {
+    /* Ensures the scaler div handles absolute children correctly */
+    position: absolute;
+    top: 0;
+    left: 0;
+}

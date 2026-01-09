@@ -20,45 +20,57 @@ function onMouseHoverDraft(hexagon, og) {
 }
 
 function onMouseClicDraft(hexagon, og) {
-  if (TEAM == og.currentTeamPicking) {
-    let hPtClick = hexagon;
-    let hPtClickRound = hPtClick.round();
+  try {
+    const myTeam = (typeof window !== 'undefined' && window.TEAM) ? window.TEAM : global.TEAM;
+    console.log("pickPhase.onMouseClicDraft", { myTeam, currentTeam: og.currentTeamPicking, hex: hexagon });
 
-    let found = og.map.find((b) => hPtClickRound.distance(b) == 0);
-    if (found) {
-      let ent = utils.findEntityOnCell(found, og);
-      //pick
-      if (
-        c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex] == "PICK" &&
-        og.entities.find((e) => e.selected) &&
-        utils.isSpawn(found, TEAM) &&
-        utils.isFree(found, og) &&
-        found.floor
-      ) {
-        let selectedEnt = og.entities.find((e) => e.selected);
-        Network.clientSendPickBan("PICK", found, selectedEnt.id);
-        passTurnPick(selectedEnt, found.copy());
-        selectedEnt.selected = false;
-      }
-      // ban
-      if (
-        c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex] == "BAN" &&
-        og.entities.find((e) => e.selected) &&
-        utils.isBanArea(found)
-      ) {
-        let selectedEnt = og.entities.find((e) => e.selected);
-        Network.clientSendPickBan("BAN", found, selectedEnt.id);
-        passTurnBan(selectedEnt, found);
-        selectedEnt.selected = false;
-      } else if (ent && !utils.isSpawn(found, "ANY")) {
-        og.entities.forEach((e) => (e.selected = false));
-        ent.selected = true;
+    if (myTeam == og.currentTeamPicking) {
+      let hPtClick = hexagon;
+      // Ensure hex has round method (it should if from Hex class)
+      let hPtClickRound = (typeof hPtClick.round === 'function') ? hPtClick.round() : hPtClick;
+
+      let found = og.map.find((b) => hPtClickRound.distance(b) == 0);
+      if (found) {
+        let ent = utils.findEntityOnCell(found, og);
+        //pick
+        if (
+          c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex] == "PICK" &&
+          og.entities.find((e) => e.selected) &&
+          utils.isSpawn(found, myTeam) &&
+          utils.isFree(found, og) &&
+          found.floor
+        ) {
+          let selectedEnt = og.entities.find((e) => e.selected);
+          Network.clientSendPickBan("PICK", found, selectedEnt.id);
+          passTurnPick(selectedEnt, found.copy());
+          selectedEnt.selected = false;
+        }
+        // ban
+        else if (
+          c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex] == "BAN" &&
+          og.entities.find((e) => e.selected) &&
+          utils.isBanArea(found)
+        ) {
+          let selectedEnt = og.entities.find((e) => e.selected);
+          Network.clientSendPickBan("BAN", found, selectedEnt.id);
+          passTurnBan(selectedEnt, found);
+          selectedEnt.selected = false;
+        } else if (ent && !utils.isSpawn(found, "ANY")) {
+          og.entities.forEach((e) => (e.selected = false));
+          ent.selected = true;
+          console.log("Entity selected", ent.name);
+        } else {
+          og.entities.forEach((e) => (e.selected = false));
+          console.log("Cleared selection");
+        }
       } else {
-        og.entities.forEach((e) => (e.selected = false));
+        console.log("Hex not found in map");
       }
+    } else {
+      console.log("not your turn !", { myTeam, currentTeam: og.currentTeamPicking });
     }
-  } else {
-    console.log("not your turn !");
+  } catch (e) {
+    console.error("Error in onMouseClicDraft", e);
   }
 }
 
@@ -75,9 +87,9 @@ function passTurnBan(entity, cell) {
   og.pickOrBanIndex++;
   console.log(
     "now " +
-      og.currentTeamPicking +
-      "'s turn to " +
-      c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex],
+    og.currentTeamPicking +
+    "'s turn to " +
+    c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex],
   );
 }
 
@@ -100,9 +112,9 @@ function passTurnPick(entity, cell) {
   if (og.pickOrBanIndex < c.CONSTANTS.PICK_BAN_ORDER.length)
     console.log(
       "now " +
-        og.currentTeamPicking +
-        "'s turn to " +
-        c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex],
+      og.currentTeamPicking +
+      "'s turn to " +
+      c.CONSTANTS.PICK_BAN_ORDER[og.pickOrBanIndex],
     );
   //when draft is finished, server should take over and initiate the game
 }

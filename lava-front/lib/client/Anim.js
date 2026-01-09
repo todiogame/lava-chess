@@ -1,4 +1,5 @@
 const drawing = require("./drawing");
+const c = require("../const");
 
 // Generates a random floating-point number within a specified range
 const r = (a, b, c) =>
@@ -78,7 +79,7 @@ module.exports = class Anim {
 
   static textDamage(cell, text) {
     const coords = drawing.layout.hexToPixel(cell);
-    const canvasHeight = document.getElementById("canvas").height;
+    const canvasHeight = c.CANVAS.HEIGHT; // Replaced document.getElementById("canvas").height
 
     const projectile = {
       type: "text",
@@ -154,7 +155,7 @@ module.exports = class Anim {
     const coords = drawing.layout.hexToPixel(cell); // {x,y}
     const colors = ["#FC791C", "#E34000", "#A62002", "#d3a625", "#821E00"];
     const bubbles = 30;
-    const canvasHeight = document.getElementById("canvas").height;
+    const canvasHeight = c.CANVAS.HEIGHT; // Replaced document.getElementById("canvas").height
     for (var i = 0; i < bubbles; i++) {
       let particle = {
         x: r(coords.x + 0.045 * canvasHeight, coords.x - 0.045 * canvasHeight),
@@ -187,7 +188,7 @@ module.exports = class Anim {
     const coords = drawing.layout.hexToPixel(cell); // {x,y}
     const colors = ["#394053", "#4E4A59", "#6E6362", "#839073", "#7CAE7A"];
     const bubbles = 30;
-    const canvasHeight = document.getElementById("canvas").height;
+    const canvasHeight = c.CANVAS.HEIGHT; // Replaced document.getElementById("canvas").height
     for (var i = 0; i < bubbles; i++) {
       let particle = {
         x: r(coords.x + 0.045 * canvasHeight, coords.x - 0.045 * canvasHeight),
@@ -223,7 +224,7 @@ module.exports = class Anim {
     const colorsPA = ["#65AFFF", "#335C81", "#274060", "#5899E2", "#1B2845"];
     const colors = debuff == "PM" ? colorsPM : colorsPA;
     const bubbles = 15;
-    const canvasHeight = document.getElementById("canvas").height;
+    const canvasHeight = c.CANVAS.HEIGHT; // Replaced document.getElementById("canvas").height
     for (var i = 0; i < bubbles; i++) {
       let particle = {
         x: r(coords.x + 0.045 * canvasHeight, coords.x - 0.045 * canvasHeight),

@@ -12,11 +12,15 @@ const logic = require("../gameLogic")
 let modeClic = ""
 let spellID = 0;
 
+// function onMouseClicGame(hexagon, og) {
 function onMouseClicGame(hexagon, og) {
+    const TEAM = (typeof window !== 'undefined' && window.TEAM) ? window.TEAM : global.TEAM;
+    console.log("onMouseClicGame", { TEAM, currentPlayerTeam: og.currentPlayer?.entity?.team });
+
     // console.log("onMouseClicGame")
     og.map.map(h => h.hoverMove = h.hoverSpell = false)
     let hPtClick = hexagon;
-    let hPtClickRound = (hPtClick.round())
+    let hPtClickRound = (typeof hPtClick.round === 'function') ? hPtClick.round() : hPtClick;
     let found = og.map.find(b => hPtClickRound.distance(b) == 0)
 
     if (TEAM == og.currentPlayer.entity.team) {
@@ -70,6 +74,7 @@ function onMouseClicGame(hexagon, og) {
 }
 
 function onMouseClicHUD(x, y, og) {
+    const TEAM = (typeof window !== 'undefined' && window.TEAM) ? window.TEAM : global.TEAM;
 
     let usersNextPLayer = utils.findNextPlayer(og, TEAM);
     if (!usersNextPLayer) usersNextPLayer = og.PLAYERS.find(p => p.entity.team == TEAM);
@@ -99,6 +104,7 @@ function onMouseClicHUD(x, y, og) {
 }
 
 function clickPassTurnOrRiseLava(player, og) {
+    const TEAM = (typeof window !== 'undefined' && window.TEAM) ? window.TEAM : global.TEAM;
     if (og.currentPlayer.isSummoned && og.currentPlayer.entity.team == TEAM)
         clickPassTurn(player, og)
     else
@@ -106,9 +112,10 @@ function clickPassTurnOrRiseLava(player, og) {
 }
 
 function onMouseHoverGame(hexagon, og) {
+    const TEAM = (typeof window !== 'undefined' && window.TEAM) ? window.TEAM : global.TEAM;
     og.entities.forEach(e => e.hovered = false);
     let hPtHover = hexagon;
-    let hPtHoverRound = (hPtHover.round())
+    let hPtHoverRound = (typeof hPtHover.round === 'function') ? hPtHover.round() : hPtHover;
     let found = og.map.find(b => hPtHoverRound.distance(b) == 0)
     if (found) {
         let entHover = utils.findEntityOnCell(found, og);

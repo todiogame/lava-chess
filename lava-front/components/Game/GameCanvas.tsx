@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import GameHUD from './UI/GameHUD';
 import GameInfoBar from './UI/GameInfoBar';
+import GameBoard from '@/lib/client/components/GameBoard';
 
 // Legacy global variables mocks
 let drawing: any;
@@ -83,11 +84,15 @@ export default function GameCanvas() {
             // @ts-ignore
             pickPhase = require("@/lib/client/pickPhase");
             // @ts-ignore
+            window.pickPhase = pickPhase;
+            // @ts-ignore
             turnOrder = require("@/lib/turnOrder");
             // @ts-ignore
             utils = require("@/lib/gameUtils");
             // @ts-ignore
             interfaceLogic = require("@/lib/client/interface");
+            // @ts-ignore
+            window.interface = interfaceLogic;
             // @ts-ignore
             OngoingGame = require("@/lib/OngoingGame");
             // @ts-ignore
@@ -98,8 +103,7 @@ export default function GameCanvas() {
             window.buttonSpell2 = { width: 50, height: 50, w_offset: consts.CANVAS.WIDTH / 10 - 105, h_offset: 350, borderColor: "yellow", borderColorEnemyTurn: "grey", borderWidth: 5 };
         }
 
-        if (!canvasRef.current) return;
-        drawing.setCanvas(canvasRef.current);
+        if (typeof window === "undefined") return;
 
         setStatus("Loading Assets...");
         AssetManager.downloadAll(() => {
@@ -112,20 +116,22 @@ export default function GameCanvas() {
         function connect() {
             if (socket) socket.close();
             let host = config.EXTERNAL_IP_ADDRESS;
-            if (window.location.hostname === 'localhost') host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
+            // if (window.location.hostname === 'localhost') host = 'p01--lava-chess--wd56yy4hk9cj.code.run';
             let wsProtocol = host.includes("code.run") ? "wss://" : "ws://";
-            let port = (window.location.hostname === 'localhost' && !host.includes("code.run")) ? ':3001' : '';
+            let port = (window.location.hostname === 'localhost' && !host.includes("code.run")) ? ':4000' : '';
             host = host.replace(/^https?:\/\//, '').replace(/^wss?:\/\//, '');
             let wsUrl = `${wsProtocol}${host}${port}`;
 
             socket = new WebSocket(wsUrl);
             socket.onopen = () => {
+                console.log("DEBUG: Socket Connected!");
                 setIsConnected(true);
                 setStatus("Searching for opponent...");
                 Network.clientSocket = socket;
             };
             socket.onmessage = (event) => {
                 const received = Network.decode(event.data);
+                console.log("DEBUG: Socket Message:", received.type);
                 if (received.type === "TEAM") { TEAM = received.data;  /* @ts-ignore */ window.TEAM = TEAM; }
                 if (received.type === "GAME_MODE" && received.data === consts.GAME_MODE.DRAFT) goGamePickBan();
                 if (received.type === "PLAYERS") startGameAfterDraft(ongoingGame, recreatePlayers(received.data));
@@ -133,7 +139,14 @@ export default function GameCanvas() {
                 if (received.type === "ACTION") logic.playAction(received.data, ongoingGame);
                 if (received.type === "END_GAME") setStatus("Game Over");
             };
-            socket.onclose = () => { setIsConnected(false); setStatus("Disconnected"); };
+            socket.onclose = (event) => {
+                console.log("DEBUG: Socket Closed", event.code, event.reason);
+                setIsConnected(false);
+                setStatus("Disconnected");
+            };
+            socket.onerror = (error) => {
+                console.error("DEBUG: Socket Error", error);
+            };
         }
 
         function goGamePickBan() {
@@ -144,7 +157,6 @@ export default function GameCanvas() {
             pickPhase.initPickPhase(ongoingGame);
             hud.switchToGameMode();
             if (!ongoingGame.isAnimed) { ongoingGame.isAnimed = true; Anim.mainLoop(ongoingGame); }
-            startInputListeners();
         }
 
         function startGameAfterDraft(og: any, players: any) {
@@ -156,25 +168,6 @@ export default function GameCanvas() {
             og.popupTime = og.popupDuration = 2000;
         }
 
-        function startInputListeners() {
-            if (!canvasRef.current || !ongoingGame) return;
-            const canvas = canvasRef.current;
-            canvas.onmousemove = (event) => {
-                if (!ongoingGame) return;
-                if (ongoingGame.isPickPhase) pickPhase.onMouseHoverDraft(drawing.findHexFromEvent(event.clientX, event.clientY), ongoingGame);
-                else {
-                    interfaceLogic.onMouseHoverGame(drawing.findHexFromEvent(event.clientX, event.clientY), ongoingGame);
-                    // @ts-ignore
-                    if (window.hoverInfo) window.hoverInfo.entity = ongoingGame.entities.find((e: any) => e.hovered);
-                }
-            };
-            canvas.onclick = (event) => {
-                if (!ongoingGame) return;
-                const hex = drawing.findHexFromEvent(event.clientX, event.clientY);
-                if (ongoingGame.isPickPhase) pickPhase.onMouseClicDraft(hex, ongoingGame);
-                else interfaceLogic.onMouseClicGame(hex, ongoingGame);
-            };
-        }
         return () => { if (socket) socket.close(); };
     }, []);
 
@@ -227,14 +220,19 @@ export default function GameCanvas() {
 
                 {/* Content Container */}
                 <div className="relative z-10 w-full h-full flex flex-col items-center">
+
+                    {/* React Game Board */}
+                    {ongoingGame && <GameBoard og={ongoingGame} gameStateVersion={gameStateVersion} />}
+
                     {!status.includes("Started") && !status.includes("Draft") && (
                         <div className="absolute top-10 text-white font-mono z-10 bg-black/50 p-2 rounded">
                             Status: {status} <br />
                             Server: {isConnected ? "Connected" : "Disconnected"}
                         </div>
                     )}
-                    <canvas ref={canvasRef} id="canvas" className="block shadow-[0_0_20px_rgba(255,69,0,0.5)] rounded-lg cursor-crosshair" />
+                    {/* Legacy Canvas Removed in favor of GameBoard */}
                     {ongoingGame && <GameHUD ongoingGame={ongoingGame} gameStateVersion={gameStateVersion} />}
+
                 </div>
             </div>
         </div>
